@@ -7,7 +7,7 @@ MyPerspectiveCamera::MyPerspectiveCamera()
     right = Vector3(0, 1, 0);
     up = Vector3(0, 0, 1);
 
-    zNear = 0.5f;
+    zNear = 1.f;
 }
 
 MyPerspectiveCamera::MyPerspectiveCamera(const Vector3& _position, const Vector3& lookat, const Vector3& right, const Vector3& up)

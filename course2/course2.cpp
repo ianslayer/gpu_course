@@ -43,7 +43,7 @@ void InitResources()
 
 }
 
-double frameTime = 0;
+double frameTime = 16;
 double animationTime = 0;
 void Render()
 {

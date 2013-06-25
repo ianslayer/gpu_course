@@ -12,6 +12,9 @@ struct Vertex
 
 GLuint vertexBuffer;
 GLuint indexBuffer;
+
+GLuint vertexArray;
+
 GLuint shaderProgram;
 
 void InitResources()
@@ -30,9 +33,21 @@ void InitResources()
     triangleVertices[2].x = 1, triangleVertices[2].y = -1, triangleVertices[2].z = 0; 
     triangleVertices[2].r = 0, triangleVertices[2].g = 0, triangleVertices[2].b = 1; 
 
+    glGenVertexArrays(1, &vertexArray);
+    glBindVertexArray(vertexArray);
+
     glGenBuffers(1, &vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 3, triangleVertices, GL_STATIC_DRAW);
+
+    GLint positionAttributeLocation = glGetAttribLocation(shaderProgram, "position");
+    GLint colorAttributeLocation = glGetAttribLocation(shaderProgram, "color");
+
+    glEnableVertexAttribArray(positionAttributeLocation);
+    glVertexAttribPointer(positionAttributeLocation, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
+    glEnableVertexAttribArray(colorAttributeLocation);
+    glVertexAttribPointer(colorAttributeLocation, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (GLvoid*)(sizeof(float) * 3));
+
 
     glGenBuffers(1, &indexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
@@ -45,15 +60,20 @@ void Render()
     glClearColor(0.5, 0.5, 0.5, 1);
     glClear(GL_COLOR_BUFFER_BIT);
     
+	glViewport(0, 0, window.width, window.height);
+
     glUseProgram(shaderProgram);
     GLint positionAttributeLocation = glGetAttribLocation(shaderProgram, "position");
     GLint colorAttributeLocation = glGetAttribLocation(shaderProgram, "color");
 
+    glBindVertexArray(vertexArray);
+    /*
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     glEnableVertexAttribArray(positionAttributeLocation);
     glVertexAttribPointer(positionAttributeLocation, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
     glEnableVertexAttribArray(colorAttributeLocation);
     glVertexAttribPointer(colorAttributeLocation, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (GLvoid*)(sizeof(float) * 3));
+    */
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 
