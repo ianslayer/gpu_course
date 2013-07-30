@@ -7,7 +7,12 @@ MyPerspectiveCamera::MyPerspectiveCamera()
     right = Vector3(0, 1, 0);
     up = Vector3(0, 0, 1);
 
-    zNear = 1.f;
+    n = 1.f;
+	f = 1000.f;
+	l = -1;
+	r = 1;
+	t = 1;
+	b = -1;
 }
 
 MyPerspectiveCamera::MyPerspectiveCamera(const Vector3& _position, const Vector3& lookat, const Vector3& right, const Vector3& up)
@@ -32,7 +37,19 @@ Matrix4x4 MyPerspectiveCamera::SimplePerspective() const
     Matrix4x4 projMatrix = Matrix4x4(1, 0, 0, 0,
                                      0, 1, 0, 0,
                                      0, 0, 1, 0,
-                                     0, 0, -1.f / zNear, 0);
+                                     0, 0, -1.f / n, 0);
 
     return projMatrix;
+}
+
+
+Matrix4x4 MyPerspectiveCamera::Perspective() const
+{
+
+	Matrix4x4 projMatrix = Matrix4x4(2.0f * n / (r - l), 0,					 (r + l) / (r - l), 0,
+									 0,					 2.0f * n / (t - b), (t + b) / (t - b), 0,
+									 0,					 0,				    -(f + n) / (f - n), -2.0f * f * n / (f - n),
+									 0,					 0,				    -1,               0);
+
+	return projMatrix;
 }

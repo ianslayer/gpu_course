@@ -16,6 +16,7 @@ public:
 
     Matrix4x4 ViewMatrix() const;
     Matrix4x4 SimplePerspective() const;
+	Matrix4x4 Perspective() const;
 
     // view transform
     Vector3 position;
@@ -25,7 +26,13 @@ public:
     Vector3 up;    //view space +y
 
     //projection
-    float    zNear;
+    float    n;
+	float	 f;
+	float	 l;
+	float	 r;
+	float	 t;
+	float    b;
+
 
 };
 

@@ -162,7 +162,6 @@ bool InitGL(HWND hwnd, int msaaCount)
 
     ReleaseDC(hwnd, hdc);
     
-
     return true;
 }
 
@@ -324,7 +323,8 @@ GLuint CreateWireCubeIndexBuffer()
 {
 	GLuint wireCubeIndexBuffer;
 
-	GLuint wireCubeIndices[24] = {0, 2,
+	GLuint wireCubeIndices[24] = {
+        0, 2,
 		1, 3,
 		5, 7,
 		4, 6,
@@ -343,4 +343,223 @@ GLuint CreateWireCubeIndexBuffer()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(wireCubeIndices), wireCubeIndices, GL_STATIC_DRAW);
 
 	return wireCubeIndexBuffer;
+}
+
+GLuint CreateOctahedronVertexBuffer()
+{
+    GLuint octahedronVertexBuffer;
+    MyVertex octahedron[6];
+
+    octahedron[0].position = Vector3(1, 0, 0);
+    octahedron[1].position = Vector3(-1, 0, 0);
+    octahedron[2].position = Vector3(0, 1, 0);
+    octahedron[3].position = Vector3(0, -1, 0);
+    octahedron[4].position = Vector3(0, 0, 1);
+    octahedron[5].position = Vector3(0, 0, -1);
+
+    glGenBuffers(1, &octahedronVertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, octahedronVertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(octahedron), octahedron, GL_STATIC_DRAW);
+
+    return octahedronVertexBuffer;
+}
+
+GLuint CreateWireOctahedronIndexBuffer()
+{
+    GLuint wireOctahedronIndexBuffer;
+
+    GLuint wireOctahedronIndices[24] = {
+        0, 2,
+        2, 4,
+        4, 0,
+        4, 3,
+        3, 0,
+        3, 1,
+        1, 4,
+        1, 2,
+        0, 5,
+        5, 2,
+        1, 5,
+        3, 5
+    };
+
+
+    glGenBuffers(1, &wireOctahedronIndexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, wireOctahedronIndexBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(wireOctahedronIndices), wireOctahedronIndices, GL_STATIC_DRAW);
+
+    return wireOctahedronIndexBuffer;
+}
+
+GLuint CreateSolidCubeVertexBuffer()
+{
+    GLuint cubeVertexBuffer;
+
+    SolidVertex cube[8];
+    cube[0].position = Vector3(1, 1, 1);
+    cube[1].position = Vector3(1, 1, -1);
+    cube[2].position = Vector3(1, -1, 1);
+    cube[3].position = Vector3(1, -1, -1);
+    cube[4].position = Vector3(-1, 1, 1);
+    cube[5].position = Vector3(-1, 1, -1);
+    cube[6].position = Vector3(-1, -1, 1);
+    cube[7].position = Vector3(-1, -1, -1);
+
+    for(int i = 0; i < 8; i++)
+    {
+        cube[i].color = Vector3(1, 1, 1);
+    }
+
+    Vector3 faceNormal[6] = 
+    {
+        Vector3(1, 0, 0),
+        Vector3(0, 1, 0),
+        Vector3(0, 0, 1),
+        Vector3(-1, 0, 0),
+        Vector3(0, -1, 0),
+        Vector3(0, 0, -1)
+    };
+
+    SolidVertex cubeVertices[24];
+
+    //+x face
+    cubeVertices[0] = cube[0]; 
+    cubeVertices[1] = cube[2]; 
+    cubeVertices[2] = cube[1]; 
+    cubeVertices[3] = cube[3]; 
+
+    cubeVertices[0].normal = faceNormal[0];
+    cubeVertices[1].normal = faceNormal[0];
+    cubeVertices[2].normal = faceNormal[0];
+    cubeVertices[3].normal = faceNormal[0];
+
+    cubeVertices[0].texcoord = Vector2(1, 1);
+    cubeVertices[1].texcoord = Vector2(0, 1);
+    cubeVertices[2].texcoord = Vector2(1, 0);
+    cubeVertices[3].texcoord = Vector2(0, 0);
+
+    //+y face
+    cubeVertices[4] = cube[4]; 
+    cubeVertices[5] = cube[0];
+    cubeVertices[6] = cube[5];
+    cubeVertices[7] = cube[1];
+
+    cubeVertices[4].normal = faceNormal[1];
+    cubeVertices[5].normal = faceNormal[1];
+    cubeVertices[6].normal = faceNormal[1];
+    cubeVertices[7].normal = faceNormal[1];
+
+	cubeVertices[4].texcoord = Vector2(1, 1);
+	cubeVertices[5].texcoord = Vector2(0, 1);
+	cubeVertices[6].texcoord = Vector2(1, 0);
+	cubeVertices[7].texcoord = Vector2(0, 0);
+
+    //-x face
+    cubeVertices[8] = cube[6];
+    cubeVertices[9] = cube[4];
+    cubeVertices[10] = cube[7];
+    cubeVertices[11] = cube[5];
+
+    cubeVertices[8].normal = faceNormal[3];
+    cubeVertices[9].normal = faceNormal[3];
+    cubeVertices[10].normal = faceNormal[3];
+    cubeVertices[11].normal = faceNormal[3];
+
+	cubeVertices[8].texcoord = Vector2(1, 1);
+	cubeVertices[9].texcoord = Vector2(0, 1);
+	cubeVertices[10].texcoord = Vector2(1, 0);
+	cubeVertices[11].texcoord = Vector2(0, 0);
+
+    //-y face
+    cubeVertices[12] = cube[2];
+    cubeVertices[13] = cube[6];
+    cubeVertices[14] = cube[3];
+    cubeVertices[15] = cube[7];
+
+    cubeVertices[12].normal = faceNormal[4];
+    cubeVertices[13].normal = faceNormal[4];
+    cubeVertices[14].normal = faceNormal[4];
+    cubeVertices[15].normal = faceNormal[4];
+
+	cubeVertices[12].texcoord = Vector2(1, 1);
+	cubeVertices[13].texcoord = Vector2(0, 1);
+	cubeVertices[14].texcoord = Vector2(1, 0);
+	cubeVertices[15].texcoord = Vector2(0, 0);
+
+    //+z face
+    cubeVertices[16] = cube[4];
+    cubeVertices[17] = cube[6];
+    cubeVertices[18] = cube[0];
+    cubeVertices[19] = cube[2];
+
+    cubeVertices[16].normal = faceNormal[2];
+    cubeVertices[17].normal = faceNormal[2];
+    cubeVertices[18].normal = faceNormal[2];
+    cubeVertices[19].normal = faceNormal[2];
+
+	cubeVertices[16].texcoord = Vector2(1, 1);
+	cubeVertices[17].texcoord = Vector2(0, 1);
+	cubeVertices[18].texcoord = Vector2(1, 0);
+	cubeVertices[19].texcoord = Vector2(0, 0);
+
+    //-z face
+    cubeVertices[20] = cube[1];
+    cubeVertices[21] = cube[3];
+    cubeVertices[22] = cube[5];
+    cubeVertices[23] = cube[7];
+
+	cubeVertices[20].normal = faceNormal[5];
+	cubeVertices[21].normal = faceNormal[5];
+	cubeVertices[22].normal = faceNormal[5];
+	cubeVertices[23].normal = faceNormal[5];
+
+	cubeVertices[20].texcoord = Vector2(1, 1);
+	cubeVertices[21].texcoord = Vector2(0, 1);
+	cubeVertices[22].texcoord = Vector2(1, 0);
+	cubeVertices[23].texcoord = Vector2(0, 0);
+
+    glGenBuffers(1, &cubeVertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, cubeVertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+
+    return cubeVertexBuffer;
+}
+
+GLuint CreateSolidCubeIndexBuffer()
+{
+   GLuint cubeIndexBuffer;
+
+   GLuint boxIndices[36] = 
+   {
+
+       //+x
+       0, 1, 2,
+       2, 1, 3,
+
+	   //+y
+	   4, 5, 6,
+	   6, 5, 7,
+
+       //-x
+       8, 9, 10,
+       10, 9, 11,
+
+       //-y
+       12, 13, 14,
+       14, 13, 15,
+
+       //+z
+       16, 17, 18,
+       18, 17, 19,
+
+       //-z
+       20, 21, 22,
+       22, 21, 23
+   };
+
+   glGenBuffers(1, &cubeIndexBuffer);
+   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(boxIndices),  boxIndices, GL_STATIC_DRAW);
+
+   return cubeIndexBuffer;
 }

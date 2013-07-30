@@ -119,7 +119,7 @@ void InitResources()
 	boxIndexBuffer = CreateWireCubeIndexBuffer();
 
 	stbtt_fontinfo font;
-    fread(ttf_buffer, 1, (1<<25), fopen("c:/windows/fonts/ARIALUNI.TTF", "rb"));
+    fread(ttf_buffer, 1, (1<<25), fopen("ARIALUNI.TTF", "rb"));
 	stbtt_InitFont(&font, ttf_buffer, stbtt_GetFontOffsetForIndex(ttf_buffer,0));
 
 	//attack on titan !!!
