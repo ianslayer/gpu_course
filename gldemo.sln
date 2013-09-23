@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "course3Ex", "course3Ex\cour
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "course5", "course5\course5.vcxproj", "{21418381-68EC-4958-A43B-D9AAF6431740}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jade", "jade\jade.vcxproj", "{64E85910-EA53-4E2D-AD0A-092ECD4BCA51}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -37,6 +39,10 @@ Global
 		{21418381-68EC-4958-A43B-D9AAF6431740}.Debug|Win32.Build.0 = Debug|Win32
 		{21418381-68EC-4958-A43B-D9AAF6431740}.Release|Win32.ActiveCfg = Release|Win32
 		{21418381-68EC-4958-A43B-D9AAF6431740}.Release|Win32.Build.0 = Release|Win32
+		{64E85910-EA53-4E2D-AD0A-092ECD4BCA51}.Debug|Win32.ActiveCfg = Debug|Win32
+		{64E85910-EA53-4E2D-AD0A-092ECD4BCA51}.Debug|Win32.Build.0 = Debug|Win32
+		{64E85910-EA53-4E2D-AD0A-092ECD4BCA51}.Release|Win32.ActiveCfg = Release|Win32
+		{64E85910-EA53-4E2D-AD0A-092ECD4BCA51}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

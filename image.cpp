@@ -34,9 +34,9 @@ void FreeFile(unsigned char * buffer)
     delete [] buffer;
 }
 
-GLuint defaultTexture;
-GLuint GenerateDefaultTexture()
+GLuint GenerateWhiteTexture()
 {
+    GLuint defaultTexture;
     glGenTextures(1, &defaultTexture);
     glBindTexture(GL_TEXTURE_2D, defaultTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //IMPORTANT
@@ -44,7 +44,7 @@ GLuint GenerateDefaultTexture()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     
-    unsigned char texel[] = {255, 0, 0, 0};
+    unsigned char texel[] = {255, 255, 255, 255};
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, texel);
 
     return defaultTexture;
@@ -562,10 +562,13 @@ GLuint CreateGLImage(const unsigned char* imgBuffer, int width, int height)
     GLuint texID;
     glGenTextures(1, &texID);
     glBindTexture(GL_TEXTURE_2D, texID);
+    
+    /*
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //IMPORTANT
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //IMPORTANT
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    */
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgBuffer);
 
@@ -577,10 +580,13 @@ GLuint CreateMipmapGLImage(const unsigned char* imgBuffer, int width, int height
     GLuint texID;
     glGenTextures(1, &texID);
     glBindTexture(GL_TEXTURE_2D, texID);
+
+    /*
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    */
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgBuffer);
     glGenerateMipmap(GL_TEXTURE_2D);

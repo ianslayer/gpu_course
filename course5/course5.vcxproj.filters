@@ -45,6 +45,9 @@
     <ClInclude Include="..\image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\stringUtility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\camera.cpp">
@@ -53,19 +56,19 @@
     <ClCompile Include="..\window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="course5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\gl3w.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\glUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="course5.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

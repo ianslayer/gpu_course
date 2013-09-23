@@ -18,6 +18,7 @@
     <ClInclude Include="..\GL\wglext.h" />
     <ClInclude Include="..\image.h" />
     <ClInclude Include="..\matrix.h" />
+    <ClInclude Include="..\stringUtility.h" />
     <ClInclude Include="..\vector.h" />
     <ClInclude Include="..\window.h" />
   </ItemGroup>
