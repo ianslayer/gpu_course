@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "../window.h"
-#include "../glUtility.h"
+#include "../gl_utility.h"
 #include "../vector.h"
 #include "../matrix.h"
 #include "../camera.h"

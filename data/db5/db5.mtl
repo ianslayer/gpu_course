@@ -1,0 +1,424 @@
+# 
+# Wavefront material file
+# Converted by the DEEP Exploration  Deep Exploration 6.0 6.0.0.5908 Release
+# Right Hemisphere, LTD
+# http://www.righthemisphere.com/
+# 
+
+newmtl material09
+Ka 0.8 0.8 0.8
+Kd 1 1 1
+Ks 0.737255 0.737255 0.737255
+illum 2
+Ns 59.7141
+map_Kd black.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material10
+Ka 0.6 0.698039 0.713726
+Kd 0.6 0.698039 0.713726
+Ks 0.576471 0.576471 0.576471
+illum 2
+Ns 27.8576
+map_Kd 
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material05
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.678431 0.678431 0.678431
+illum 2
+Ns 34.2967
+map_Kd nodamage.tga
+map_bump 
+bump 
+map_opacity nodamage.tga
+map_d nodamage.tga
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material02
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.643137 0.643137 0.643137
+illum 2
+Ns 168.897
+map_Kd grille1.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material01
+Ka 1 1 1
+Kd 1 1 1
+Ks 1 1 1
+illum 2
+Ns 14.9285
+map_Kd lights.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material11
+Ka 0.8 0.8 0.8
+Kd 1 1 1
+Ks 0.8 0.8 0.8
+illum 2
+Ns 2034.79
+map_Kd undercarriage.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material08
+Ka 1 1 1
+Kd 1 1 1
+Ks 1 1 1
+illum 2
+Ns 24.2515
+d 0.81
+map_Kd lights.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material07
+Ka 0.0313726 0.145098 0.207843
+Kd 0.0313726 0.145098 0.207843
+Ks 0.94902 0.94902 0.94902
+illum 2
+Ns 39.3966
+d 0.37
+map_Kd 
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material03
+Ka 1 1 1
+Kd 1 1 1
+Ks 1 1 1
+illum 2
+Ns 2034.79
+map_Kd nodamage.tga
+map_bump 
+bump 
+map_opacity nodamage.tga
+map_d nodamage.tga
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl Material__35
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.737255 0.737255 0.737255
+illum 2
+Ns 59.7141
+map_Kd 
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material04
+Ka 0.8 0.8 0.8
+Kd 1 1 1
+Ks 0.8 0.8 0.8
+illum 2
+Ns 97.0059
+map_Kd tirea0.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material06
+Ka 0.6 0.6 0.6
+Kd 1 1 1
+Ks 0.576471 0.576471 0.576471
+illum 2
+Ns 90.5097
+map_Kd wheel1.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material12
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.576471 0.576471 0.576471
+illum 2
+Ns 36.7583
+map_Kd wheel0.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl Material__46
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+illum 2
+Ns 97.0059
+map_Kd 
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material040
+Ka 0.8 0.8 0.8
+Kd 1 1 1
+Ks 0.8 0.8 0.8
+illum 2
+Ns 97.0059
+map_Kd tirea0.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material060
+Ka 0.6 0.6 0.6
+Kd 1 1 1
+Ks 0.576471 0.576471 0.576471
+illum 2
+Ns 90.5097
+map_Kd wheel1.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material120
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.576471 0.576471 0.576471
+illum 2
+Ns 36.7583
+map_Kd wheel0.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl Material__57
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+illum 2
+Ns 97.0059
+map_Kd 
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material041
+Ka 0.8 0.8 0.8
+Kd 1 1 1
+Ks 0.8 0.8 0.8
+illum 2
+Ns 97.0059
+map_Kd tirea0.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material061
+Ka 0.6 0.6 0.6
+Kd 1 1 1
+Ks 0.576471 0.576471 0.576471
+illum 2
+Ns 90.5097
+map_Kd wheel1.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material121
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.576471 0.576471 0.576471
+illum 2
+Ns 36.7583
+map_Kd wheel0.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl Material__68
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+illum 2
+Ns 97.0059
+map_Kd 
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material042
+Ka 0.8 0.8 0.8
+Kd 1 1 1
+Ks 0.8 0.8 0.8
+illum 2
+Ns 97.0059
+map_Kd tirea0.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material062
+Ka 0.6 0.6 0.6
+Kd 1 1 1
+Ks 0.576471 0.576471 0.576471
+illum 2
+Ns 90.5097
+map_Kd wheel1.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl material122
+Ka 1 1 1
+Kd 1 1 1
+Ks 0.576471 0.576471 0.576471
+illum 2
+Ns 36.7583
+map_Kd wheel0.tga
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 
+
+newmtl Material__79
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+illum 2
+Ns 97.0059
+map_Kd 
+map_bump 
+bump 
+map_opacity 
+map_d 
+refl 
+map_kS 
+map_kA 
+map_Ns 

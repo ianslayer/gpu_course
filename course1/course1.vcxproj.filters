@@ -27,7 +27,7 @@
     <ClCompile Include="..\window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\glUtility.cpp">
+    <ClCompile Include="..\gl_utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,7 +44,7 @@
     <ClInclude Include="..\window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\glUtility.h">
+    <ClInclude Include="..\gl_utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

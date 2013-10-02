@@ -3,31 +3,43 @@
 
 #include "../vector.h"
 #include "../geometry.h"
+#include "render_device.h"
+#include <vector>
 
-struct VertexP3N3T2
+namespace jade
 {
-    Vector3 position;
-    Vector3 normal;
-    Vector2 texcoord;
-};
 
-class Mesh
-{
-public:
+    struct VertexP3N3T2
+    {
+        Vector3 position;
+        Vector3 normal;
+        Vector2 texcoord;
+    };
 
-    Mesh();
-    ~Mesh();
+    class Mesh : public RefCounted
+    {
+    public:
 
-    VertexP3N3T2*   vertices;
+        Mesh();
+        ~Mesh();
 
-    Vector3*        positionList;
-    Vector3*        normalList;
-    Vector2*        texcoordList;
+        VertexP3N3T2*   vertices;
 
-    int*            indices;
+        Vector3*        positionList;
+        Vector3*        normalList;
+        Vector2*        texcoordList;
 
-    int             numVertices;
-    int             numIndices;
-};
+        int*            indices;
+
+        int             numVertices;
+        int             numIndices;
+
+        RefCountedPtr<HWVertexBuffer> vertexBuffer;
+        RefCountedPtr<HWIndexBuffer>  indexBuffer;
+    };
+
+    bool LoadFromObjMesh(const char* path, RenderDevice* device, std::vector<RefCountedPtr<Mesh> >& meshList );
+
+}
 
 #endif

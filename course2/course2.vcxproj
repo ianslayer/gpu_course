@@ -74,19 +74,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\glUtility.h" />
     <ClInclude Include="..\GL\gl3w.h" />
     <ClInclude Include="..\GL\glcorearb.h" />
     <ClInclude Include="..\GL\wglext.h" />
+    <ClInclude Include="..\gl_utility.h" />
     <ClInclude Include="..\matrix.h" />
-    <ClInclude Include="..\Timer.h" />
+    <ClInclude Include="..\timer.h" />
     <ClInclude Include="..\vector.h" />
     <ClInclude Include="..\window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\gl3w.c" />
-    <ClCompile Include="..\glUtility.cpp" />
-    <ClCompile Include="..\Timer.cpp" />
+    <ClCompile Include="..\gl_utility.cpp" />
+    <ClCompile Include="..\timer.cpp" />
     <ClCompile Include="..\window.cpp" />
     <ClCompile Include="course2.cpp" />
   </ItemGroup>

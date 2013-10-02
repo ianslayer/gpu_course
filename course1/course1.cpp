@@ -1,5 +1,5 @@
 #include "../window.h"
-#include "../glUtility.h"
+#include "../gl_utility.h"
 #include <stdio.h>
 
 Window window;

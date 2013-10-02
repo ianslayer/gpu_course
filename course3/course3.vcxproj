@@ -75,10 +75,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\camera.h" />
-    <ClInclude Include="..\glUtility.h" />
     <ClInclude Include="..\GL\gl3w.h" />
     <ClInclude Include="..\GL\glcorearb.h" />
     <ClInclude Include="..\GL\wglext.h" />
+    <ClInclude Include="..\gl_utility.h" />
     <ClInclude Include="..\matrix.h" />
     <ClInclude Include="..\vector.h" />
     <ClInclude Include="..\window.h" />
@@ -86,7 +86,7 @@
   <ItemGroup>
     <ClCompile Include="..\camera.cpp" />
     <ClCompile Include="..\gl3w.c" />
-    <ClCompile Include="..\glUtility.cpp" />
+    <ClCompile Include="..\gl_utility.cpp" />
     <ClCompile Include="..\window.cpp" />
     <ClCompile Include="course3.cpp" />
   </ItemGroup>

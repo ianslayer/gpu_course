@@ -1,14 +1,21 @@
 #ifndef SCENE_H
 #define SCENE_H
 #include <vector>
+#include "refcount.h"
 
-class Primitive;
-
-class Scene
+namespace jade
 {
-public:
+    class Primitive;
 
-    std::vector<Primitive*> primList;
-};
+    class Scene
+    {
+    public:
+
+        void AddPrimitive(Primitive* prim);
+
+        std::vector<RefCountedPtr<Primitive> > primList;
+    };
+
+}
 
 #endif

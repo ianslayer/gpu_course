@@ -74,31 +74,46 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\camera.cpp" />
     <ClCompile Include="..\gl3w.c" />
-    <ClCompile Include="..\glUtility.cpp" />
+    <ClCompile Include="..\gl_utility.cpp" />
     <ClCompile Include="..\image.cpp" />
-    <ClCompile Include="..\objMesh.cpp" />
-    <ClCompile Include="..\Timer.cpp" />
+    <ClCompile Include="..\obj_mesh.cpp" />
+    <ClCompile Include="..\timer.cpp" />
     <ClCompile Include="..\window.cpp" />
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="primitive.cpp" />
+    <ClCompile Include="render_device.cpp" />
+    <ClCompile Include="render_device_gl.cpp" />
+    <ClCompile Include="renderer_gl.cpp" />
+    <ClCompile Include="scene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\file_utility.h" />
     <ClInclude Include="..\geometry.h" />
     <ClInclude Include="..\camera.h" />
-    <ClInclude Include="..\glUtility.h" />
     <ClInclude Include="..\GL\gl3w.h" />
     <ClInclude Include="..\GL\glcorearb.h" />
     <ClInclude Include="..\GL\wglext.h" />
+    <ClInclude Include="..\gl_utility.h" />
     <ClInclude Include="..\image.h" />
     <ClInclude Include="..\matrix.h" />
-    <ClInclude Include="..\objMesh.h" />
+    <ClInclude Include="..\obj_mesh.h" />
+    <ClInclude Include="..\string_utility.h" />
+    <ClInclude Include="..\timer.h" />
     <ClInclude Include="..\vector.h" />
     <ClInclude Include="..\window.h" />
+    <ClInclude Include="camera.h" />
+    <ClInclude Include="light.h" />
+    <ClInclude Include="material.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="primitive.h" />
+    <ClInclude Include="refcount.h" />
+    <ClInclude Include="render_device.h" />
+    <ClInclude Include="render_device_gl.h" />
+    <ClInclude Include="renderer.h" />
+    <ClInclude Include="renderer_gl.h" />
     <ClInclude Include="scene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

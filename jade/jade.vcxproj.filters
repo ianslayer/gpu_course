@@ -27,9 +27,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -39,13 +36,7 @@
     <ClCompile Include="..\image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\objMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mesh.cpp">
@@ -54,7 +45,28 @@
     <ClCompile Include="primitive.cpp">
       <Filter>jade\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\glUtility.cpp">
+    <ClCompile Include="scene.cpp">
+      <Filter>jade\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>jade\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gl_utility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\obj_mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="render_device.cpp">
+      <Filter>jade\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="render_device_gl.cpp">
+      <Filter>jade\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer_gl.cpp">
+      <Filter>jade\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,9 +86,6 @@
     <ClInclude Include="..\camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\glUtility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -85,9 +94,6 @@
     </ClInclude>
     <ClInclude Include="..\matrix.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\objMesh.h">
-      <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="mesh.h">
       <Filter>jade\Header</Filter>
@@ -100,6 +106,45 @@
     </ClInclude>
     <ClInclude Include="scene.h">
       <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="refcount.h">
+      <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer.h">
+      <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="light.h">
+      <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="material.h">
+      <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gl_utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\obj_mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="render_device.h">
+      <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer_gl.h">
+      <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="render_device_gl.h">
+      <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\string_utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\file_utility.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

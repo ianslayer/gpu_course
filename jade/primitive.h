@@ -1,19 +1,28 @@
 #ifndef PRIMITIVE_H
 #define PRIMITIVE_H
+#include "refcount.h"
+#include "../matrix.h"
+#include "../vector.h"
 
-class Mesh;
-class Material;
-
-class Primitive
+namespace jade
 {
-public:
-    Primitive();
-    ~Primitive();
+    class Mesh;
+   // class Material;
 
-    Mesh*       mesh;
-    Material*   material;
-};
+    class Primitive : public RefCounted
+    {
+    public:
+        Primitive();
+        ~Primitive();
 
-bool LoadFromObjMesh(const char* path, Primitive** prims, int* numPrims);
+        Matrix4x4 ModelMatrix() const;
+
+        RefCountedPtr<Mesh>  mesh;
+       // Material*   material;
+
+        Matrix3x3   orientation;
+        Vector3     translation;
+    };
+}
 
 #endif
