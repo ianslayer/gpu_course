@@ -31,7 +31,7 @@ public:
         int NumVertices()
         {
             int i = 0;
-            for(int i = 0; i < 4; i++)
+            for(i = 0; i < 4; i++)
             {
                 if(v[i].vIndex == -1)
                     break;
@@ -49,18 +49,30 @@ public:
     class Material
     {
     public:
+
+		enum ILLUM
+		{
+			COLOR_ON_AMBIENT_OFF = 0,
+			COLOR_ON_AMBIENT_ON = 1,
+			HIGHLIGHT_ON = 2,
+			REFLECTION_ON_RAY_TRACE_ON = 3,
+			TRANSPARENCY = 4, //glass on reflection: ray trace on
+
+		};
+
         std::string name;
         
         Vector4     kd;
         Vector4     ka;
         Vector4     ks;
-        Vector4     Ns;
-        float       illum;
+        float		ns;
+        int			illum;
 
         std::string mapKa;
         std::string mapKd;
         std::string mapD;
         std::string mapBump;
+		std::string mapRefl;
     };
 
     class Geometry
@@ -89,8 +101,11 @@ public:
     };
 
 
-    bool Load(const char* path);
+    bool Load(const std::string& path);
     void CreateVertexIndexBuffer(int geomIndex, std::vector<FusedVertex>& vertices, std::vector<int>& indices);
+
+	std::string name;
+	std::string path;
 
     std::vector<Vector3> posList;
     std::vector<Vector3> normalList;

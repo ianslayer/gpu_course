@@ -3,6 +3,21 @@
 
 namespace jade
 {
+	GLenum GetGLSizedTexFormat(TEXTURE_FORMAT format)
+	{
+		switch(format)
+		{
+		case TEX_FORMAT_RGBA8:
+			return GL_RGBA8;
+		case TEX_FORMAT_RGBA16F:
+			return GL_RGBA16F;
+		case TEX_FORMAT_SRGB8_ALPHA8:
+			return GL_SRGB8_ALPHA8;
+		}
+
+		return 0;
+	}
+
     VertexBufferGL::VertexBufferGL()
     {
         glGenBuffers(1, &vboID);
@@ -11,16 +26,6 @@ namespace jade
     VertexBufferGL::~VertexBufferGL()
     {
         glDeleteBuffers(1, &vboID);
-    }
-
-    const VertexBufferImpl* HWVertexBuffer::GetImpl() const
-    {
-        return &impl;
-    }
-
-    VertexBufferImpl* HWVertexBuffer::GetImpl()
-    {
-        return &impl;
     }
 
     IndexBufferGL::IndexBufferGL()
@@ -33,15 +38,15 @@ namespace jade
         glDeleteBuffers(1, &iboID);
     }
 
-    const IndexBufferImpl* HWIndexBuffer::GetImpl() const
-    {
-        return &impl;
-    }
+	Texture2DGL::Texture2DGL()
+	{
+		glGenTextures(1, &id);
+	}
 
-    IndexBufferImpl* HWIndexBuffer::GetImpl()
-    {
-        return &impl;
-    }
+	Texture2DGL::~Texture2DGL()
+	{
+		glDeleteTextures(1, &id);
+	}
 
     RenderDevice::error_t InitRenderDevice(const Window* window, const RenderDeviceSetting* setting, RenderDevice** device)
     {
@@ -75,5 +80,29 @@ namespace jade
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         return RenderDevice::SUCCESS;
     }
+
+	RenderDevice::error_t RenderDevice::CreateTexture2D(HWTexture2D::Desc* desc, SubresourceData* data, HWTexture2D** texture)
+	{
+		*texture = new HWTexture2D();
+		glBindTexture(GL_TEXTURE_2D, (*texture)->GetImpl()->id);
+		
+
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, desc->width, desc->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data->buf);
+		
+		glTexStorage2D(GL_TEXTURE_2D, desc->mipLevels, GetGLSizedTexFormat(desc->format), desc->width, desc->height);
+		
+		glTexSubImage2D(GL_TEXTURE_2D,
+		0,
+		0, 0,
+		desc->width, desc->height, 
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		data->buf
+		);
+		
+
+		glGenerateMipmap(GL_TEXTURE_2D);
+		return RenderDevice::SUCCESS;
+	}
 
 }

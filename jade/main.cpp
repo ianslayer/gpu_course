@@ -9,12 +9,16 @@
 #include "../obj_mesh.h"
 #include "mesh.h"
 #include "primitive.h"
+#include "texture.h"
+#include "scene.h"
 #include "renderer_gl.h"
 #include "camera.h"
 
 Window window;
 jade::RenderDevice* device;
-jade::RendererGL* rendererGL;
+jade::TextureManager* texManager;
+jade::Scene* scene;
+jade::Renderer* rendererGL;
 jade::Camera camera;
 
 float cameraMoveSpeed = 2.f;
@@ -95,7 +99,7 @@ public:
 
 MyInputListener* inputListener = NULL;
 
-void InputControl(double frameTime)
+void InputControl(float frameTime)
 {
 
     if(inputListener->forward)
@@ -129,6 +133,7 @@ void InputControl(double frameTime)
         camera.right.z = 0;
         camera.right.Normalize();
         camera.lookat = cross(camera.up, camera.right);
+		camera.lookat.Normalize();
         camera.up = cross(camera.right, camera.lookat);
     }
 
@@ -137,59 +142,60 @@ void InputControl(double frameTime)
 
 void Init()
 {
-    if(!InitWindow(800, 800, window))
+    if(!InitWindow(1024, 1024, window))
         return;
 
     jade::RenderDeviceSetting deviceSetting;
+	deviceSetting.msaaCount = 4;
     jade::InitRenderDevice(&window, &deviceSetting, &device);
     jade::InitRendererGL(device, &rendererGL);    
-
+	texManager = new jade::TextureManager(device);
+	scene = new jade::Scene();
     inputListener = new MyInputListener();
     SetInputListener(inputListener);
 }
 
 void Shutdown()
 {
+	delete texManager;
     jade::ShutdownRendererGL(rendererGL);
     jade::ShutdownRenderDevice(device);
 }
 
-std::vector<jade::RefCountedPtr<jade::Mesh> > meshList;
 std::vector<jade::RefCountedPtr<jade::Primitive> > primitiveList;
 
 void LoadResources()
 {
-    jade::LoadFromObjMesh("data/db5/db5.obj", device, meshList);
-    
-    for(size_t i = 0; i < meshList.size(); i++)
-    {
-        jade::Primitive* prim = new jade::Primitive();
-        prim->mesh = meshList[i];
+	Matrix4x4 flipMatrix = Matrix4x4(		
+		1.f, 0, 0, 0,
+		0, 0, 1.f, 0,
+		0, 1.f, 0, 0,
+		0, 0, 0, 1.f);
 
-        primitiveList.push_back(prim);
-    }
-
+	Matrix4x4 texflipMatrix =  Matrix4x4(
+		1.f, 0.f, 0.f, 0.f,
+		0.f, -1.f, 0.f, 1.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 0.f, 0.f, 1.f
+		);
+	jade::LoadFromObjMesh("data/sponza/sponza.obj", device, texManager,  flipMatrix, texflipMatrix, primitiveList);
+	jade::LoadFromObjMesh("data/db5/db5.obj", device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList);
+	scene->AddPrimitives(primitiveList);
+	
 }
 
 void UnloadResources()
 {
-
+	primitiveList.clear();
+	delete scene;
 }
 
 void Render(double frameTime)
 {
 
-    glClearColor(0.5, 0.5, 0.5, 1);
-    glClearDepth(1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    for(size_t i = 0; i < primitiveList.size(); i++)
-    {
-        rendererGL->RenderWireframe(&camera, primitiveList[i]);
-    }
+	rendererGL->Render(&camera, scene);
 
     SwapBuffers(window.hdc);
-
 }
 
 void main()
@@ -204,10 +210,11 @@ void main()
 
     FastTimer timer;
 
-    timer.Start();
+
     MSG msg = {0};
     while( WM_QUIT != msg.message )
     {
+		timer.Start();
         if( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
             //if( GetMessage( &msg, NULL, 0, 0 ) )
         {
@@ -216,9 +223,11 @@ void main()
         }
         InputControl(frameTime);
         Render(frameTime);
-    }
-    timer.End();
-    frameTime = timer.GetDurationInMillisecnds();
 
+		timer.End();
+		frameTime = (float) timer.GetDurationInMillisecnds();
+    }
+
+	UnloadResources();
     Shutdown();
 }

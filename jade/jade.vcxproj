@@ -74,6 +74,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\file_utility.cpp" />
     <ClCompile Include="..\gl3w.c" />
     <ClCompile Include="..\gl_utility.cpp" />
     <ClCompile Include="..\image.cpp" />
@@ -88,6 +89,7 @@
     <ClCompile Include="render_device_gl.cpp" />
     <ClCompile Include="renderer_gl.cpp" />
     <ClCompile Include="scene.cpp" />
+    <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\file_utility.h" />
@@ -115,6 +117,7 @@
     <ClInclude Include="renderer.h" />
     <ClInclude Include="renderer_gl.h" />
     <ClInclude Include="scene.h" />
+    <ClInclude Include="texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

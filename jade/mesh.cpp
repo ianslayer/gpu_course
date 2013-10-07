@@ -19,13 +19,13 @@ Mesh::~Mesh()
     delete[] indices;
 }
 
-bool LoadFromObjMesh(const char* path, RenderDevice* device, std::vector<RefCountedPtr<Mesh> >& meshList)
+bool LoadFromObjMesh(const std::string& path, RenderDevice* device, std::vector<RefCountedPtr<Mesh> >& meshList)
 {
     ObjMesh objMesh;
 
     bool success = objMesh.Load(path);
 
-    for(int i = 0; i < objMesh.geomList.size(); i++)
+    for(size_t i = 0; i < objMesh.geomList.size(); i++)
     {
         std::vector<ObjMesh::FusedVertex> vertices;
         std::vector<int> indices;

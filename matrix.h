@@ -1,5 +1,5 @@
-#ifndef __JOG_MATRIX_H
-#define __JOG_MATRIX_H
+#ifndef MATRIX_H
+#define MATRIX_H
 
 #include "vector.h"
 
@@ -470,5 +470,23 @@ inline Matrix4x4 Scale(const Vector3& _scale)
                      0, 0, 0, 1);
 }
 
+inline Matrix4x4 RotateAxis(const Vector3& r, float rad)
+{
+
+	float cosPhi = cos(rad);
+	float one_cosPhi = (1.f - cosPhi);
+	float sinPhi = sin(rad);
+
+	Matrix3x3 rotMatrix = Matrix3x3(
+		cosPhi + one_cosPhi * r.x * r.x,       one_cosPhi * r.x * r.y - r.z * sinPhi, one_cosPhi  * r.x * r.z + r.y * sinPhi,
+		one_cosPhi * r.x * r.y + r.z * sinPhi, cosPhi + one_cosPhi * r.y * r.y,       one_cosPhi * r.y * r.z - r.x * sinPhi,
+		one_cosPhi * r.x * r.z - r.y * sinPhi, one_cosPhi * r.y * r.z + r.x * sinPhi, cosPhi + one_cosPhi * r.z * r.z
+		);
+
+	return Matrix4x4(rotMatrix[0][0], rotMatrix[0][1], rotMatrix[0][2], 0,
+					 rotMatrix[1][0], rotMatrix[1][1], rotMatrix[1][2], 0,
+					 rotMatrix[2][0], rotMatrix[2][1], rotMatrix[2][2], 0,
+					 0, 0, 0, 1.f);
+}
 
 #endif

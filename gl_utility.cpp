@@ -24,7 +24,6 @@ void GetWGLExt()
 
 LRESULT CALLBACK FakeWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    int wmId, wmEvent;
     PAINTSTRUCT ps;
     HDC hdc;
 
@@ -119,7 +118,7 @@ bool InitGL(HWND hwnd, int msaaCount)
     unsigned int formatCount;
 
     PIXELFORMATDESCRIPTOR pixelFormatDescriptor;
-    int attributeList[5];
+   // int attributeList[5];
 
     HDC hdc = GetDC(hwnd);
     // Query for a pixel format that fits the attributes we want.

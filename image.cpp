@@ -1,38 +1,7 @@
 #include "GL/gl3w.h"
 #include <stdio.h>
+#include "file_utility.h"
 
-int ReadFile(const char* _Path, unsigned char** _OutBuffer)
-{
-    FILE* FP = fopen(_Path, "rb");
-
-    if(FP == NULL)
-        return 0;
-    fseek(FP, 0, SEEK_END);
-    int SeekLength = ftell(FP);
-    fseek(FP, 0, SEEK_SET);
-
-
-    unsigned char * Buf = new unsigned char[SeekLength];
-    int FileLength = fread(Buf, 1, SeekLength, FP);
-    fclose(FP);
-
-    if(_OutBuffer)
-    {
-        *_OutBuffer = Buf;
-    }
-    else
-    {
-        delete [] Buf;
-    }
-
-    return FileLength;
-
-}
-
-void FreeFile(unsigned char * buffer)
-{
-    delete [] buffer;
-}
 
 GLuint GenerateWhiteTexture()
 {
@@ -352,6 +321,7 @@ static void LoadTGA(const unsigned char* _InputBuf, int _InputBufLength, unsigne
 
     }
 
+
     if(Header.attributes & TGA_ORIGIN_UPPER )
     {
         VerticalFlip(*_OutputBuf, *_Width, *_Height);
@@ -359,17 +329,20 @@ static void LoadTGA(const unsigned char* _InputBuf, int _InputBufLength, unsigne
        
 }
 
-bool LoadTGA(const char* path, const unsigned char** imgBuffer, int* width, int* height)
+bool LoadTGA(const char* path, unsigned char** imgBuffer, int* width, int* height)
 {
-    unsigned char* buf;
-    int fileLenth = ReadFile(path, &buf);
+	int fileSize = FileSize(std::string(path));
+    unsigned char* buf = new unsigned char[fileSize];
+    int readFileLen = ReadFile(std::string(path), buf, fileSize);
 
-    if(fileLenth <= 0)
+    if(readFileLen <= 0)
         return false;
 
     unsigned char* imgbuf = NULL;
 
-    LoadTGA(buf, fileLenth, &imgbuf, width, height);
+    LoadTGA(buf, fileSize, &imgbuf, width, height);
+
+	delete [] buf;
 
     if(imgbuf)
     {
@@ -530,17 +503,18 @@ static void LoadBMP(const unsigned char* _InputBuf, int _InputBufLength, unsigne
     }
 }
 
-bool LoadBMP(const char* path, const unsigned char** imgBuffer, int* width, int* height)
+bool LoadBMP(const char* path, unsigned char** imgBuffer, int* width, int* height)
 {
-    unsigned char* buf;
-    int fileLenth = ReadFile(path, &buf);
+	int fileSize = FileSize(std::string(path));
+	unsigned char* buf = new unsigned char[fileSize];
+	int readFileLen = ReadFile(std::string(path), buf, fileSize);
 
-    if(fileLenth <= 0)
-        return false;
+	if(readFileLen <= 0)
+		return false;
 
     unsigned char* imgbuf = NULL;
 
-    LoadBMP(buf, fileLenth, &imgbuf, width, height);
+    LoadBMP(buf, fileSize, &imgbuf, width, height);
 
     if(imgbuf)
     {

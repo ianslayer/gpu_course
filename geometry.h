@@ -1,5 +1,5 @@
-#ifndef BOUND_H
-#define BOUND_H
+#ifndef GEOMETRY_H
+#define GEOMETRY_H
 #include "vector.h"
 #include <algorithm>
 

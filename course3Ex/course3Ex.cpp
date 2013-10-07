@@ -174,6 +174,7 @@ void InputControl(double frameTime)
         camera.right.z = 0;
         camera.right.Normalize();
         camera.lookat = cross(camera.up, camera.right);
+		camera.lookat.Normalize();
         camera.up = cross(camera.right, camera.lookat);
     }
 
@@ -313,10 +314,10 @@ void main()
 
     FastTimer timer;
 
-    timer.Start();
 	MSG msg = {0};
 	while( WM_QUIT != msg.message )
 	{
+		timer.Start();
 		if( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
 			//if( GetMessage( &msg, NULL, 0, 0 ) )
 		{
@@ -325,7 +326,9 @@ void main()
 		}
         InputControl(frameTime);
         Render(frameTime);
+
+		timer.End();
+		frameTime = timer.GetDurationInMillisecnds();
 	}
-    timer.End();
-    frameTime = timer.GetDurationInMillisecnds();
+
 }

@@ -30,7 +30,7 @@ void InputListener::OnKey(const unsigned int key, const bool pressed)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    int wmId, wmEvent;
+//    int wmId, wmEvent;
     PAINTSTRUCT ps;
     HDC hdc;
 

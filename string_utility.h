@@ -44,3 +44,31 @@ inline bool CharIsBlank(char c)
         return true;
     return false;
 }
+
+inline int GetNextLine(const char* str, int strLen)
+{
+
+	const char* newLine = str;
+	for(int i = 0; i < strLen; i++, newLine++ )
+	{
+		if(*newLine == '\n')
+		{
+			return i + 1;
+		}
+	}
+
+	return strLen + 1;
+}
+
+inline int GetFirstNonBlank(const char* str, int strLen)
+{
+	const char* nonBlank = str;
+	for(int i = 0; i < strLen; i++, nonBlank++)
+	{
+		//if(*nonBlank != ' ' && *nonBlank != '\t' && *nonBlank != 9)
+		if(*nonBlank > 32)
+			return i;
+	}
+
+	return -1;
+}

@@ -9,12 +9,12 @@ namespace jade
         right = Vector3(0, 1, 0);
         up = Vector3(0, 0, 1);
 
-        n = 0.1;
-        f = 1000.f;
-        l = -0.1;
-        r = 0.1;
-        t = 0.1;
-        b = -0.1;
+        n = 0.1f;
+        f = 3000.f;
+        l = -0.1f;
+        r = 0.1f;
+        t = 0.1f;
+        b = -0.1f;
     }
 
     Matrix4x4 Camera::ViewMatrix() const

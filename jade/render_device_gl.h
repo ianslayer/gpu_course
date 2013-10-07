@@ -22,8 +22,18 @@ namespace jade
         GLuint iboID;
     };
 
+	class Texture2DGL
+	{
+	public:
+		Texture2DGL();
+		~Texture2DGL();
+
+		GLuint id;
+	};
+
     typedef VertexBufferGL VertexBufferImpl;
     typedef IndexBufferGL IndexBufferImpl;
+	typedef Texture2DGL Texture2DImpl;
 
 }
 

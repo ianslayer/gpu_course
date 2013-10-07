@@ -3,6 +3,203 @@
 #include <vector>
 #include <unordered_map>
 #include <shlwapi.h>
+#include "file_utility.h"
+
+enum OBJ_MAT_TOKEN
+{
+	MAT_UNKNOWN,
+	NEW_MAT,
+	ILLUM,
+	KD,
+	KA,
+	KS,
+	NS,
+	MAP_KA,
+	MAP_KD,
+	MAP_D,
+	MAP_BUMP,
+	MAP_REFL,
+};
+
+OBJ_MAT_TOKEN GetMatDecl(const char* decl)
+{
+	if(!(strcmp(decl, "newmtl")))
+		return NEW_MAT;
+	else if(!(strcmp(decl, "illum")) )
+		return ILLUM;
+	else if(!(strcmp(decl, "Kd")) )
+		return KD;
+	else if(!(strcmp(decl, "Ka")) )
+		return KA;
+	else if(!(strcmp(decl, "Ks")))
+		return KS;
+	else if(!(strcmp(decl, "Ns")))
+		return NS;
+	else if(!(strcmp(decl, "map_Ka")))
+		return MAP_KA;
+	else if(!(strcmp(decl, "map_Kd")))
+		return MAP_KD;
+	else if(!(strcmp(decl, "map_d"))) //detail texture?
+		return MAP_D;
+	else if(!(strcmp(decl, "map_bump")))
+		return MAP_BUMP;
+	else if(!(strcmp(decl, "refl")))
+		return MAP_REFL;
+	return MAT_UNKNOWN;
+}
+
+
+void LoadObjMaterial(const std::string& path, std::vector<ObjMesh::Material>& matList)
+{
+
+	int fileSize = 0;
+	char* matStr = 0;
+	void* matStrBuf = 0;
+	fileSize = FileSize(path);
+
+	matStr = new char[fileSize + 1];
+	ReadFile(path, matStr, fileSize + 1);
+	matStr[fileSize] = '\0';
+
+	if(fileSize == 0)
+		return;
+
+	const char* currentLine = matStr;
+	int strLen = (int) strlen(currentLine);
+	int currentMatIndex = -1;
+	while( 1 )
+	{
+		int ret = GetNextLine(currentLine, strLen);
+
+		int nonBlank = 0;
+
+
+		if( (nonBlank = GetFirstNonBlank(currentLine, ret)) >= 0)
+		{
+			const char* nonBlankLine = currentLine + nonBlank;
+			char decl[256];
+			memset(decl, 0, sizeof(decl));
+			sscanf(nonBlankLine, "%s ", decl);
+			switch(GetMatDecl(decl))
+			{
+			case NEW_MAT:
+				{
+					matList.push_back(ObjMesh::Material() );
+					currentMatIndex++;
+					ObjMesh::Material* mat = &(matList[currentMatIndex]);
+					char usemtl[16];
+					char matName[256];
+					sscanf(nonBlankLine, "%s %s", usemtl, matName);
+					mat->name = matName;
+				}
+				break;
+			case ILLUM:
+				{
+					ObjMesh::Material* mat = &(matList[currentMatIndex]);
+					float illum = 0.f;
+					char illumBuf[16];
+					sscanf(nonBlankLine, "%s %f", illumBuf, &illum);
+					mat->illum = illum;
+				}
+				break;
+			case KD:
+				{
+					ObjMesh::Material* mat = &(matList[currentMatIndex]);
+					float r,g, b;
+					r = g = b = 0.f;
+					char kd[16];
+					sscanf(nonBlankLine, "%s %f %f %f", kd, &r, &g, &b);
+					mat->kd = Vector4(r, g, b, 1.0);
+				}
+				break;
+			case KA:
+				{
+					ObjMesh::Material* mat = &(matList[currentMatIndex]);
+					float r,g, b;
+					r = g = b = 0.f;
+					char ka[16];
+					sscanf(nonBlankLine, "%s %f %f %f", ka, &r, &g, &b);
+					mat->ka = Vector4(r, g, b, 1.0);
+				}
+				break;
+			case KS:
+				{
+					ObjMesh::Material* mat = &(matList[currentMatIndex]);
+					float r,g, b;
+					r = g = b = 0.f;
+					char ks[16];
+					sscanf(nonBlankLine, "%s %f %f %f", ks, &r, &g, &b);
+					mat->ks = Vector4(r, g, b, 1.0);
+				}
+				break;
+			case NS:
+				{
+					ObjMesh::Material* mat = &(matList[currentMatIndex]);
+					float ns = 0.f;
+					char Ns[16];
+					sscanf(nonBlankLine, "%s %f", Ns, &ns);
+					mat->ns = ns;
+				}
+				break;
+			case MAP_KD:
+				{
+					ObjMesh::Material* mat = &(matList[currentMatIndex]);
+					char mapKd[256];
+					char TexName[256];
+					sscanf(nonBlankLine, "%s %s", mapKd, TexName);
+					mat->mapKd = std::string(TexName);
+					//printf("%s\n", mat->mapKd.c_str());
+				}
+				break;
+			case MAP_D:
+				{
+					//ObjMesh::ObjMaterial* mat = &(matList[currentMatIndex]);
+					char mapD[256];
+					char TexName[256];
+					sscanf(nonBlankLine, "%s %s", mapD, TexName);
+					//printf("%s\n", mat->mapD.c_str());					
+				}
+				break;
+			case MAP_KA:
+				{
+					ObjMesh::Material* mat = &(matList[currentMatIndex]);
+					char mapKa[256];
+					char TexName[256];
+					sscanf(nonBlankLine, "%s %s", mapKa, TexName);
+					mat->mapKa = std::string(TexName);
+					//printf("%s\n", mat->mapKa.c_str());
+				}
+				break;
+			case MAP_BUMP:
+				{
+					ObjMesh::Material* mat = &(matList[currentMatIndex]);
+					char mapBump[256];
+					char TexName[256];
+					sscanf(nonBlankLine, "%s %s", mapBump, TexName);
+					mat->mapBump = std::string(TexName);
+					//printf("%s\n", mat->mapBump.c_str());
+				}
+				break;
+			case MAP_REFL:
+				{
+					ObjMesh::Material* mat = &(matList[currentMatIndex]);
+					char mapRefl[256];
+					char TexName[256];
+					sscanf(nonBlankLine, "%s %s", mapRefl, TexName);
+					mat->mapRefl = std::string(TexName);
+				}
+			}
+		}
+
+		currentLine = currentLine + ret;
+		strLen -= ret;
+
+		if(strLen <= 0)
+			break;
+	}
+
+	delete [] matStr;
+}
 
 enum OBJ_ELEM
 {
@@ -175,7 +372,7 @@ int ParseVertex(const Token* const token, Token** nextToken, Vector3* v)
 {
     *nextToken = token->next;
     int i = 0;
-    char strBuffer[256] ;
+//    char strBuffer[256] ;
     for(; i < 3 && *nextToken && (*nextToken)->type == OBJ_TOK_FLOAT; i++)
     {
         //memcpy(strBuffer, (*nextToken)->sourceStr, std::min((*nextToken)->count, 255 ));
@@ -312,7 +509,8 @@ int Parse(std::vector<Token>& tokens, ObjMesh* mesh)
             {
                 parseToken = parseToken->next;
                 std::string fileName(parseToken->sourceStr, parseToken->count);
-               // LoadObjMaterial(fileName.c_str(), mesh->matList);
+				std::string folder = PathRemoveFileName(mesh->path);
+                LoadObjMaterial(folder + "\\" + fileName, mesh->matList);
                 parseToken = parseToken->next;
             }
             break;
@@ -321,7 +519,7 @@ int Parse(std::vector<Token>& tokens, ObjMesh* mesh)
                 parseToken = parseToken->next; //parseToken should be material name
                 std::string matName(parseToken->sourceStr, parseToken->count);
                 int matIndex = 0;
-                for(int i = 0; i < mesh->matList.size(); i++)
+                for(size_t i = 0; i < mesh->matList.size(); i++)
                 {
                     if(mesh->matList[i].name == matName )
                     {
@@ -352,10 +550,10 @@ int Parse(std::vector<Token>& tokens, ObjMesh* mesh)
 
 int Triangulate(ObjMesh* mesh)
 {
-    for(int i = 0; i < mesh->geomList.size(); i++)
+    for(size_t i = 0; i < mesh->geomList.size(); i++)
     {
         ObjMesh::Geometry* segment = &(mesh->geomList[i]);
-        for(int j = 0 ; j < segment->faceList.size(); j++)
+        for(size_t j = 0 ; j < segment->faceList.size(); j++)
         {
             ObjMesh::Face* poly = &(segment->faceList[j]);
             if(poly->NumVertices() > 3)
@@ -398,22 +596,17 @@ bool LoadObj(const char* objFileStr, int fileLength, ObjMesh* mesh)
     return true;
 }
 
-bool ObjMesh::Load(const char* path)
+bool ObjMesh::Load(const std::string& path)
 {
-    FILE* fp = fopen(path, "rb");
-
-    if(fp == NULL)
-        return false;
-
-    fseek(fp, 0, SEEK_END);
-    int seekLen = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-
-    char* strBuf = new char[seekLen + 1];
-    int fileLen = fread(strBuf, 1, seekLen, fp);
-
-    fclose(fp);
+	int objFileSize = FileSize(path);
+    char* strBuf = new char[objFileSize + 1];
+	void* fileBuf = strBuf;
+    int fileLen = ReadFile(path, fileBuf, objFileSize + 1 );
     strBuf[fileLen] = '\0';
+
+	this->path = NormalizePath(WorkingDir() + "\\" + path);
+	this->name = PathRemoveFolder(path);
+	std::string folder = PathRemoveFileName(this->path);
 
     bool success = LoadObj(strBuf, fileLen, this);
 
@@ -454,7 +647,7 @@ void ObjMesh::CreateVertexIndexBuffer(int geomIndex, std::vector<ObjMesh::FusedV
     std::unordered_map<FusedVertex, int, VertexHash, VertexEqual> vertIndexTable;
     int uniqueIndex = 0;
 
-    for(int t = 0; t < geomList[geomIndex].triangleList.size(); t++)
+    for(size_t t = 0; t < geomList[geomIndex].triangleList.size(); t++)
     {
         int triIndices[3];
 

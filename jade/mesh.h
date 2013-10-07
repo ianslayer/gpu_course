@@ -5,6 +5,7 @@
 #include "../geometry.h"
 #include "render_device.h"
 #include <vector>
+#include <string>
 
 namespace jade
 {
@@ -23,6 +24,8 @@ namespace jade
         Mesh();
         ~Mesh();
 
+		std::string		name;
+
         VertexP3N3T2*   vertices;
 
         Vector3*        positionList;
@@ -38,7 +41,7 @@ namespace jade
         RefCountedPtr<HWIndexBuffer>  indexBuffer;
     };
 
-    bool LoadFromObjMesh(const char* path, RenderDevice* device, std::vector<RefCountedPtr<Mesh> >& meshList );
+    //bool LoadFromObjMesh(const std::string& path, RenderDevice* device, std::vector<RefCountedPtr<Mesh> >& meshList );
 
 }
 

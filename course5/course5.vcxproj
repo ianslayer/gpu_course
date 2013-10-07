@@ -24,6 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\camera.cpp" />
+    <ClCompile Include="..\file_utility.cpp" />
     <ClCompile Include="..\gl3w.c" />
     <ClCompile Include="..\gl_utility.cpp" />
     <ClCompile Include="..\image.cpp" />

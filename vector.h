@@ -1,5 +1,5 @@
-#ifndef __JOG_VECTOR_INCLUDED__
-#define __JOG_VECTOR_INCLUDED__
+#ifndef VECTOR_H
+#define VECTOR_H
 #include <algorithm>
 
 class Vector2
