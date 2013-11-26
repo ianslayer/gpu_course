@@ -2,21 +2,26 @@
 #include <stdio.h>
 #include "file_utility.h"
 
+GLuint GenerateColorTexture(float r, float g, float b, float a)
+{
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //IMPORTANT
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //IMPORTANT
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	unsigned char texel[] = {r, g, b, a};
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, texel);
+
+	return texture;
+}
 
 GLuint GenerateWhiteTexture()
 {
-    GLuint defaultTexture;
-    glGenTextures(1, &defaultTexture);
-    glBindTexture(GL_TEXTURE_2D, defaultTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //IMPORTANT
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //IMPORTANT
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    
-    unsigned char texel[] = {255, 255, 255, 255};
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, texel);
-
-    return defaultTexture;
+	return GenerateColorTexture(1.f, 1.f, 1.f, 1.f);
 }
 
 static void HorizontalFlip( unsigned char *data, int width, int height ) 

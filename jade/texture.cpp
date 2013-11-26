@@ -87,7 +87,10 @@ namespace jade
 		bool success = LoadTGA(path.c_str(), &imgbuf, &width, &height);
 
 		if(!success)
+		{
+			printf("can't open image file: %s\n", path.c_str());
 			return NULL;
+		}
 
 		Texture* texture = new Texture(this);
 		texTable[path] = texture;

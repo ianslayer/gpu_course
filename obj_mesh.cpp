@@ -1,3 +1,4 @@
+#define NOMINMAX 
 #include "obj_mesh.h"
 #include "string_utility.h"
 #include <vector>
@@ -16,6 +17,8 @@ enum OBJ_MAT_TOKEN
 	NS,
 	MAP_KA,
 	MAP_KD,
+	MAP_KS,
+	MAP_NS,
 	MAP_D,
 	MAP_BUMP,
 	MAP_REFL,
@@ -23,27 +26,31 @@ enum OBJ_MAT_TOKEN
 
 OBJ_MAT_TOKEN GetMatDecl(const char* decl)
 {
-	if(!(strcmp(decl, "newmtl")))
+	if(!(stricmp(decl, "newmtl")))
 		return NEW_MAT;
-	else if(!(strcmp(decl, "illum")) )
+	else if(!(stricmp(decl, "illum")) )
 		return ILLUM;
-	else if(!(strcmp(decl, "Kd")) )
+	else if(!(stricmp(decl, "Kd")) )
 		return KD;
-	else if(!(strcmp(decl, "Ka")) )
+	else if(!(stricmp(decl, "Ka")) )
 		return KA;
-	else if(!(strcmp(decl, "Ks")))
+	else if(!(stricmp(decl, "Ks")))
 		return KS;
-	else if(!(strcmp(decl, "Ns")))
+	else if(!(stricmp(decl, "Ns")))
 		return NS;
-	else if(!(strcmp(decl, "map_Ka")))
+	else if(!(stricmp(decl, "map_Ka")))
 		return MAP_KA;
-	else if(!(strcmp(decl, "map_Kd")))
+	else if(!(stricmp(decl, "map_Kd")))
 		return MAP_KD;
-	else if(!(strcmp(decl, "map_d"))) //detail texture?
+	else if(!stricmp(decl, "map_Ks"))
+		return MAP_KS;
+	else if(!stricmp(decl, "map_Ns"))
+		return MAP_NS;
+	else if(!(stricmp(decl, "map_d"))) //dissolve texture
 		return MAP_D;
-	else if(!(strcmp(decl, "map_bump")))
+	else if(!(stricmp(decl, "map_bump")))
 		return MAP_BUMP;
-	else if(!(strcmp(decl, "refl")))
+	else if(!(stricmp(decl, "refl")))
 		return MAP_REFL;
 	return MAT_UNKNOWN;
 }
@@ -76,10 +83,21 @@ void LoadObjMaterial(const std::string& path, std::vector<ObjMesh::Material>& ma
 
 		if( (nonBlank = GetFirstNonBlank(currentLine, ret)) >= 0)
 		{
+			char lineBuf[1024];
+			
+
 			const char* nonBlankLine = currentLine + nonBlank;
+
+			memcpy(lineBuf, nonBlankLine, std::max(ret + nonBlank - 1, 0));
+			lineBuf[ std::max(ret + nonBlank - 1, 0)] = 0;
+
 			char decl[256];
 			memset(decl, 0, sizeof(decl));
 			sscanf(nonBlankLine, "%s ", decl);
+
+			char mapType[256] = {0};
+			char TexName[256] = {0};
+
 			switch(GetMatDecl(decl))
 			{
 			case NEW_MAT:
@@ -89,7 +107,7 @@ void LoadObjMaterial(const std::string& path, std::vector<ObjMesh::Material>& ma
 					ObjMesh::Material* mat = &(matList[currentMatIndex]);
 					char usemtl[16];
 					char matName[256];
-					sscanf(nonBlankLine, "%s %s", usemtl, matName);
+					sscanf(lineBuf, "%s %s", usemtl, matName);
 					mat->name = matName;
 				}
 				break;
@@ -98,7 +116,7 @@ void LoadObjMaterial(const std::string& path, std::vector<ObjMesh::Material>& ma
 					ObjMesh::Material* mat = &(matList[currentMatIndex]);
 					float illum = 0.f;
 					char illumBuf[16];
-					sscanf(nonBlankLine, "%s %f", illumBuf, &illum);
+					sscanf(lineBuf, "%s %f", illumBuf, &illum);
 					mat->illum = illum;
 				}
 				break;
@@ -108,8 +126,8 @@ void LoadObjMaterial(const std::string& path, std::vector<ObjMesh::Material>& ma
 					float r,g, b;
 					r = g = b = 0.f;
 					char kd[16];
-					sscanf(nonBlankLine, "%s %f %f %f", kd, &r, &g, &b);
-					mat->kd = Vector4(r, g, b, 1.0);
+					sscanf(lineBuf, "%s %f %f %f", kd, &r, &g, &b);
+					mat->kd = Vector3(r, g, b);
 				}
 				break;
 			case KA:
@@ -118,8 +136,8 @@ void LoadObjMaterial(const std::string& path, std::vector<ObjMesh::Material>& ma
 					float r,g, b;
 					r = g = b = 0.f;
 					char ka[16];
-					sscanf(nonBlankLine, "%s %f %f %f", ka, &r, &g, &b);
-					mat->ka = Vector4(r, g, b, 1.0);
+					sscanf(lineBuf, "%s %f %f %f", ka, &r, &g, &b);
+					mat->ka = Vector3(r, g, b);
 				}
 				break;
 			case KS:
@@ -128,8 +146,8 @@ void LoadObjMaterial(const std::string& path, std::vector<ObjMesh::Material>& ma
 					float r,g, b;
 					r = g = b = 0.f;
 					char ks[16];
-					sscanf(nonBlankLine, "%s %f %f %f", ks, &r, &g, &b);
-					mat->ks = Vector4(r, g, b, 1.0);
+					sscanf(lineBuf, "%s %f %f %f", ks, &r, &g, &b);
+					mat->ks = Vector3(r, g, b);
 				}
 				break;
 			case NS:
@@ -137,45 +155,51 @@ void LoadObjMaterial(const std::string& path, std::vector<ObjMesh::Material>& ma
 					ObjMesh::Material* mat = &(matList[currentMatIndex]);
 					float ns = 0.f;
 					char Ns[16];
-					sscanf(nonBlankLine, "%s %f", Ns, &ns);
+					sscanf(lineBuf, "%s %f", Ns, &ns);
 					mat->ns = ns;
-				}
-				break;
-			case MAP_KD:
-				{
-					ObjMesh::Material* mat = &(matList[currentMatIndex]);
-					char mapKd[256];
-					char TexName[256];
-					sscanf(nonBlankLine, "%s %s", mapKd, TexName);
-					mat->mapKd = std::string(TexName);
-					//printf("%s\n", mat->mapKd.c_str());
-				}
-				break;
-			case MAP_D:
-				{
-					//ObjMesh::ObjMaterial* mat = &(matList[currentMatIndex]);
-					char mapD[256];
-					char TexName[256];
-					sscanf(nonBlankLine, "%s %s", mapD, TexName);
-					//printf("%s\n", mat->mapD.c_str());					
 				}
 				break;
 			case MAP_KA:
 				{
 					ObjMesh::Material* mat = &(matList[currentMatIndex]);
-					char mapKa[256];
-					char TexName[256];
-					sscanf(nonBlankLine, "%s %s", mapKa, TexName);
+					sscanf(lineBuf, "%s %s", mapType, TexName);
 					mat->mapKa = std::string(TexName);
 					//printf("%s\n", mat->mapKa.c_str());
+				}
+				break;
+			case MAP_KD:
+				{
+					ObjMesh::Material* mat = &(matList[currentMatIndex]);
+					sscanf(lineBuf, "%s %s", mapType, TexName);
+					mat->mapKd = std::string(TexName);
+					//printf("%s\n", mat->mapKd.c_str());
+				}
+				break;
+			case MAP_KS:
+				{
+					ObjMesh::Material* mat = &(matList[currentMatIndex]);
+					sscanf(lineBuf, "%s %s", mapType, TexName);
+					mat->mapKs = std::string(TexName);
+				}
+				break;
+			case MAP_NS:
+				{
+					ObjMesh::Material* mat = &(matList[currentMatIndex]);
+					sscanf(lineBuf, "%s %s", mapType, TexName);
+					mat->mapNs = std::string(TexName);
+				}
+				break;
+			case MAP_D:
+				{
+					//ObjMesh::ObjMaterial* mat = &(matList[currentMatIndex]);
+					sscanf(lineBuf, "%s %s", mapType, TexName);
+					//printf("%s\n", mat->mapD.c_str());					
 				}
 				break;
 			case MAP_BUMP:
 				{
 					ObjMesh::Material* mat = &(matList[currentMatIndex]);
-					char mapBump[256];
-					char TexName[256];
-					sscanf(nonBlankLine, "%s %s", mapBump, TexName);
+					sscanf(lineBuf, "%s %s", mapType, TexName);
 					mat->mapBump = std::string(TexName);
 					//printf("%s\n", mat->mapBump.c_str());
 				}
@@ -183,9 +207,7 @@ void LoadObjMaterial(const std::string& path, std::vector<ObjMesh::Material>& ma
 			case MAP_REFL:
 				{
 					ObjMesh::Material* mat = &(matList[currentMatIndex]);
-					char mapRefl[256];
-					char TexName[256];
-					sscanf(nonBlankLine, "%s %s", mapRefl, TexName);
+					sscanf(lineBuf, "%s %s", mapType, TexName);
 					mat->mapRefl = std::string(TexName);
 				}
 			}

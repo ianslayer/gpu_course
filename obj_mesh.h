@@ -49,27 +49,43 @@ public:
     class Material
     {
     public:
-
-		enum ILLUM
-		{
-			COLOR_ON_AMBIENT_OFF = 0,
-			COLOR_ON_AMBIENT_ON = 1,
-			HIGHLIGHT_ON = 2,
-			REFLECTION_ON_RAY_TRACE_ON = 3,
-			TRANSPARENCY = 4, //glass on reflection: ray trace on
-
-		};
+		Material() : ka(0.f), kd(0.f), ks(0.f), ns(0.f)
+		{}
 
         std::string name;
-        
-        Vector4     kd;
-        Vector4     ka;
-        Vector4     ks;
+     
+        Vector3     ka;   
+        Vector3     kd;
+        Vector3     ks;
         float		ns;
+
+
         int			illum;
+		/*
+		 Illumination    Properties that are turned on in the 
+		 model           Property Editor
+ 
+		 0		Color on and Ambient off
+		 1		Color on and Ambient on
+		 2		Highlight on
+		 3		Reflection on and Ray trace on
+		 4		Transparency: Glass on
+ 				Reflection: Ray trace on
+		 5		Reflection: Fresnel on and Ray trace on
+		 6		Transparency: Refraction on
+ 				Reflection: Fresnel off and Ray trace on
+		 7		Transparency: Refraction on
+ 				Reflection: Fresnel on and Ray trace on
+		 8		Reflection on and Ray trace off
+		 9		Transparency: Glass on
+ 				Reflection: Ray trace off
+		 10		Casts shadows onto invisible surfaces
+		*/
 
         std::string mapKa;
         std::string mapKd;
+		std::string mapKs;
+		std::string mapNs;
         std::string mapD;
         std::string mapBump;
 		std::string mapRefl;

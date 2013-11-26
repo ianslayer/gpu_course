@@ -28,7 +28,7 @@ Matrix4x4 Primitive::ModelMatrix() const
     return modelMatrix;
 }
 
-bool LoadFromObjMesh(const std::string& path, RenderDevice* device, TextureManager* texManater, std::vector<RefCountedPtr<Primitive> >& primList)
+bool LoadFromObjMesh(const std::string& path, RenderDevice* device, TextureManager* texManater, std::vector<Primitive*>& primList)
 {
 	Matrix4x4 identityMatrix = Identity4x4();
 	Matrix4x4 texFlipMatrix = Matrix4x4(
@@ -40,7 +40,7 @@ bool LoadFromObjMesh(const std::string& path, RenderDevice* device, TextureManag
 	return LoadFromObjMesh(path, device, texManater, identityMatrix, texFlipMatrix, primList);
 }
 
-bool LoadFromObjMesh(const std::string& path, RenderDevice* device, TextureManager* texManater, Matrix4x4 posMatrix, Matrix4x4 texcoordMatrix, std::vector<RefCountedPtr<Primitive> >& primList)
+bool LoadFromObjMesh(const std::string& path, RenderDevice* device, TextureManager* texManater, Matrix4x4 posMatrix, Matrix4x4 texcoordMatrix, std::vector<Primitive* >& primList)
 {
 	ObjMesh objMesh;
 
@@ -59,6 +59,11 @@ bool LoadFromObjMesh(const std::string& path, RenderDevice* device, TextureManag
 		{
 			Vector4 pos =  posMatrix * Vector4(vertices[v].position.x, vertices[v].position.y, vertices[v].position.z, 1.f);
 			vertices[v].position = Vector3(pos.x, pos.y, pos.z);
+
+			Vector4 normal = posMatrix * Vector4(vertices[v].normal.x, vertices[v].normal.y, vertices[v].normal.z, 1.f);
+			vertices[v].normal = Vector3(normal.x, normal.y, normal.z);
+
+
 			Vector4 texcoord(vertices[v].texcoord.x, vertices[v].texcoord.y, 0.f, 1.f);
 			texcoord = texcoordMatrix * texcoord;
 			vertices[v].texcoord.x = texcoord.x;
@@ -92,10 +97,25 @@ bool LoadFromObjMesh(const std::string& path, RenderDevice* device, TextureManag
 		}
 
 		Primitive* prim = new Primitive();
-		Material* materia = new Material();
-		materia->diffuseTex = texManater->Load(folderPath + "\\" + objMesh.matList[objMesh.geomList[i].matIndex].mapKd );
+		Material* material = new Material();
+		ObjMesh::Material& mat = objMesh.matList[objMesh.geomList[i].matIndex];
+
+		material->ambient = mat.ka;
+		material->diffuse = mat.kd;
+		material->specular = mat.ks;
+		material->roughness = mat.ns;
+
+		if(!mat.mapKd.empty())
+			material->diffuseMap = texManater->Load(folderPath + "\\" + mat.mapKd );
+		if(!mat.mapKs.empty() )
+			material->specularMap = texManater->Load(folderPath + "\\" + mat.mapKs );
+		if(!mat.mapBump.empty())
+			material->normalMap = texManater->Load(folderPath + "\\" + mat.mapBump);
+		if(!mat.mapD.empty())
+			material->dissolveMask = texManater->Load(folderPath + "\\" + mat.mapD);
+
 		prim->mesh = mesh;
-		prim->material = materia;
+		prim->material = material;
 
 		primList.push_back(prim);
 	}

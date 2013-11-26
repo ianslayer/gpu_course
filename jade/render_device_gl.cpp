@@ -91,17 +91,23 @@ namespace jade
 		
 		glTexStorage2D(GL_TEXTURE_2D, desc->mipLevels, GetGLSizedTexFormat(desc->format), desc->width, desc->height);
 		
-		glTexSubImage2D(GL_TEXTURE_2D,
-		0,
-		0, 0,
-		desc->width, desc->height, 
-		GL_RGBA,
-		GL_UNSIGNED_BYTE,
-		data->buf
-		);
+		if(data && data->buf)
+		{
+			glTexSubImage2D(GL_TEXTURE_2D,
+			0,
+			0, 0,
+			desc->width, desc->height, 
+			GL_RGBA,
+			GL_UNSIGNED_BYTE,
+			data->buf
+			);
+
+			if(desc->generateMipmap)
+				glGenerateMipmap(GL_TEXTURE_2D);
+		}
 		
 
-		glGenerateMipmap(GL_TEXTURE_2D);
+
 		return RenderDevice::SUCCESS;
 	}
 

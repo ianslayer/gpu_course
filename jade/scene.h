@@ -6,14 +6,17 @@
 namespace jade
 {
     class Primitive;
+	class Light;
 
     class Scene
     {
     public:
 
-        void AddPrimitives(const std::vector<RefCountedPtr<Primitive> >& primList);
+        void AddPrimitives(const std::vector<Primitive*>& primList);
+		void AddLight(Light* light);
 
         std::vector<RefCountedPtr<Primitive> > primList;
+		std::vector<RefCountedPtr<Light> > lightList;
     };
 
 }

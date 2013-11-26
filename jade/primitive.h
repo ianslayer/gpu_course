@@ -27,8 +27,8 @@ namespace jade
         Vector3						translation;
     };
 
-	bool LoadFromObjMesh(const std::string& path, RenderDevice* device, TextureManager* texManater, std::vector<RefCountedPtr<Primitive> >& primList);
-	bool LoadFromObjMesh(const std::string& path, RenderDevice* device, TextureManager* texManater, Matrix4x4 posMatrix, Matrix4x4 texcoordMatrix, std::vector<RefCountedPtr<Primitive> >& primList);
+	bool LoadFromObjMesh(const std::string& path, RenderDevice* device, TextureManager* texManater, std::vector<Primitive*>& primList);
+	bool LoadFromObjMesh(const std::string& path, RenderDevice* device, TextureManager* texManater, Matrix4x4 posMatrix, Matrix4x4 texcoordMatrix, std::vector<Primitive* >& primList);
 }
 
 #endif

@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "../window.h"
-#include "../gl_utility.h"
 #include "../vector.h"
 #include "../matrix.h"
 #include "../Timer.h"
@@ -9,6 +8,7 @@
 #include "../obj_mesh.h"
 #include "mesh.h"
 #include "primitive.h"
+#include "light.h"
 #include "texture.h"
 #include "scene.h"
 #include "renderer_gl.h"
@@ -162,7 +162,7 @@ void Shutdown()
     jade::ShutdownRenderDevice(device);
 }
 
-std::vector<jade::RefCountedPtr<jade::Primitive> > primitiveList;
+std::vector<jade::Primitive* > primitiveList;
 
 void LoadResources()
 {
@@ -181,7 +181,15 @@ void LoadResources()
 	jade::LoadFromObjMesh("data/sponza/sponza.obj", device, texManager,  flipMatrix, texflipMatrix, primitiveList);
 	jade::LoadFromObjMesh("data/db5/db5.obj", device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList);
 	scene->AddPrimitives(primitiveList);
+
+	jade::Light* dirLight = new jade::DirectionLight();
+	scene->AddLight(dirLight);
+
+	jade::Light* pointLight = new jade::PointLight();
+	scene->AddLight(pointLight);
 	
+
+
 }
 
 void UnloadResources()
