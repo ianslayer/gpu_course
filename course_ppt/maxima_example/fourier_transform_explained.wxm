@@ -1,0 +1,66 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 12.04.0 ] */
+
+/* [wxMaxima: input   start ] */
+b(x, xi):=%e^(-2 * %pi * %i * x * xi);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+realpart(b(x, xi)) + %i * imagpart(b(x, xi));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d( [realpart(b(x, 0)), imagpart(b(x, 0))], [x, -5, 5]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d( [realpart(b(x, 1)), imagpart(b(x, 1))], [x, -5, 5]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d( [realpart(b(x, 2)), imagpart(b(x, 2))], [x, -5, 5]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d( [realpart(b(x, 3)), imagpart(b(x, 3))], [x, -5, 5]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+h(x):=(exp(-(x^2)*0.1)* (cos(2*%pi*3*x) + cos(2*%pi*5*x)));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d( [h(x), realpart( b(x, 0))], [x, -5, 5]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d( [realpart(h(x) * b(x, 0))], [x, -5, 5]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d( [h(x), realpart( b(x, 1))], [x, -5, 5]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d( [realpart(h(x) * b(x, 1))], [x, -5, 5]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d( [h(x), realpart( b(x, 2))], [x, -5, 5]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d( [realpart(h(x) * b(x, 2))], [x, -5, 5]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d( [h(x), realpart( b(x, 3))], [x, -5, 5]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d( [realpart(h(x) * b(x, 3))], [x, -5, 5]);
+/* [wxMaxima: input   end   ] */
+
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$

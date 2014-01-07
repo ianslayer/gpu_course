@@ -1,0 +1,30 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 12.04.0 ] */
+
+/* [wxMaxima: input   start ] */
+h(x):=(exp(-(x^2)*0.1)* (cos(2*%pi*3*x) + cos(2*%pi*5*x)));
+plot2d(h(x), [x, -10, 10]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+hf(xi):=integrate(h(x)* %e ^ (-2 * %pi * %i * x * xi), x, -inf, inf );
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d(hf(xi), [xi, -10, 10]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+hh(x):=integrate(hf(xi)* %e ^ (2 * %pi * %i * xi * x), xi, -inf, inf );
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+hh(x);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d(hh(x), [x, -5, 5]);
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$

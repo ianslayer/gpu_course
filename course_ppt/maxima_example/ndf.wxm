@@ -1,0 +1,25 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 12.04.0 ] */
+
+/* [wxMaxima: input   start ] */
+D(theta, alpha):=cos(theta)^alpha;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+DD(alpha):=integrate( integrate(D(theta, alpha)*cos(theta)*sin(theta), theta, 0, %pi/2), phi, 0, 2 * %pi );
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+DD(alpha);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+Dp(theta, alpha):=(alpha + 2)/(2*%pi) *cos(theta)^alpha;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d([Dp(theta, 0), Dp(theta, 1), Dp(theta, 2), Dp(theta, 3)], [theta, 0, %pi/2]);
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$

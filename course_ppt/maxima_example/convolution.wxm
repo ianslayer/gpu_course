@@ -1,0 +1,37 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 12.04.0 ] */
+
+/* [wxMaxima: input   start ] */
+ ustep(x):=(1 + signum (x))/2;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+box(x):=ustep( x+(1/2) ) - ustep( x-(1/2) );
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d(box(x), [x,-10,10], [y, -1, 2]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+fbox(xi):=integrate(box(x)* %e ^ (-2 * %pi * %i * x * xi), x, -1/2, 1/2 );
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d(realpart(fbox(xi)), [xi,-10,10]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+h(x):=(exp(-(x^2)*0.1)* (cos(2*%pi*3*x) + cos(2*%pi*5*x)));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+convolve(t):=integrate(h(t - tau) * box(tau), tau, -inf, inf);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d(convolve(x), [x,-10,10]);
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
