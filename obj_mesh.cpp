@@ -664,7 +664,7 @@ struct VertexEqual
     }
 };
 
-void ObjMesh::CreateVertexIndexBuffer(int geomIndex, std::vector<ObjMesh::FusedVertex>& vertices, std::vector<int>& indices)
+void ObjMesh::CreateVertexIndexBuffer(int geomIndex, std::vector<ObjMesh::FusedVertex>& vertices, std::vector<int>& indices) const
 {
     std::unordered_map<FusedVertex, int, VertexHash, VertexEqual> vertIndexTable;
     int uniqueIndex = 0;

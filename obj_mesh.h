@@ -118,7 +118,7 @@ public:
 
 
     bool Load(const std::string& path);
-    void CreateVertexIndexBuffer(int geomIndex, std::vector<FusedVertex>& vertices, std::vector<int>& indices);
+    void CreateVertexIndexBuffer(int geomIndex, std::vector<FusedVertex>& vertices, std::vector<int>& indices) const;
 
 	std::string name;
 	std::string path;

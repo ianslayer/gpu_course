@@ -5,6 +5,8 @@
 #include "../vector.h"
 #include <vector>
 
+class ObjMesh;
+
 namespace jade
 {
     class Mesh;
@@ -26,6 +28,9 @@ namespace jade
         Matrix3x3					orientation;
         Vector3						translation;
     };
+
+	bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* device, TextureManager* texManater, Matrix4x4 posMatrix, Matrix4x4 texcoordMatrix, Primitive** outPrim);
+	bool LoadFromObjMesh(const ObjMesh& objMesh, RenderDevice* device, TextureManager* texManater, Matrix4x4 posMatrix, Matrix4x4 texcoordMatrix, std::vector<Primitive* >& primList);
 
 	bool LoadFromObjMesh(const std::string& path, RenderDevice* device, TextureManager* texManater, std::vector<Primitive*>& primList);
 	bool LoadFromObjMesh(const std::string& path, RenderDevice* device, TextureManager* texManater, Matrix4x4 posMatrix, Matrix4x4 texcoordMatrix, std::vector<Primitive* >& primList);

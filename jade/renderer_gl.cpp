@@ -20,6 +20,8 @@ namespace jade
 
 		virtual void Render(const Camera* camera, const Scene* scene);
 
+		void RenderDebugInfo(const Camera* camera, const Scene* scene);
+
 		class RenderDevice* device;
 		GLuint wireframeShader;
 		GLuint matShader;

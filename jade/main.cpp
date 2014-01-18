@@ -179,7 +179,7 @@ void LoadResources()
 		0.f, 0.f, 0.f, 1.f
 		);
 	jade::LoadFromObjMesh("data/sponza/sponza.obj", device, texManager,  flipMatrix, texflipMatrix, primitiveList);
-	jade::LoadFromObjMesh("data/db5/db5.obj", device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList);
+	//jade::LoadFromObjMesh("data/db5/db5.obj", device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList);
 	scene->AddPrimitives(primitiveList);
 
 	jade::Light* dirLight = new jade::DirectionLight();

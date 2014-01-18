@@ -4,12 +4,13 @@
 #include "../vector.h"
 #include "../geometry.h"
 #include "render_device.h"
-#include <vector>
+#include "refcount.h"
 #include <string>
+
+class ObjMesh;
 
 namespace jade
 {
-
     struct VertexP3N3T2
     {
         Vector3 position;
@@ -39,10 +40,11 @@ namespace jade
 
         RefCountedPtr<HWVertexBuffer> vertexBuffer;
         RefCountedPtr<HWIndexBuffer>  indexBuffer;
+		AABB			bound;
     };
 
-    //bool LoadFromObjMesh(const std::string& path, RenderDevice* device, std::vector<RefCountedPtr<Mesh> >& meshList );
-
+	bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* device, Mesh** outMesh );
+	AABB ComputeBound(const Mesh& mesh);
 }
 
 #endif

@@ -19,50 +19,66 @@ Mesh::~Mesh()
     delete[] indices;
 }
 
-bool LoadFromObjMesh(const std::string& path, RenderDevice* device, std::vector<RefCountedPtr<Mesh> >& meshList)
+AABB ComputeBound(const Mesh& _mesh)
 {
-    ObjMesh objMesh;
+	Vector3 minBound = Vector3(FLT_MAX);
+	Vector3 maxBound = Vector3(-FLT_MAX);
+	AABB bound;
 
-    bool success = objMesh.Load(path);
+	for(int i = 0; i < _mesh.numVertices; i++)
+	{
+		minBound = Min(minBound, _mesh.positionList[i]);
+		maxBound = Max(maxBound, _mesh.positionList[i]);
+	}
 
-    for(size_t i = 0; i < objMesh.geomList.size(); i++)
-    {
-        std::vector<ObjMesh::FusedVertex> vertices;
-        std::vector<int> indices;
+	bound.center = (minBound + maxBound) / 2.f;
+	bound.radius = (maxBound - minBound) / 2.f;
 
-        objMesh.CreateVertexIndexBuffer(i, vertices, indices);
+	return bound;
+}
 
-        HWVertexBuffer* vertexBuffer;
-        HWIndexBuffer* indexBuffer;
+bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* device, Mesh** outMesh )
+{
+	//assert(geomIndex < objMesh.geomList.size());
 
-        device->CreateVertexBuffer(sizeof(ObjMesh::FusedVertex) * vertices.size(), &vertices[0], &vertexBuffer);
-        device->CreateIndexBuffer(sizeof(int) * indices.size(), &indices[0], &indexBuffer);
+	if(geomIndex > objMesh.geomList.size())
+		return false;
 
-        Mesh* mesh = new Mesh();
+	std::vector<ObjMesh::FusedVertex> vertices;
+	std::vector<int> indices;
 
-        mesh->vertexBuffer = vertexBuffer;
-        mesh->indexBuffer = indexBuffer;
-        mesh->numVertices = vertices.size();
-        mesh->numIndices = indices.size();
+	objMesh.CreateVertexIndexBuffer(geomIndex, vertices, indices);
 
-        mesh->positionList = new Vector3[vertices.size()];
-        mesh->normalList = new Vector3[vertices.size()];
-        mesh->texcoordList = new Vector2[vertices.size()];
+	HWVertexBuffer* vertexBuffer;
+	HWIndexBuffer* indexBuffer;
 
-        mesh->vertices = new VertexP3N3T2[vertices.size()];
+	device->CreateVertexBuffer(sizeof(ObjMesh::FusedVertex) * vertices.size(), &vertices[0], &vertexBuffer);
+	device->CreateIndexBuffer(sizeof(int) * indices.size(), &indices[0], &indexBuffer);
 
-        for(size_t v = 0; v < vertices.size(); v++)
-        {
-            mesh->vertices[v].position = mesh->positionList[v] = vertices[v].position;
-            mesh->vertices[v].normal = mesh->normalList[v] = vertices[v].normal;
-            mesh->vertices[v].texcoord = mesh->texcoordList[v] = vertices[v].texcoord;
-        }
+	if(*outMesh == NULL)
+		*outMesh = new Mesh();
 
-        meshList.push_back(mesh);
-    }
+	(*outMesh)->vertexBuffer = vertexBuffer;
+	(*outMesh)->indexBuffer = indexBuffer;
+	(*outMesh)->numVertices = vertices.size();
+	(*outMesh)->numIndices = indices.size();
 
+	(*outMesh)->positionList = new Vector3[vertices.size()];
+	(*outMesh)->normalList = new Vector3[vertices.size()];
+	(*outMesh)->texcoordList = new Vector2[vertices.size()];
 
-    return success;
+	(*outMesh)->vertices = new VertexP3N3T2[vertices.size()];
+
+	(*outMesh)->bound = ComputeBound(**outMesh);
+
+	for(size_t v = 0; v < vertices.size(); v++)
+	{
+		(*outMesh)->vertices[v].position =(*outMesh)->positionList[v] = vertices[v].position;
+		(*outMesh)->vertices[v].normal = (*outMesh)->normalList[v] = vertices[v].normal;
+		(*outMesh)->vertices[v].texcoord = (*outMesh)->texcoordList[v] = vertices[v].texcoord;
+	}
+
+	return true;
 }
 
 }

@@ -5,18 +5,25 @@
 
 struct AABB
 {
+	AABB() : center(0, 0, 0), radius(-FLT_MAX, -FLT_MAX, -FLT_MAX) {};
+	AABB( const Vector3& _center, const Vector3& _radius ) : center(_center), radius(_radius) {}
     Vector3 center;
     Vector3 radius; //half width
 };
 
 struct Sphere
 {
+	Sphere() : center(0, 0, 0), radius(-FLT_MAX) {};
+	Sphere( const Vector3& _center, const float _radius ) : center(_center), radius(_radius) {}
     Vector3 center;
     float   radius;
 };
 
 struct Ray
 {
+	Ray() : origin(0, 0, 0), direction(0, 0, 1) {}
+	Ray( const Vector3& _origin, const Vector3& _direction) : origin(_origin), direction(_direction) {}
+
     Vector3 origin;
     Vector3 direction;
 };
