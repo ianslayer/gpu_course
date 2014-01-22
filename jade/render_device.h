@@ -72,6 +72,7 @@ namespace jade
 	class HWTexture2D : public RefCounted
 	{
 	public:
+		friend class RenderDevice;
 		struct Desc
 		{
 			unsigned int width;
@@ -90,6 +91,53 @@ namespace jade
 		Texture2DImpl impl;
 	};
 
+	class TextureSamplerDesc
+	{
+	public:
+		enum TEX_FILTER
+		{
+			MIN_MAG_MIP_POINT,
+			MIN_MAG_MIP_LINEAR,
+			ANISOTROPIC,
+		};
+	};
+
+	class TextureSamplerState : public RefCounted
+	{
+	public:
+		friend class RenderDevice;
+
+		enum TEX_FILTER
+		{
+			TEX_FILTER_MIN_MAG_MIP_POINT,
+			TEX_FILTER_MIN_MAG_MIP_LINEAR,
+			TEX_FILTER_ANISOTROPIC,
+		};
+
+		enum TEX_ADDRESS_MODE
+		{
+			TEX_ADDRESS_WRAP,
+			TEX_ADDRESS_MIRROR,
+			TEX_ADDRESS_CLAMP
+		};
+
+		class Desc
+		{
+		public:
+
+			TEX_FILTER filter;
+			TEX_ADDRESS_MODE uAddressMode;
+			TEX_ADDRESS_MODE vAddressMode;
+			TEX_ADDRESS_MODE wAddressMode;
+			unsigned int     maxAnisotropy;
+		};
+
+		TextureSamplerStateImpl* GetImpl();
+	private:
+		Desc desc;
+		TextureSamplerStateImpl impl;
+	};
+
     class RenderDevice
     {
     public:
@@ -102,6 +150,7 @@ namespace jade
         error_t CreateVertexBuffer(size_t size, void* buf, HWVertexBuffer** buffer);
         error_t CreateIndexBuffer(size_t size, void* buf, HWIndexBuffer** buffer);
 		error_t CreateTexture2D(HWTexture2D::Desc* desc, SubresourceData* data, HWTexture2D** texture);
+		error_t CreateSamplerState(TextureSamplerState::Desc* desc, TextureSamplerState** state);
     };
 
     struct RenderDeviceSetting

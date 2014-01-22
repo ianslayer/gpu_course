@@ -37,7 +37,7 @@ AABB ComputeBound(const Mesh& _mesh)
 	return bound;
 }
 
-bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* device, Mesh** outMesh )
+bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* device, const Matrix4x4& transform, const Matrix2x2 texMatrix, Mesh** outMesh )
 {
 	//assert(geomIndex < objMesh.geomList.size());
 
@@ -48,6 +48,13 @@ bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* dev
 	std::vector<int> indices;
 
 	objMesh.CreateVertexIndexBuffer(geomIndex, vertices, indices);
+
+	for(size_t i= 0 ; i < vertices.size(); i++)
+	{
+		vertices[i].position = DivideW(transform * Vector4(vertices[i].position, 1.f));
+		vertices[i].normal = DiscardW(transform * Vector4(vertices[i].normal, 0.f) );
+		vertices[i].texcoord = texMatrix * vertices[i].texcoord;
+	}
 
 	HWVertexBuffer* vertexBuffer;
 	HWIndexBuffer* indexBuffer;
@@ -73,7 +80,7 @@ bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* dev
 
 	for(size_t v = 0; v < vertices.size(); v++)
 	{
-		(*outMesh)->vertices[v].position =(*outMesh)->positionList[v] = vertices[v].position;
+		(*outMesh)->vertices[v].position = (*outMesh)->positionList[v] = vertices[v].position;
 		(*outMesh)->vertices[v].normal = (*outMesh)->normalList[v] = vertices[v].normal;
 		(*outMesh)->vertices[v].texcoord = (*outMesh)->texcoordList[v] = vertices[v].texcoord;
 	}

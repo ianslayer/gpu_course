@@ -3,6 +3,91 @@
 
 #include "vector.h"
 
+class Matrix2x2
+{
+public:
+	explicit Matrix2x2() {}
+	explicit Matrix2x2(float m00, float m01, float m10, float m11);
+	explicit Matrix2x2(const float* floatPtr);
+	
+	Vector2& operator [] (int row);
+	const Vector2& operator [] (int row) const;
+
+//	Vector2 column(int column) const;
+
+	const Matrix2x2& operator*= (float a);
+	const Matrix2x2& operator*= (const Matrix2x2& mat);
+
+	Matrix2x2 operator * (float a) const;
+	Vector2   operator * (const Vector2& vec) const;
+	Matrix2x2 operator * (const Matrix2x2& mat) const;
+
+	Vector2 row[2];
+};
+
+inline Matrix2x2::Matrix2x2(float m00, float m01, float m10, float m11)
+{
+	row[0].x = m00; row[0].y = m01;
+	row[1].x = m10; row[1].y = m11;
+}
+
+inline Matrix2x2::Matrix2x2(const float* floatPtr)
+{
+	row[0].x = floatPtr[0]; row[0].y = floatPtr[1];
+	row[1].x = floatPtr[2]; row[1].y = floatPtr[3];
+}
+
+inline Vector2& Matrix2x2::operator [] (int _row)
+{
+	return row[_row];
+}
+
+inline const Vector2& Matrix2x2::operator [] (int _row) const 
+{
+	return row[_row];
+}
+
+inline const Matrix2x2& Matrix2x2::operator*= (float a)
+{
+	row[0].x *= a; row[0].y *= a;
+	row[1].x *= a; row[1].y *= a;
+	return *this;
+}
+
+inline const Matrix2x2& Matrix2x2::operator*= (const Matrix2x2& mat)
+{
+	float tmp[2];
+
+	tmp[0] = row[0].x * mat[0][0] + row[0].y * mat[1][0];
+	tmp[1] = row[0].x * mat[0][1] + row[0].y * mat[1][1];
+ 
+	row[0].x = tmp[0]; row[1].y = tmp[1];
+
+	tmp[0] = row[1].x * mat[0][0] + row[1].y * mat[1][0];
+	tmp[1] = row[1].x * mat[0][1] + row[1].y * mat[1][1];
+	
+	row[1].x = tmp[0]; row[1].y = tmp[1];
+
+	return *this;
+}
+
+inline Matrix2x2 Matrix2x2::operator * (float a) const
+{
+	Matrix2x2 dst = (*this);
+	return dst *= a;
+} 
+
+inline Vector2 Matrix2x2::operator * (const Vector2& vec) const
+{
+	return Vector2(row[0].x * vec.x + row[0].y * vec.y, row[1].x * vec.x + row[1].y * vec.y);
+}
+
+inline Matrix2x2 Matrix2x2::operator * (const Matrix2x2& mat) const
+{
+	Matrix2x2 dst  = (*this);
+	return dst *= mat;
+}
+
 class Matrix3x3
 {
 public: 
@@ -18,9 +103,9 @@ public:
 	const Matrix3x3& operator*= (float a);
 	const Matrix3x3& operator*= (const Matrix3x3& mat);
 
-	Matrix3x3 operator * (float a);
-	Vector3   operator * (const Vector3& vec);
-	Matrix3x3 operator * (const Matrix3x3& mat);
+	Matrix3x3 operator * (float a) const;
+	Vector3   operator * (const Vector3& vec) const;
+	Matrix3x3 operator * (const Matrix3x3& mat) const;
 
 	void MakeIdentity();
 	Matrix3x3  Transpose();
@@ -31,16 +116,16 @@ public:
     const float* FloatPtr() const;
 
 private:
-	Vector3 mat[3];
+	Vector3 row[3];
 };
 
 inline Matrix3x3::Matrix3x3(float m00, float m01, float m02,
                               float m10, float m11, float m12,
                               float m20, float m21, float m22)
 {
-	mat[0].x = m00; mat[0].y = m01; mat[0].z = m02;
-	mat[1].x = m10; mat[1].y = m11; mat[1].z = m12; 
-	mat[2].x = m20; mat[2].y = m21; mat[2].z = m22;
+	row[0].x = m00; row[0].y = m01; row[0].z = m02;
+	row[1].x = m10; row[1].y = m11; row[1].z = m12; 
+	row[2].x = m20; row[2].y = m21; row[2].z = m22;
 }
 
 inline Matrix3x3::Matrix3x3(const float *floatPtr)
@@ -49,21 +134,21 @@ inline Matrix3x3::Matrix3x3(const float *floatPtr)
 	memcpy(mPtr, floatPtr, sizeof(float) * 9);
 }
 
-inline Vector3& Matrix3x3::operator [] (int row)
+inline Vector3& Matrix3x3::operator [] (int _row)
 {
-	return mat[row];
+	return row[_row];
 }
 
-inline const Vector3& Matrix3x3::operator [] (int row) const
+inline const Vector3& Matrix3x3::operator [] (int _row) const
 {
-	return mat[row];
+	return row[_row];
 }
 
 inline const Matrix3x3& Matrix3x3::operator *= (float a) 
 {
-	mat[0].x *= a;	mat[0].y *= a; mat[0].z *= a;
-	mat[1].x *= a;	mat[1].y *= a; mat[1].z *= a;
-	mat[2].x *= a;	mat[2].y *= a; mat[2].z *= a;
+	row[0].x *= a;	row[0].y *= a; row[0].z *= a;
+	row[1].x *= a;	row[1].y *= a; row[1].z *= a;
+	row[2].x *= a;	row[2].y *= a; row[2].z *= a;
 
 	return *this;
 }
@@ -90,61 +175,57 @@ inline const Matrix3x3& Matrix3x3::operator *= (const Matrix3x3& mat)
 	return *this;
 }
 
-inline Matrix3x3 Matrix3x3::operator * (float a)
+inline Matrix3x3 Matrix3x3::operator * (float a) const
 {
-	return Matrix3x3(
-			mat[0].x * a, mat[0].y * a, mat[0].z * a,
-			mat[1].x * a, mat[1].y * a, mat[1].z * a,
-			mat[2].x * a, mat[2].y * a, mat[2].z * a
-			);
+	Matrix3x3 dst = (*this);
+	return dst *= a;
 }
 
-inline Vector3 Matrix3x3::operator * (const Vector3& _vec)
+inline Vector3 Matrix3x3::operator * (const Vector3& _vec) const
 {
 	return Vector3(
-		mat[0].x * _vec.x + mat[0].y * _vec.y + mat[0].z * _vec.z,
-		mat[1].x * _vec.x + mat[1].y * _vec.y + mat[1].z * _vec.z,
-		mat[2].x * _vec.x + mat[2].y * _vec.y + mat[2].z * _vec.z
+		row[0].x * _vec.x + row[0].y * _vec.y + row[0].z * _vec.z,
+		row[1].x * _vec.x + row[1].y * _vec.y + row[1].z * _vec.z,
+		row[2].x * _vec.x + row[2].y * _vec.y + row[2].z * _vec.z
 		);
 }
 
-inline Matrix3x3 Matrix3x3::operator *(const Matrix3x3 &mat)
+inline Matrix3x3 Matrix3x3::operator *(const Matrix3x3 &mat) const
 {
-	Matrix3x3 dst = *this;
-	dst *= mat;
-	return dst;
+	Matrix3x3 dst = (*this);
+	return dst *= mat;
 }
 
 inline void Matrix3x3::MakeIdentity()
 {
-	mat[0].x = 1.f; mat[0].y = 0.f; mat[0].z = 0.f;
-	mat[1].x = 0.f; mat[1].y = 1.f; mat[1].z = 0.f;
-	mat[2].x = 0.f; mat[2].y = 0.f; mat[2].z = 1.f;
+	row[0].x = 1.f; row[0].y = 0.f; row[0].z = 0.f;
+	row[1].x = 0.f; row[1].y = 1.f; row[1].z = 0.f;
+	row[2].x = 0.f; row[2].y = 0.f; row[2].z = 1.f;
 }
 
 inline Matrix3x3 Matrix3x3::Transpose()
 {
 	return Matrix3x3(
-		mat[0].x, mat[1].x, mat[2].x,
-		mat[0].y, mat[1].y, mat[2].y,
-		mat[0].z, mat[1].z, mat[2].z
+		row[0].x, row[1].x, row[2].x,
+		row[0].y, row[1].y, row[2].y,
+		row[0].z, row[1].z, row[2].z
 	);
 }
 
 inline Matrix3x3& Matrix3x3::TransposeSelf()
 {
 	float temp0, temp1, temp2;
-	temp0 = mat[0][1];
-	mat[0][1] = mat[1][0];
-	mat[1][0] = temp0;
+	temp0 = row[0][1];
+	row[0][1] = row[1][0];
+	row[1][0] = temp0;
 
-	temp1 = mat[0][2];
-	mat[0][2] = mat[2][0];
-	mat[2][0] = temp1;
+	temp1 = row[0][2];
+	row[0][2] = row[2][0];
+	row[2][0] = temp1;
 
-	temp2 = mat[1][2];
-	mat[1][2] = mat[2][1];
-	mat[2][1] = temp2;
+	temp2 = row[1][2];
+	row[1][2] = row[2][1];
+	row[2][1] = temp2;
 
 	return *this;
 }
@@ -192,9 +273,9 @@ public:
    Vector4& operator [] (int _row);
    const Vector4& operator [] (int _row) const;
 
-   Matrix4x4 operator* (float a);
-   Vector4 operator*(const Vector4& vec);
-   Matrix4x4 operator* (const Matrix4x4& mat);
+   Matrix4x4 operator* (float a) const;
+   Vector4 operator*(const Vector4& vec) const;
+   Matrix4x4 operator* (const Matrix4x4& mat) const;
 
    const Matrix4x4& operator*=(float a);
    const Matrix4x4& operator*=(const Matrix4x4& mat);
@@ -209,8 +290,8 @@ public:
    Matrix4x4& TransposeSelf();
 
 private:
-   //store in row major...,
-   Vector4 mat[4];
+   
+   Vector4 row[4];
 };
 
 inline Matrix4x4::Matrix4x4(float m00, float m01, float m02, float m03, 
@@ -218,25 +299,25 @@ inline Matrix4x4::Matrix4x4(float m00, float m01, float m02, float m03,
                               float m20, float m21, float m22, float m23, 
                               float m30, float m31, float m32, float m33)
 {
-	mat[0][0] = m00;
-	mat[0][1] = m01;
-	mat[0][2] = m02;
-	mat[0][3] = m03;
+	row[0][0] = m00;
+	row[0][1] = m01;
+	row[0][2] = m02;
+	row[0][3] = m03;
 
-	mat[1][0] = m10;
-	mat[1][1] = m11;
-	mat[1][2] = m12;
-	mat[1][3] = m13;
+	row[1][0] = m10;
+	row[1][1] = m11;
+	row[1][2] = m12;
+	row[1][3] = m13;
 
-	mat[2][0] = m20;
-	mat[2][1] = m21;
-	mat[2][2] = m22;
-	mat[2][3] = m23;
+	row[2][0] = m20;
+	row[2][1] = m21;
+	row[2][2] = m22;
+	row[2][3] = m23;
 
-	mat[3][0] = m30;
-	mat[3][1] = m31;
-	mat[3][2] = m32;
-	mat[3][3] = m33;
+	row[3][0] = m30;
+	row[3][1] = m31;
+	row[3][2] = m32;
+	row[3][3] = m33;
 
 }
 
@@ -248,12 +329,12 @@ inline Matrix4x4::Matrix4x4(const float* _mIn)
 
 inline Vector4& Matrix4x4::operator[](int _row)
 {	
-	return mat[_row];
+	return row[_row];
 }
 	
 inline const  Vector4& Matrix4x4::operator[](int _row) const
 {
-	return mat[_row];
+	return row[_row];
 }
 
 inline float* Matrix4x4::FloatPtr()
@@ -271,62 +352,40 @@ inline void Matrix4x4::Set(float m00, float m01, float m02, float m03,
 							 float m20, float m21, float m22, float m23, 
 							 float m30, float m31, float m32, float m33)
 {
-	mat[0][0] = m00; mat[0][1] = m01; mat[0][2] = m02; mat[0][3] = m03;
-	mat[1][0] = m10; mat[1][1] = m11; mat[1][2] = m12; mat[1][3] = m13;
-	mat[2][0] = m20; mat[2][1] = m21; mat[2][2] = m22; mat[2][3] = m23;
-	mat[3][0] = m30; mat[3][1] = m31; mat[3][2] = m32; mat[3][3] = m33;
+	row[0][0] = m00; row[0][1] = m01; row[0][2] = m02; row[0][3] = m03;
+	row[1][0] = m10; row[1][1] = m11; row[1][2] = m12; row[1][3] = m13;
+	row[2][0] = m20; row[2][1] = m21; row[2][2] = m22; row[2][3] = m23;
+	row[3][0] = m30; row[3][1] = m31; row[3][2] = m32; row[3][3] = m33;
 }
 
-inline Matrix4x4 Matrix4x4::operator *(float a)
+inline Matrix4x4 Matrix4x4::operator *(float a) const
 {
-	return Matrix4x4(
-		mat[0][0] * a, mat[0][1] * a, mat[0][2] * a, mat[0][3] * a,
-		mat[1][0] * a, mat[1][1] * a, mat[1][2] * a, mat[1][3] * a,
-		mat[2][0] * a, mat[2][1] * a, mat[2][2] * a, mat[2][3] * a,
-		mat[3][0] * a, mat[3][1] * a, mat[3][2] * a, mat[3][3] * a
-	);
+	Matrix4x4 dst = (*this);
+	return dst *= a;
 }
 
-inline Vector4 Matrix4x4::operator *(const Vector4 &vec)
+inline Vector4 Matrix4x4::operator *(const Vector4 &vec) const
 {
 	return Vector4(
-		mat[0][0] * vec.x + mat[0][1] * vec.y + mat[0][2] * vec.z + mat[0][3] * vec.w,
-		mat[1][0] * vec.x + mat[1][1] * vec.y + mat[1][2] * vec.z + mat[1][3] * vec.w,
-		mat[2][0] * vec.x + mat[2][1] * vec.y + mat[2][2] * vec.z + mat[2][3] * vec.w,
-		mat[3][0] * vec.x + mat[3][1] * vec.y + mat[3][2] * vec.z + mat[3][3] * vec.w
+		row[0][0] * vec.x + row[0][1] * vec.y + row[0][2] * vec.z + row[0][3] * vec.w,
+		row[1][0] * vec.x + row[1][1] * vec.y + row[1][2] * vec.z + row[1][3] * vec.w,
+		row[2][0] * vec.x + row[2][1] * vec.y + row[2][2] * vec.z + row[2][3] * vec.w,
+		row[3][0] * vec.x + row[3][1] * vec.y + row[3][2] * vec.z + row[3][3] * vec.w
 		);	
 }
 
-inline Matrix4x4 Matrix4x4::operator *(const Matrix4x4& mat)
+inline Matrix4x4 Matrix4x4::operator *(const Matrix4x4& mat) const
 {
-	int i, j;
-	const float* m1Ptr, *m2Ptr;
-	float* dstPtr;
-	Matrix4x4 dst;
-
-	m1Ptr = reinterpret_cast<const float*> (this);
-	m2Ptr = reinterpret_cast<const float*>(&mat);
-	dstPtr = reinterpret_cast<float*>(&dst);
-
-	for ( i = 0; i < 4; i++ ) {
-		for ( j = 0; j < 4; j++ ) {
-			*dstPtr = m1Ptr[0] * m2Ptr[ 0 * 4 + j ]
-					+ m1Ptr[1] * m2Ptr[ 1 * 4 + j ]
-					+ m1Ptr[2] * m2Ptr[ 2 * 4 + j ]
-					+ m1Ptr[3] * m2Ptr[ 3 * 4 + j ];
-			dstPtr++;
-		}
-		m1Ptr += 4;
-	}
-	return dst;
+	Matrix4x4 dst = (*this);
+	return dst *= mat;
 }
 
 inline const Matrix4x4& Matrix4x4::operator *=(float a)
 {
-	mat[0][0] *= a; mat[0][1] *= a; mat[0][2] *= a; mat[0][3] *= a;
-	mat[1][0] *= a; mat[1][1] *= a; mat[1][2] *= a; mat[1][3] *= a;
-	mat[2][0] *= a; mat[2][1] *= a; mat[2][2] *= a; mat[2][3] *= a;
-	mat[3][0] *= a; mat[3][1] *= a; mat[3][2] *= a; mat[3][3] *= a;
+	row[0][0] *= a; row[0][1] *= a; row[0][2] *= a; row[0][3] *= a;
+	row[1][0] *= a; row[1][1] *= a; row[1][2] *= a; row[1][3] *= a;
+	row[2][0] *= a; row[2][1] *= a; row[2][2] *= a; row[2][3] *= a;
+	row[3][0] *= a; row[3][1] *= a; row[3][2] *= a; row[3][3] *= a;
 
 	return *this;
 }
@@ -357,7 +416,7 @@ inline const Matrix4x4& Matrix4x4::operator *= (const Matrix4x4& mat)
 
 
 //test __restrict
-inline void Matrix4x4Mult(const float* __restrict m1Ptr, const float* __restrict m2Ptr, float* __restrict dstPtr)
+inline void Matrix4x4Mult(const float* m1Ptr, const float* m2Ptr, float* __restrict dstPtr)
 {
 	int i, j;
 	for ( i = 0; i < 4; i++ ) {
@@ -385,39 +444,39 @@ inline Matrix4x4 operator*(float a, const Matrix4x4& mat)
 inline Matrix4x4 Matrix4x4::Transpose()
 {
 	return Matrix4x4(
-			mat[0][0], mat[1][0], mat[2][0], mat[3][0],
-			mat[0][1], mat[1][1], mat[2][1], mat[3][1],
-			mat[0][2], mat[1][2], mat[2][2], mat[3][2],
-			mat[0][3], mat[1][3], mat[2][3], mat[3][3]
+			row[0][0], row[1][0], row[2][0], row[3][0],
+			row[0][1], row[1][1], row[2][1], row[3][1],
+			row[0][2], row[1][2], row[2][2], row[3][2],
+			row[0][3], row[1][3], row[2][3], row[3][3]
 	);
 }
 
 inline Matrix4x4& Matrix4x4::TransposeSelf()
 {
 	float temp0, temp1, temp2, temp3, temp4, temp5;
-	temp0 = mat[0][1];
-	mat[0][1] = mat[1][0];
-	mat[1][0] = temp0;
+	temp0 = row[0][1];
+	row[0][1] = row[1][0];
+	row[1][0] = temp0;
 
-	temp1 = mat[0][2];
-	mat[0][2] = mat[2][0];
-	mat[2][0] = temp1;
+	temp1 = row[0][2];
+	row[0][2] = row[2][0];
+	row[2][0] = temp1;
 
-	temp2 = mat[0][3];
-	mat[0][3] = mat[3][0];
-	mat[3][0] = temp2;
+	temp2 = row[0][3];
+	row[0][3] = row[3][0];
+	row[3][0] = temp2;
 
-	temp3 = mat[1][2];
-	mat[1][2] = mat[2][1];
-	mat[2][1] = temp3;
+	temp3 = row[1][2];
+	row[1][2] = row[2][1];
+	row[2][1] = temp3;
 
-	temp4 = mat[1][3];
-	mat[1][3] = mat[3][1];
-	mat[3][1] = temp4;
+	temp4 = row[1][3];
+	row[1][3] = row[3][1];
+	row[3][1] = temp4;
 
-	temp5 = mat[2][3];
-	mat[2][3] = mat[3][2];
-	mat[3][2] = temp5;
+	temp5 = row[2][3];
+	row[2][3] = row[3][2];
+	row[3][2] = temp5;
 
 	return *this;
 

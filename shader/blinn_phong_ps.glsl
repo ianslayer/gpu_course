@@ -4,6 +4,8 @@ in vec2 vs_fs_texcoord;
 in vec3 world_pos;
 in vec3 world_normal;
 
+out vec4 out_color;
+
 uniform sampler2D diffuseTex;
 uniform sampler2D specularTex;
 
@@ -29,5 +31,5 @@ void main(void)
 	
 //	vec h = lightDir + 
 	
-	gl_FragColor = vec4(lightIntensity, 1.f) * vec4(vec3(ndotL), 1.0) *  vec4(diffuse, 1.f) * texture(diffuseTex, vs_fs_texcoord);//vec4(vs_fs_texcoord, 0.0, 1.0) ;
+	out_color = vec4(lightIntensity, 1.f) * vec4(vec3(ndotL), 1.0) *  vec4(diffuse, 1.f) * texture(diffuseTex, vs_fs_texcoord);//vec4(vs_fs_texcoord, 0.0, 1.0) ;
 }

@@ -172,13 +172,15 @@ void LoadResources()
 		0, 1.f, 0, 0,
 		0, 0, 0, 1.f);
 
-	Matrix4x4 texflipMatrix =  Matrix4x4(
-		1.f, 0.f, 0.f, 0.f,
-		0.f, -1.f, 0.f, 1.f,
-		0.f, 0.f, 1.f, 0.f,
-		0.f, 0.f, 0.f, 1.f
+	Matrix2x2 texflipMatrix =  Matrix2x2(
+		1.f, 0.f,
+		0.f, -1.f
 		);
-	jade::LoadFromObjMesh("data/sponza/sponza.obj", device, texManager,  flipMatrix, texflipMatrix, primitiveList);
+
+	ObjMesh objMesh;
+	objMesh.Load("data/sponza/sponza.obj");
+
+	jade::LoadFromObjMesh(objMesh, device, texManager,  flipMatrix, texflipMatrix, primitiveList);
 	//jade::LoadFromObjMesh("data/db5/db5.obj", device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList);
 	scene->AddPrimitives(primitiveList);
 

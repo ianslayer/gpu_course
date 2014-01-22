@@ -5,7 +5,7 @@
 class Vector2
 {
 public:
-	Vector2()
+	explicit Vector2()
 	{}
 
 	explicit Vector2(float _x, float _y)
@@ -444,6 +444,7 @@ public:
 	explicit Vector4(float* _pVec);
 	explicit Vector4(float _xyzw);
 	explicit Vector4(float _x, float _y, float _z, float _w);
+	explicit Vector4(const Vector3& _xyz, float w);
 
 	float operator []  (int index) const;	
 	float& operator [](int index);
@@ -494,6 +495,14 @@ inline Vector4::Vector4(float _x, float _y, float _z, float _w)
 	x = _x;
 	y = _y;
 	z = _z;
+	w = _w;
+}
+
+inline Vector4::Vector4(const Vector3& _xyz, float _w)
+{
+	x = _xyz.x;
+	y = _xyz.y;
+	z = _xyz.z;
 	w = _w;
 }
 
@@ -603,6 +612,16 @@ inline void Vector4::Normalize()
 	y /= length;
 	z /= length;
 	w /= length;
+}
+
+inline Vector3 DivideW(const Vector4& _vec4)
+{
+	return Vector3(_vec4.x/_vec4.w, _vec4.y/_vec4.w, _vec4.z/_vec4.w);
+}
+
+inline Vector3 DiscardW(const Vector4& _vec4)
+{
+	return Vector3(_vec4.x, _vec4.y, _vec4.z);
 }
 
 inline const Vector4 operator + (const Vector4& a, const Vector4& b)

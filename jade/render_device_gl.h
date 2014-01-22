@@ -31,9 +31,25 @@ namespace jade
 		GLuint id;
 	};
 
+	class TextureSamplerStateGL
+	{
+	public:
+		GLint minFilter;
+		GLint magFilter;
+		GLint mipFilter;
+
+		GLint uAddress;
+		GLint vAddress;
+		GLint wAddress;
+
+		unsigned int maxAnisotropic;
+		GLuint sampler;
+	};
+
     typedef VertexBufferGL VertexBufferImpl;
     typedef IndexBufferGL IndexBufferImpl;
 	typedef Texture2DGL Texture2DImpl;
+	typedef TextureSamplerStateGL TextureSamplerStateImpl;
 
 }
 

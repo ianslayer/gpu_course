@@ -28,100 +28,62 @@ Matrix4x4 Primitive::ModelMatrix() const
     return modelMatrix;
 }
 
-bool LoadFromObjMesh(const std::string& path, RenderDevice* device, TextureManager* texManater, std::vector<Primitive*>& primList)
+void LoadFromObjMesh(const ObjMesh& objMesh, RenderDevice* device, TextureManager* texManater, std::vector<Primitive*>& primList)
 {
 	Matrix4x4 identityMatrix = Identity4x4();
-	Matrix4x4 texFlipMatrix = Matrix4x4(
-		1.f, 0.f, 0.f, 0.f,
-		0.f, -1.f, 0.f, 1.f,
-		0.f, 0.f, 1.f, 0.f,
-		0.f, 0.f, 0.f, 1.f
+	Matrix2x2 texFlipMatrix = Matrix2x2(
+		1.f, 0.f,
+		0.f, -1.f
 		);
-	return LoadFromObjMesh(path, device, texManater, identityMatrix, texFlipMatrix, primList);
+	LoadFromObjMesh(objMesh, device, texManater, identityMatrix, texFlipMatrix, primList);
 }
 
-bool LoadFromObjMesh(const std::string& path, RenderDevice* device, TextureManager* texManater, Matrix4x4 posMatrix, Matrix4x4 texcoordMatrix, std::vector<Primitive* >& primList)
+void LoadFromObjMesh(const ObjMesh& objMesh, RenderDevice* device, TextureManager* texManater, Matrix4x4 transform, Matrix2x2 texcoordMatrix, std::vector<Primitive* >& primList)
 {
-	ObjMesh objMesh;
+	for(size_t i = 0; i < objMesh.geomList.size(); i++)
+	{
+		Primitive* prim = NULL;
 
-	bool success = objMesh.Load(path);
+		if(LoadFromObjMesh(objMesh, i, device, texManater, transform, texcoordMatrix, &prim) )
+			primList.push_back(prim);
+	}
+}
+
+
+bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* device, TextureManager* texManater, Matrix4x4 transform, Matrix2x2 texcoordMatrix, Primitive** outPrim)
+{
+	if(geomIndex > objMesh.geomList.size())
+		return false;
+
+	Mesh* mesh = new Mesh();
+	LoadFromObjMesh(objMesh, geomIndex, device, transform, texcoordMatrix, &mesh);
+	if(!*outPrim)
+		*outPrim = new Primitive();
+
+	Material* material = new Material();
+	const ObjMesh::Material& mat = objMesh.matList[objMesh.geomList[geomIndex].matIndex];
+
+	material->ambient = mat.ka;
+	material->diffuse = mat.kd;
+	material->specular = mat.ks;
+	material->roughness = mat.ns;
 
 	std::string folderPath = PathRemoveFileName(objMesh.path);
 
-	for(size_t i = 0; i < objMesh.geomList.size(); i++)
-	{
-		std::vector<ObjMesh::FusedVertex> vertices;
-		std::vector<int> indices;
+	if(!mat.mapKd.empty())
+		material->diffuseMap = texManater->Load(folderPath + "\\" + mat.mapKd );
+	if(!mat.mapKs.empty() )
+		material->specularMap = texManater->Load(folderPath + "\\" + mat.mapKs );
+	if(!mat.mapBump.empty())
+		material->normalMap = texManater->Load(folderPath + "\\" + mat.mapBump);
+	if(!mat.mapD.empty())
+		material->dissolveMask = texManater->Load(folderPath + "\\" + mat.mapD);
 
-		objMesh.CreateVertexIndexBuffer(i, vertices, indices);
-
-		for(size_t v = 0; v < vertices.size(); v++)
-		{
-			Vector4 pos =  posMatrix * Vector4(vertices[v].position.x, vertices[v].position.y, vertices[v].position.z, 1.f);
-			vertices[v].position = Vector3(pos.x, pos.y, pos.z);
-
-			Vector4 normal = posMatrix * Vector4(vertices[v].normal.x, vertices[v].normal.y, vertices[v].normal.z, 1.f);
-			vertices[v].normal = Vector3(normal.x, normal.y, normal.z);
+	(*outPrim)->mesh = mesh;
+	(*outPrim)->material = material;
 
 
-			Vector4 texcoord(vertices[v].texcoord.x, vertices[v].texcoord.y, 0.f, 1.f);
-			texcoord = texcoordMatrix * texcoord;
-			vertices[v].texcoord.x = texcoord.x;
-			vertices[v].texcoord.y = texcoord.y;
-		}
-
-		HWVertexBuffer* vertexBuffer;
-		HWIndexBuffer* indexBuffer;
-
-		device->CreateVertexBuffer(sizeof(ObjMesh::FusedVertex) * vertices.size(), &vertices[0], &vertexBuffer);
-		device->CreateIndexBuffer(sizeof(int) * indices.size(), &indices[0], &indexBuffer);
-
-		Mesh* mesh = new Mesh();
-
-		mesh->vertexBuffer = vertexBuffer;
-		mesh->indexBuffer = indexBuffer;
-		mesh->numVertices = vertices.size();
-		mesh->numIndices = indices.size();
-
-		mesh->positionList = new Vector3[vertices.size()];
-		mesh->normalList = new Vector3[vertices.size()];
-		mesh->texcoordList = new Vector2[vertices.size()];
-
-		mesh->vertices = new VertexP3N3T2[vertices.size()];
-
-		for(size_t v = 0; v < vertices.size(); v++)
-		{
-			mesh->vertices[v].position = mesh->positionList[v] = vertices[v].position;
-			mesh->vertices[v].normal = mesh->normalList[v] = vertices[v].normal;
-			mesh->vertices[v].texcoord = mesh->texcoordList[v] = vertices[v].texcoord;
-		}
-
-		Primitive* prim = new Primitive();
-		Material* material = new Material();
-		ObjMesh::Material& mat = objMesh.matList[objMesh.geomList[i].matIndex];
-
-		material->ambient = mat.ka;
-		material->diffuse = mat.kd;
-		material->specular = mat.ks;
-		material->roughness = mat.ns;
-
-		if(!mat.mapKd.empty())
-			material->diffuseMap = texManater->Load(folderPath + "\\" + mat.mapKd );
-		if(!mat.mapKs.empty() )
-			material->specularMap = texManater->Load(folderPath + "\\" + mat.mapKs );
-		if(!mat.mapBump.empty())
-			material->normalMap = texManater->Load(folderPath + "\\" + mat.mapBump);
-		if(!mat.mapD.empty())
-			material->dissolveMask = texManater->Load(folderPath + "\\" + mat.mapD);
-
-		prim->mesh = mesh;
-		prim->material = material;
-
-		primList.push_back(prim);
-	}
-
-
-	return success;
+	return true;
 }
 
 }

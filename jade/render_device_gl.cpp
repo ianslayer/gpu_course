@@ -85,29 +85,93 @@ namespace jade
 	{
 		*texture = new HWTexture2D();
 		glBindTexture(GL_TEXTURE_2D, (*texture)->GetImpl()->id);
-		
 
-		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, desc->width, desc->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data->buf);
+		/*
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, desc->width, desc->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data->buf);
+		if(desc->generateMipmap)
+			glGenerateMipmap(GL_TEXTURE_2D);
+		*/	
+		
 		
 		glTexStorage2D(GL_TEXTURE_2D, desc->mipLevels, GetGLSizedTexFormat(desc->format), desc->width, desc->height);
 		
 		if(data && data->buf)
 		{
 			glTexSubImage2D(GL_TEXTURE_2D,
-			0,
-			0, 0,
-			desc->width, desc->height, 
-			GL_RGBA,
-			GL_UNSIGNED_BYTE,
-			data->buf
-			);
+				0,
+				0, 0,
+				desc->width, desc->height, 
+				GL_RGBA,
+				GL_UNSIGNED_BYTE,
+				data->buf
+				);
 
 			if(desc->generateMipmap)
 				glGenerateMipmap(GL_TEXTURE_2D);
 		}
 		
 
+		(*texture)->desc = *desc;
 
+		return RenderDevice::SUCCESS;
+	}
+
+	GLint GetGLAddressMode(int addressMode)
+	{
+		switch(addressMode)
+		{
+		case TextureSamplerState::TEX_ADDRESS_WRAP:
+				return GL_REPEAT;
+			break;
+		case TextureSamplerState::TEX_ADDRESS_CLAMP:
+				return GL_CLAMP_TO_EDGE;
+			break;
+		case TextureSamplerState::TEX_ADDRESS_MIRROR:
+				return GL_MIRRORED_REPEAT;
+			break;
+		}
+
+		return GL_REPEAT;
+	}
+
+
+	TextureSamplerStateImpl* TextureSamplerState::GetImpl()
+	{
+		return &impl;
+	}
+
+#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT      0x84FF //core don't support anisotropic, define myself
+
+	RenderDevice::error_t RenderDevice::CreateSamplerState(TextureSamplerState::Desc* desc, TextureSamplerState** state)
+	{
+		*state = new TextureSamplerState();
+
+		glGenSamplers(1, &(*state)->impl.sampler );
+		(*state)->desc = *desc;
+		switch(desc->filter)
+		{
+		case TextureSamplerState::TEX_FILTER_MIN_MAG_MIP_POINT:
+			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			break;
+		case TextureSamplerState::TEX_FILTER_MIN_MAG_MIP_LINEAR:
+			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			break;
+		case TextureSamplerState::TEX_FILTER_ANISOTROPIC:
+			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			break;
+		}
+
+		glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_WRAP_S, GetGLAddressMode(desc->uAddressMode) );
+		glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_WRAP_T, GetGLAddressMode(desc->vAddressMode));
+		glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_WRAP_R, GetGLAddressMode(desc->wAddressMode));
+
+		if(desc->filter == TextureSamplerState::TEX_FILTER_ANISOTROPIC && desc->maxAnisotropy > 1)
+		{
+			glSamplerParameterf((*state)->impl.sampler, GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT,  (float)desc->maxAnisotropy);
+		}
 		return RenderDevice::SUCCESS;
 	}
 

@@ -1,6 +1,7 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include "../matrix.h"
 #include "../vector.h"
 #include "../geometry.h"
 #include "render_device.h"
@@ -43,8 +44,9 @@ namespace jade
 		AABB			bound;
     };
 
-	bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* device, Mesh** outMesh );
+	bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* device, const Matrix4x4& transform, const Matrix2x2 texMatrix, Mesh** outMesh );
 	AABB ComputeBound(const Mesh& mesh);
+	void TransformMeshVertices(Mesh& mesh, const Matrix4x4& transform);
 }
 
 #endif

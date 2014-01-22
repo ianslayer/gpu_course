@@ -15,7 +15,7 @@ namespace jade
 	class RendererGL : public Renderer
 	{
 	public:
-		RendererGL();
+		RendererGL(RenderDevice* _device);
 		virtual ~RendererGL();
 
 		virtual void Render(const Camera* camera, const Scene* scene);
@@ -27,9 +27,11 @@ namespace jade
 		GLuint matShader;
 		GLuint whiteTexture;
 		GLuint blackTexture;
+
+		RefCountedPtr<TextureSamplerState> defaultSamplerState;
 	};
 
-    RendererGL::RendererGL() : wireframeShader(0)
+    RendererGL::RendererGL(RenderDevice* _device) : device(_device), wireframeShader(0)
     {
 		wireframeShader =  CreateProgram("shader/wireVertexShader.glsl", "shader/wirePixelShader.glsl");
 		matShader = CreateProgram("shader/blinn_phong_vs.glsl", "shader/blinn_phong_ps.glsl");
@@ -40,6 +42,16 @@ namespace jade
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		glEnable(GL_TEXTURE_2D);
+
+		TextureSamplerState* samplerState = NULL;
+		TextureSamplerState::Desc defaultSamplerStateDesc;
+		defaultSamplerStateDesc.filter = TextureSamplerState::TEX_FILTER_ANISOTROPIC;
+		defaultSamplerStateDesc.maxAnisotropy = 8;
+		defaultSamplerStateDesc.uAddressMode = TextureSamplerState::TEX_ADDRESS_WRAP;
+		defaultSamplerStateDesc.vAddressMode = TextureSamplerState::TEX_ADDRESS_WRAP;
+		defaultSamplerStateDesc.wAddressMode = TextureSamplerState::TEX_ADDRESS_WRAP;
+		device->CreateSamplerState(&defaultSamplerStateDesc, &samplerState);
+		defaultSamplerState = samplerState;
     }
 
     RendererGL::~RendererGL()
@@ -148,6 +160,7 @@ namespace jade
 				glUniform3fv(diffuseLoc, 1, reinterpret_cast<const float*> (&prim->material->diffuse) );
 				glUniform3fv(specularLoc, 1, reinterpret_cast<const float*> (&prim->material->specular) );
 
+				glBindSampler(0, defaultSamplerState->GetImpl()->sampler);
 				if(prim->material->diffuseMap && prim->material->diffuseMap->hwTexture)
 				{
 					glUniform1i(diffuseTexLoc, 0);
@@ -182,7 +195,7 @@ namespace jade
     void InitRendererGL(RenderDevice* device, Renderer** renderer)
     {
 		RendererGL* rendererGL = NULL;
-		*renderer = rendererGL = new RendererGL();
+		*renderer = rendererGL = new RendererGL(device);
     }
 
     void ShutdownRendererGL(Renderer* renderer)
