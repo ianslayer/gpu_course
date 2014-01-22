@@ -1,6 +1,7 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 #include <algorithm>
+#include <math.h>
 
 class Vector2
 {

@@ -3,10 +3,18 @@
 
 #define NOMINMAX
 #include "GL/gl3w.h"
+
+
+#ifdef _WIN32
 #include "GL/wglext.h"
+#endif
+
 #include "vector.h"
 
+#ifdef _WIN32
 bool InitGL(HWND hwnd, int msaaCount);
+#endif
+
 GLuint CompileShader(char* filename, GLuint shaderType);
 GLuint CreateProgram(char* vsFilename, char* psFileName);
 

@@ -1,0 +1,555 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B23C62CF188B94CB0071E698 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B23C62CE188B94CB0071E698 /* Cocoa.framework */; };
+		B23C62D9188B94CB0071E698 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B23C62D7188B94CB0071E698 /* InfoPlist.strings */; };
+		B23C62DB188B94CB0071E698 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B23C62DA188B94CB0071E698 /* main.m */; };
+		B23C62DF188B94CB0071E698 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = B23C62DD188B94CB0071E698 /* Credits.rtf */; };
+		B23C62E2188B94CB0071E698 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B23C62E1188B94CB0071E698 /* AppDelegate.m */; };
+		B23C62E5188B94CB0071E698 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = B23C62E3188B94CB0071E698 /* MainMenu.xib */; };
+		B23C62E7188B94CB0071E698 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B23C62E6188B94CB0071E698 /* Images.xcassets */; };
+		B23C62EE188B94CB0071E698 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B23C62ED188B94CB0071E698 /* XCTest.framework */; };
+		B23C62EF188B94CB0071E698 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B23C62CE188B94CB0071E698 /* Cocoa.framework */; };
+		B23C62F7188B94CB0071E698 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B23C62F5188B94CB0071E698 /* InfoPlist.strings */; };
+		B23C62F9188B94CB0071E698 /* jade_macTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B23C62F8188B94CB0071E698 /* jade_macTests.m */; };
+		B23C6318188B962F0071E698 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C6305188B962F0071E698 /* camera.cpp */; };
+		B23C6319188B962F0071E698 /* file_utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C6307188B962F0071E698 /* file_utility.cpp */; };
+		B23C631A188B962F0071E698 /* gl_utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C630A188B962F0071E698 /* gl_utility.cpp */; };
+		B23C631B188B962F0071E698 /* gl3w.c in Sources */ = {isa = PBXBuildFile; fileRef = B23C630C188B962F0071E698 /* gl3w.c */; };
+		B23C631D188B962F0071E698 /* image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C630E188B962F0071E698 /* image.cpp */; };
+		B23C631E188B962F0071E698 /* obj_mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C6311188B962F0071E698 /* obj_mesh.cpp */; };
+		B23C631F188B962F0071E698 /* timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C6315188B962F0071E698 /* timer.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B23C62F0188B94CB0071E698 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B23C62C3188B94CB0071E698 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B23C62CA188B94CB0071E698;
+			remoteInfo = jade_mac;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		B23C62CB188B94CB0071E698 /* jade_mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = jade_mac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B23C62CE188B94CB0071E698 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		B23C62D1188B94CB0071E698 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		B23C62D2188B94CB0071E698 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		B23C62D3188B94CB0071E698 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		B23C62D6188B94CB0071E698 /* jade_mac-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "jade_mac-Info.plist"; sourceTree = "<group>"; };
+		B23C62D8188B94CB0071E698 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		B23C62DA188B94CB0071E698 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		B23C62DC188B94CB0071E698 /* jade_mac-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "jade_mac-Prefix.pch"; sourceTree = "<group>"; };
+		B23C62DE188B94CB0071E698 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		B23C62E0188B94CB0071E698 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		B23C62E1188B94CB0071E698 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		B23C62E4188B94CB0071E698 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		B23C62E6188B94CB0071E698 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		B23C62EC188B94CB0071E698 /* jade_macTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = jade_macTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B23C62ED188B94CB0071E698 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		B23C62F4188B94CB0071E698 /* jade_macTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "jade_macTests-Info.plist"; sourceTree = "<group>"; };
+		B23C62F6188B94CB0071E698 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		B23C62F8188B94CB0071E698 /* jade_macTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = jade_macTests.m; sourceTree = "<group>"; };
+		B23C6305188B962F0071E698 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = camera.cpp; path = ../../../camera.cpp; sourceTree = "<group>"; };
+		B23C6306188B962F0071E698 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera.h; path = ../../../camera.h; sourceTree = "<group>"; };
+		B23C6307188B962F0071E698 /* file_utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = file_utility.cpp; path = ../../../file_utility.cpp; sourceTree = "<group>"; };
+		B23C6308188B962F0071E698 /* file_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = file_utility.h; path = ../../../file_utility.h; sourceTree = "<group>"; };
+		B23C6309188B962F0071E698 /* geometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geometry.h; path = ../../../geometry.h; sourceTree = "<group>"; };
+		B23C630A188B962F0071E698 /* gl_utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_utility.cpp; path = ../../../gl_utility.cpp; sourceTree = "<group>"; };
+		B23C630B188B962F0071E698 /* gl_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gl_utility.h; path = ../../../gl_utility.h; sourceTree = "<group>"; };
+		B23C630C188B962F0071E698 /* gl3w.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gl3w.c; path = ../../../gl3w.c; sourceTree = "<group>"; };
+		B23C630E188B962F0071E698 /* image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = image.cpp; path = ../../../image.cpp; sourceTree = "<group>"; };
+		B23C630F188B962F0071E698 /* image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = image.h; path = ../../../image.h; sourceTree = "<group>"; };
+		B23C6310188B962F0071E698 /* matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = matrix.h; path = ../../../matrix.h; sourceTree = "<group>"; };
+		B23C6311188B962F0071E698 /* obj_mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = obj_mesh.cpp; path = ../../../obj_mesh.cpp; sourceTree = "<group>"; };
+		B23C6312188B962F0071E698 /* obj_mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = obj_mesh.h; path = ../../../obj_mesh.h; sourceTree = "<group>"; };
+		B23C6313188B962F0071E698 /* stb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_truetype.h; path = ../../../stb_truetype.h; sourceTree = "<group>"; };
+		B23C6314188B962F0071E698 /* string_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = string_utility.h; path = ../../../string_utility.h; sourceTree = "<group>"; };
+		B23C6315188B962F0071E698 /* timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = timer.cpp; path = ../../../timer.cpp; sourceTree = "<group>"; };
+		B23C6316188B962F0071E698 /* timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = timer.h; path = ../../../timer.h; sourceTree = "<group>"; };
+		B23C6317188B962F0071E698 /* vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vector.h; path = ../../../vector.h; sourceTree = "<group>"; };
+		B23C6320188B97040071E698 /* platform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = platform.h; path = ../../../platform.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B23C62C8188B94CB0071E698 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B23C62CF188B94CB0071E698 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B23C62E9188B94CB0071E698 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B23C62EF188B94CB0071E698 /* Cocoa.framework in Frameworks */,
+				B23C62EE188B94CB0071E698 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B23C62C2188B94CB0071E698 = {
+			isa = PBXGroup;
+			children = (
+				B23C62D4188B94CB0071E698 /* jade_mac */,
+				B23C62F2188B94CB0071E698 /* jade_macTests */,
+				B23C62CD188B94CB0071E698 /* Frameworks */,
+				B23C62CC188B94CB0071E698 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B23C62CC188B94CB0071E698 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B23C62CB188B94CB0071E698 /* jade_mac.app */,
+				B23C62EC188B94CB0071E698 /* jade_macTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B23C62CD188B94CB0071E698 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B23C62CE188B94CB0071E698 /* Cocoa.framework */,
+				B23C62ED188B94CB0071E698 /* XCTest.framework */,
+				B23C62D0188B94CB0071E698 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B23C62D0188B94CB0071E698 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B23C62D1188B94CB0071E698 /* AppKit.framework */,
+				B23C62D2188B94CB0071E698 /* CoreData.framework */,
+				B23C62D3188B94CB0071E698 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		B23C62D4188B94CB0071E698 /* jade_mac */ = {
+			isa = PBXGroup;
+			children = (
+				B23C6304188B95C40071E698 /* source */,
+				B23C6303188B95B90071E698 /* header */,
+				B23C6302188B959D0071E698 /* utility */,
+				B23C62E0188B94CB0071E698 /* AppDelegate.h */,
+				B23C62E1188B94CB0071E698 /* AppDelegate.m */,
+				B23C62E3188B94CB0071E698 /* MainMenu.xib */,
+				B23C62E6188B94CB0071E698 /* Images.xcassets */,
+				B23C62D5188B94CB0071E698 /* Supporting Files */,
+			);
+			path = jade_mac;
+			sourceTree = "<group>";
+		};
+		B23C62D5188B94CB0071E698 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				B23C62D6188B94CB0071E698 /* jade_mac-Info.plist */,
+				B23C62D7188B94CB0071E698 /* InfoPlist.strings */,
+				B23C62DA188B94CB0071E698 /* main.m */,
+				B23C62DC188B94CB0071E698 /* jade_mac-Prefix.pch */,
+				B23C62DD188B94CB0071E698 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		B23C62F2188B94CB0071E698 /* jade_macTests */ = {
+			isa = PBXGroup;
+			children = (
+				B23C62F8188B94CB0071E698 /* jade_macTests.m */,
+				B23C62F3188B94CB0071E698 /* Supporting Files */,
+			);
+			path = jade_macTests;
+			sourceTree = "<group>";
+		};
+		B23C62F3188B94CB0071E698 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				B23C62F4188B94CB0071E698 /* jade_macTests-Info.plist */,
+				B23C62F5188B94CB0071E698 /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		B23C6302188B959D0071E698 /* utility */ = {
+			isa = PBXGroup;
+			children = (
+				B23C6305188B962F0071E698 /* camera.cpp */,
+				B23C6306188B962F0071E698 /* camera.h */,
+				B23C6307188B962F0071E698 /* file_utility.cpp */,
+				B23C6308188B962F0071E698 /* file_utility.h */,
+				B23C6309188B962F0071E698 /* geometry.h */,
+				B23C630A188B962F0071E698 /* gl_utility.cpp */,
+				B23C630B188B962F0071E698 /* gl_utility.h */,
+				B23C630C188B962F0071E698 /* gl3w.c */,
+				B23C630E188B962F0071E698 /* image.cpp */,
+				B23C630F188B962F0071E698 /* image.h */,
+				B23C6310188B962F0071E698 /* matrix.h */,
+				B23C6311188B962F0071E698 /* obj_mesh.cpp */,
+				B23C6312188B962F0071E698 /* obj_mesh.h */,
+				B23C6313188B962F0071E698 /* stb_truetype.h */,
+				B23C6314188B962F0071E698 /* string_utility.h */,
+				B23C6315188B962F0071E698 /* timer.cpp */,
+				B23C6316188B962F0071E698 /* timer.h */,
+				B23C6317188B962F0071E698 /* vector.h */,
+				B23C6320188B97040071E698 /* platform.h */,
+			);
+			name = utility;
+			sourceTree = "<group>";
+		};
+		B23C6303188B95B90071E698 /* header */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = header;
+			sourceTree = "<group>";
+		};
+		B23C6304188B95C40071E698 /* source */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = source;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B23C62CA188B94CB0071E698 /* jade_mac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B23C62FC188B94CB0071E698 /* Build configuration list for PBXNativeTarget "jade_mac" */;
+			buildPhases = (
+				B23C62C7188B94CB0071E698 /* Sources */,
+				B23C62C8188B94CB0071E698 /* Frameworks */,
+				B23C62C9188B94CB0071E698 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = jade_mac;
+			productName = jade_mac;
+			productReference = B23C62CB188B94CB0071E698 /* jade_mac.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B23C62EB188B94CB0071E698 /* jade_macTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B23C62FF188B94CB0071E698 /* Build configuration list for PBXNativeTarget "jade_macTests" */;
+			buildPhases = (
+				B23C62E8188B94CB0071E698 /* Sources */,
+				B23C62E9188B94CB0071E698 /* Frameworks */,
+				B23C62EA188B94CB0071E698 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B23C62F1188B94CB0071E698 /* PBXTargetDependency */,
+			);
+			name = jade_macTests;
+			productName = jade_macTests;
+			productReference = B23C62EC188B94CB0071E698 /* jade_macTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B23C62C3188B94CB0071E698 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = ianslayer;
+				TargetAttributes = {
+					B23C62EB188B94CB0071E698 = {
+						TestTargetID = B23C62CA188B94CB0071E698;
+					};
+				};
+			};
+			buildConfigurationList = B23C62C6188B94CB0071E698 /* Build configuration list for PBXProject "jade_mac" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B23C62C2188B94CB0071E698;
+			productRefGroup = B23C62CC188B94CB0071E698 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B23C62CA188B94CB0071E698 /* jade_mac */,
+				B23C62EB188B94CB0071E698 /* jade_macTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B23C62C9188B94CB0071E698 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B23C62D9188B94CB0071E698 /* InfoPlist.strings in Resources */,
+				B23C62E7188B94CB0071E698 /* Images.xcassets in Resources */,
+				B23C62DF188B94CB0071E698 /* Credits.rtf in Resources */,
+				B23C62E5188B94CB0071E698 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B23C62EA188B94CB0071E698 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B23C62F7188B94CB0071E698 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B23C62C7188B94CB0071E698 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B23C631B188B962F0071E698 /* gl3w.c in Sources */,
+				B23C631D188B962F0071E698 /* image.cpp in Sources */,
+				B23C6319188B962F0071E698 /* file_utility.cpp in Sources */,
+				B23C62E2188B94CB0071E698 /* AppDelegate.m in Sources */,
+				B23C631E188B962F0071E698 /* obj_mesh.cpp in Sources */,
+				B23C631A188B962F0071E698 /* gl_utility.cpp in Sources */,
+				B23C6318188B962F0071E698 /* camera.cpp in Sources */,
+				B23C62DB188B94CB0071E698 /* main.m in Sources */,
+				B23C631F188B962F0071E698 /* timer.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B23C62E8188B94CB0071E698 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B23C62F9188B94CB0071E698 /* jade_macTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B23C62F1188B94CB0071E698 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B23C62CA188B94CB0071E698 /* jade_mac */;
+			targetProxy = B23C62F0188B94CB0071E698 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		B23C62D7188B94CB0071E698 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B23C62D8188B94CB0071E698 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		B23C62DD188B94CB0071E698 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B23C62DE188B94CB0071E698 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		B23C62E3188B94CB0071E698 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B23C62E4188B94CB0071E698 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		B23C62F5188B94CB0071E698 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B23C62F6188B94CB0071E698 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		B23C62FA188B94CB0071E698 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		B23C62FB188B94CB0071E698 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		B23C62FD188B94CB0071E698 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "jade_mac/jade_mac-Prefix.pch";
+				INFOPLIST_FILE = "jade_mac/jade_mac-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		B23C62FE188B94CB0071E698 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "jade_mac/jade_mac-Prefix.pch";
+				INFOPLIST_FILE = "jade_mac/jade_mac-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		B23C6300188B94CB0071E698 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/jade_mac.app/Contents/MacOS/jade_mac";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "jade_mac/jade_mac-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "jade_macTests/jade_macTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		B23C6301188B94CB0071E698 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/jade_mac.app/Contents/MacOS/jade_mac";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "jade_mac/jade_mac-Prefix.pch";
+				INFOPLIST_FILE = "jade_macTests/jade_macTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B23C62C6188B94CB0071E698 /* Build configuration list for PBXProject "jade_mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B23C62FA188B94CB0071E698 /* Debug */,
+				B23C62FB188B94CB0071E698 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B23C62FC188B94CB0071E698 /* Build configuration list for PBXNativeTarget "jade_mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B23C62FD188B94CB0071E698 /* Debug */,
+				B23C62FE188B94CB0071E698 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		B23C62FF188B94CB0071E698 /* Build configuration list for PBXNativeTarget "jade_macTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B23C6300188B94CB0071E698 /* Debug */,
+				B23C6301188B94CB0071E698 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B23C62C3188B94CB0071E698 /* Project object */;
+}

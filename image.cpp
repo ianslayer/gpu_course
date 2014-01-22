@@ -13,7 +13,11 @@ GLuint GenerateColorTexture(float r, float g, float b, float a)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	unsigned char texel[] = {r, g, b, a};
+	unsigned char texel[4];
+    texel[0] = static_cast<unsigned char>(r / 255.f);
+    texel[1] = static_cast<unsigned char>(g / 255.f);
+    texel[2] = static_cast<unsigned char>(b / 255.f);
+    texel[3] = static_cast<unsigned char>(a / 255.f);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, texel);
 
 	return texture;

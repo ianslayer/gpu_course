@@ -1,15 +1,18 @@
 #include "file_utility.h"
 #define NOMINMAX 
-#include "Shlwapi.h"
-#include <direct.h>
+
 #include <algorithm>
-#pragma comment(lib, "Shlwapi.lib")
+#include "platform.h"
 
 std::string WorkingDir()
 {
 	char strBuf[256];
 	std::string cwd;
+#if defined( _WIN32)
 	if(_getcwd(strBuf, sizeof(strBuf)))
+#elif defined(__APPLE__)
+    if(getcwd(strBuf, sizeof(strBuf)))
+#endif
 	{
 		cwd = std::string(strBuf);
 	}
@@ -38,8 +41,10 @@ std::string PathRemoveFileName(const std::string& path)
 	char* strBuf = new char[path.size() + 1];
 	memcpy(strBuf, path.c_str(), path.size());
 	strBuf[path.size()] = 0;
+    
+#ifdef _WIN32
 	BOOL success = PathRemoveFileSpecA(strBuf);
-
+#endif
 	std::string retPath = std::string(strBuf);
 
 	delete [] strBuf;
@@ -52,8 +57,9 @@ std::string PathRemoveFolder(const std::string& path)
 	char* strBuf = new char[path.size() + 1];
 	memcpy(strBuf, path.c_str(), path.size());
 	strBuf[path.size()] = 0;
+#ifdef _WIN32
 	PathStripPathA(strBuf);
-
+#endif
 	std::string retPath(strBuf);
 
 	delete [] strBuf;

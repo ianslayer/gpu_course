@@ -1,6 +1,8 @@
 #ifdef _WIN32
-#include <windows.h>
-#include <intrin.h>
+    #include <windows.h>
+    #include <intrin.h>
+#elif defined(__APPLE__)
+    #include <unistd.h>
 #endif
 
 #include "timer.h"
@@ -11,7 +13,7 @@ void CycleCount::Sample()
 	#if defined(_WIN32)		
 	m_uint64 = (u64) __rdtsc();
 
-	#elif defined _MACOS_ && defined (__x86_64__)
+	#elif defined __APPLE__ && defined (__x86_64__)
 
 	unsigned long* pSample = (unsigned long *)&m_uint64;
 
@@ -23,7 +25,7 @@ void CycleCount::Sample()
 		mov		[rcx + 4], edx
 	}
 
-	#elif defined _MACOS_
+	#elif defined __APPLE__
 
 	unsigned long* pSample = (unsigned long *)&m_uint64;
 	__asm
@@ -98,6 +100,16 @@ u64 FastTimer::GetMachineFrequency()
 	Sleep(1000);
 	timer.End();
 
+	return timer.GetDuration().m_uint64;
+}
+#elif defined(__APPLE__)
+u64 FastTimer::GetMachineFrequency()
+{
+	FastTimer timer;
+	timer.Start();
+	sleep(1);
+	timer.End();
+    
 	return timer.GetDuration().m_uint64;
 }
 #endif

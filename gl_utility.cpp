@@ -1,11 +1,16 @@
 #include <fstream>
 #include "gl_utility.h"
 
-#pragma comment(lib,"opengl32.lib")
+#ifdef _WIN32
+    #pragma comment(lib,"opengl32.lib")
+#endif
+
 using namespace std;
 
+#ifdef _WIN32
 PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB; 
 PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
+
 
 extern "C"
 {
@@ -26,32 +31,32 @@ LRESULT CALLBACK FakeWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 {
     PAINTSTRUCT ps;
     HDC hdc;
-
+    
     switch (message)
     {
-    case WM_PAINT:
-        hdc = BeginPaint(hWnd, &ps);
-        // TODO: Add any drawing code here...
-        EndPaint(hWnd, &ps);
-        break;
-    //case WM_DESTROY:
-       // PostQuitMessage(0);
-       // break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
+        case WM_PAINT:
+            hdc = BeginPaint(hWnd, &ps);
+            // TODO: Add any drawing code here...
+            EndPaint(hWnd, &ps);
+            break;
+            //case WM_DESTROY:
+            // PostQuitMessage(0);
+            // break;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
     }
     return 0;
 }
 
 bool InitGL(HWND hwnd, int msaaCount)
 {
-
+    
     //create fake window
     WNDCLASSEX wcex;
     wcex.cbSize = sizeof(WNDCLASSEX);
-
+    
     DWORD windowStyle = WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
-
+    
     wcex.style			= CS_HREDRAW | CS_VREDRAW ;
     wcex.lpfnWndProc	= FakeWndProc;
     wcex.cbClsExtra		= 0;
@@ -63,15 +68,15 @@ bool InitGL(HWND hwnd, int msaaCount)
     wcex.lpszMenuName	= NULL;
     wcex.lpszClassName	= TEXT("fakeMainWindow");
     wcex.hIconSm		= NULL;
-
+    
     RegisterClassEx(&wcex);
-
+    
     HWND fakeWinHwnd = CreateWindowEx(0, TEXT("fakeMainWindow"),  TEXT("fakeWindow"),
-        windowStyle, 0, 0, 512, 512, NULL, NULL, NULL, NULL);
-
+                                      windowStyle, 0, 0, 512, 512, NULL, NULL, NULL, NULL);
+    
     HDC fakeDc;
     fakeDc = GetDC(fakeWinHwnd);
-    int result; 
+    int result;
     PIXELFORMATDESCRIPTOR  pfd =
     {
         sizeof(PIXELFORMATDESCRIPTOR),
@@ -83,19 +88,19 @@ bool InitGL(HWND hwnd, int msaaCount)
         32,
         0,0,0,0,0,0,0
     };
-
+    
     int indexPixelFormat = ChoosePixelFormat(fakeDc, &pfd);
     result = SetPixelFormat(fakeDc, indexPixelFormat, &pfd);
-
+    
     HGLRC fakeHglrc = wglCreateContext(fakeDc);
-
+    
     wglMakeCurrent(fakeDc, fakeHglrc);
     GetWGLExt();
-
+    
     int enableMSAA = GL_FALSE;
     if(msaaCount > 1)
         enableMSAA = GL_TRUE;
-
+    
     //create real context
     int attributeListInt[] = {
         WGL_SUPPORT_OPENGL_ARB,     GL_TRUE,
@@ -108,18 +113,18 @@ bool InitGL(HWND hwnd, int msaaCount)
         WGL_STENCIL_BITS_ARB,       8,
         WGL_ACCUM_BITS_ARB,         0,
         WGL_SAMPLE_BUFFERS_ARB,     enableMSAA, // MSAA on
-        WGL_SAMPLES_ARB,            msaaCount, 
+        WGL_SAMPLES_ARB,            msaaCount,
         0, 0
     };
-
-     float fAttributes[] = {0,0};
-
+    
+    float fAttributes[] = {0,0};
+    
     int pixelFormat[1];
     unsigned int formatCount;
-
+    
     PIXELFORMATDESCRIPTOR pixelFormatDescriptor;
-   // int attributeList[5];
-
+    // int attributeList[5];
+    
     HDC hdc = GetDC(hwnd);
     // Query for a pixel format that fits the attributes we want.
     result = wglChoosePixelFormatARB(hdc, attributeListInt, fAttributes, 1, pixelFormat, &formatCount);
@@ -131,38 +136,43 @@ bool InitGL(HWND hwnd, int msaaCount)
     // If the video card/display can handle our desired pixel format then we set it as the current one.
     result = SetPixelFormat(hdc, pixelFormat[0], &pixelFormatDescriptor);
     DWORD error = 0;
-     if(result != 1)
-     {
-         error = GetLastError();
-         return false;
-     }
-   // int attriblist[] = {WGL_CONTEXT_MAJOR_VERSION_ARB, 3, 
+    if(result != 1)
+    {
+        error = GetLastError();
+        return false;
+    }
+    // int attriblist[] = {WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
     //                    WGL_CONTEXT_MINOR_VERSION_ARB, 0,
     //                    0, 0};
-
+    
     HGLRC hglrc = wglCreateContextAttribsARB(hdc, 0, 0);
- 
+    
     wglMakeCurrent(NULL, NULL);
     wglDeleteContext(fakeHglrc);
     ReleaseDC(fakeWinHwnd, fakeDc);
     DestroyWindow(fakeWinHwnd);
     UnregisterClass(TEXT("fakeMainWindow"), 0);
-
+    
     BOOL success = wglMakeCurrent(hdc, hglrc);
-
+    
     if(!success)
         return false;
-
+    
     int initGL = gl3wInit();
     if(initGL != 0)
         return false;
-
+    
     GetWGLExt();
-
+    
     ReleaseDC(hwnd, hdc);
     
     return true;
 }
+
+
+#endif
+
+
 
 unsigned long GetFileLength(ifstream& file)
 {
