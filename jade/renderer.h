@@ -9,7 +9,7 @@ namespace jade
     class Renderer
     {
     public:
-        virtual ~Renderer() = 0 {}
+        virtual ~Renderer() {}
         virtual void Render(const Camera* camera, const Scene* scene) = 0;
     };
 

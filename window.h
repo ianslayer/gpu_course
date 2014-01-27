@@ -2,12 +2,17 @@
 #define WINDOW_H
 
 #define NOMINMAX
-#include <windows.h>
+
+#ifdef _WIN32
+    #include <windows.h>
+#endif
 
 struct Window
 {
+#ifdef _WIN32
     HWND hwnd;
     HDC hdc;
+#endif    
     int width;
     int height;
 };

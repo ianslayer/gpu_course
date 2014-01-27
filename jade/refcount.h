@@ -50,7 +50,7 @@ namespace jade
 
     };
 
-    template<class T> inline RefCountedPtr<T>::RefCountedPtr() : ptr(NULL)
+    template<class T> inline RefCountedPtr<T>::RefCountedPtr() : ptr(nullptr)
     {
 
     }
@@ -127,12 +127,12 @@ namespace jade
 
     template<class T> inline RefCountedPtr<T>::operator bool() const
     {
-        return ptr != NULL;
+        return ptr != nullptr;
     }
 
     template<class T> inline bool RefCountedPtr<T>::operator !() const
     {
-        return ptr == NULL;
+        return ptr == nullptr;
     }
 
     template<class T> inline bool RefCountedPtr<T>::operator ==(const T *_ptr) const
@@ -162,7 +162,7 @@ namespace jade
 
     template<class T> inline bool RefCountedPtr<T>::operator <(const T *_ptr) const
     {
-        return m_ptr < _ptr;
+        return ptr < _ptr;
     }
 
     template<class T> inline bool RefCountedPtr<T>::operator >(const T *_ptr) const
@@ -172,7 +172,9 @@ namespace jade
 
     template<class T> inline void RefCountedPtr<T>::Swap(RefCountedPtr<T>& _rhs)
     {
-        std::swap(ptr, _rhs.ptr);
+        T tmp = ptr;
+        ptr = _rhs;
+        _rhs = tmp;
     }
 
     template<class T> inline T* RefCountedPtr<T>::Get() const

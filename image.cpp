@@ -1,4 +1,4 @@
-#include "GL/gl3w.h"
+#include "gl_utility.h"
 #include <stdio.h>
 #include "file_utility.h"
 

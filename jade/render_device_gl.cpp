@@ -51,8 +51,10 @@ namespace jade
     RenderDevice::error_t InitRenderDevice(const Window* window, const RenderDeviceSetting* setting, RenderDevice** device)
     {
         *device = new RenderDevice();
+        
+#ifdef _WIN32
         InitGL(window->hwnd, setting->msaaCount);
-
+#endif
         return RenderDevice::SUCCESS;
     }
 

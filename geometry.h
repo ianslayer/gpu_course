@@ -2,6 +2,7 @@
 #define GEOMETRY_H
 #include "vector.h"
 #include <algorithm>
+#include <float.h>
 
 struct AABB
 {

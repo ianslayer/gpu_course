@@ -21,10 +21,21 @@
 		B23C6318188B962F0071E698 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C6305188B962F0071E698 /* camera.cpp */; };
 		B23C6319188B962F0071E698 /* file_utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C6307188B962F0071E698 /* file_utility.cpp */; };
 		B23C631A188B962F0071E698 /* gl_utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C630A188B962F0071E698 /* gl_utility.cpp */; };
-		B23C631B188B962F0071E698 /* gl3w.c in Sources */ = {isa = PBXBuildFile; fileRef = B23C630C188B962F0071E698 /* gl3w.c */; };
 		B23C631D188B962F0071E698 /* image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C630E188B962F0071E698 /* image.cpp */; };
 		B23C631E188B962F0071E698 /* obj_mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C6311188B962F0071E698 /* obj_mesh.cpp */; };
 		B23C631F188B962F0071E698 /* timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C6315188B962F0071E698 /* timer.cpp */; };
+		B23C6322189238E90071E698 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B23C6321189238E90071E698 /* OpenGL.framework */; };
+		B23C63271892AE550071E698 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B23C63261892AE550071E698 /* QuartzCore.framework */; };
+		B23C633D1896316E0071E698 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C63341896316E0071E698 /* camera.cpp */; };
+		B23C633F1896316E0071E698 /* mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C63361896316E0071E698 /* mesh.cpp */; };
+		B23C63401896316E0071E698 /* primitive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C63371896316E0071E698 /* primitive.cpp */; };
+		B23C63411896316E0071E698 /* render_device_gl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C63381896316E0071E698 /* render_device_gl.cpp */; };
+		B23C63421896316E0071E698 /* render_device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C63391896316E0071E698 /* render_device.cpp */; };
+		B23C63431896316E0071E698 /* renderer_gl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633A1896316E0071E698 /* renderer_gl.cpp */; };
+		B23C63441896316E0071E698 /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633B1896316E0071E698 /* scene.cpp */; };
+		B23C63451896316E0071E698 /* texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633C1896316E0071E698 /* texture.cpp */; };
+		B2DDAB5818964646008016D0 /* JadeOpenGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = B2DDAB5718964646008016D0 /* JadeOpenGLView.m */; };
+		B2DDAB5B189647B3008016D0 /* JadeMacRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2DDAB59189647B3008016D0 /* JadeMacRenderer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,7 +75,6 @@
 		B23C6309188B962F0071E698 /* geometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geometry.h; path = ../../../geometry.h; sourceTree = "<group>"; };
 		B23C630A188B962F0071E698 /* gl_utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_utility.cpp; path = ../../../gl_utility.cpp; sourceTree = "<group>"; };
 		B23C630B188B962F0071E698 /* gl_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gl_utility.h; path = ../../../gl_utility.h; sourceTree = "<group>"; };
-		B23C630C188B962F0071E698 /* gl3w.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gl3w.c; path = ../../../gl3w.c; sourceTree = "<group>"; };
 		B23C630E188B962F0071E698 /* image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = image.cpp; path = ../../../image.cpp; sourceTree = "<group>"; };
 		B23C630F188B962F0071E698 /* image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = image.h; path = ../../../image.h; sourceTree = "<group>"; };
 		B23C6310188B962F0071E698 /* matrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = matrix.h; path = ../../../matrix.h; sourceTree = "<group>"; };
@@ -76,6 +86,33 @@
 		B23C6316188B962F0071E698 /* timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = timer.h; path = ../../../timer.h; sourceTree = "<group>"; };
 		B23C6317188B962F0071E698 /* vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vector.h; path = ../../../vector.h; sourceTree = "<group>"; };
 		B23C6320188B97040071E698 /* platform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = platform.h; path = ../../../platform.h; sourceTree = "<group>"; };
+		B23C6321189238E90071E698 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		B23C632318923A0B0071E698 /* JadeOpenGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JadeOpenGLView.h; sourceTree = "<group>"; };
+		B23C63261892AE550071E698 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		B23C6328189631480071E698 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera.h; path = ../../camera.h; sourceTree = "<group>"; };
+		B23C6329189631480071E698 /* light.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = light.h; path = ../../light.h; sourceTree = "<group>"; };
+		B23C632A189631480071E698 /* material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = material.h; path = ../../material.h; sourceTree = "<group>"; };
+		B23C632B189631480071E698 /* mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mesh.h; path = ../../mesh.h; sourceTree = "<group>"; };
+		B23C632C189631480071E698 /* primitive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = primitive.h; path = ../../primitive.h; sourceTree = "<group>"; };
+		B23C632D189631480071E698 /* refcount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = refcount.h; path = ../../refcount.h; sourceTree = "<group>"; };
+		B23C632E189631480071E698 /* render_device_gl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = render_device_gl.h; path = ../../render_device_gl.h; sourceTree = "<group>"; };
+		B23C632F189631480071E698 /* render_device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = render_device.h; path = ../../render_device.h; sourceTree = "<group>"; };
+		B23C6330189631480071E698 /* renderer_gl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = renderer_gl.h; path = ../../renderer_gl.h; sourceTree = "<group>"; };
+		B23C6331189631480071E698 /* renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = renderer.h; path = ../../renderer.h; sourceTree = "<group>"; };
+		B23C6332189631480071E698 /* scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scene.h; path = ../../scene.h; sourceTree = "<group>"; };
+		B23C6333189631480071E698 /* texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = texture.h; path = ../../texture.h; sourceTree = "<group>"; };
+		B23C63341896316E0071E698 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = camera.cpp; path = ../../camera.cpp; sourceTree = "<group>"; };
+		B23C63361896316E0071E698 /* mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mesh.cpp; path = ../../mesh.cpp; sourceTree = "<group>"; };
+		B23C63371896316E0071E698 /* primitive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = primitive.cpp; path = ../../primitive.cpp; sourceTree = "<group>"; };
+		B23C63381896316E0071E698 /* render_device_gl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = render_device_gl.cpp; path = ../../render_device_gl.cpp; sourceTree = "<group>"; };
+		B23C63391896316E0071E698 /* render_device.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = render_device.cpp; path = ../../render_device.cpp; sourceTree = "<group>"; };
+		B23C633A1896316E0071E698 /* renderer_gl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = renderer_gl.cpp; path = ../../renderer_gl.cpp; sourceTree = "<group>"; };
+		B23C633B1896316E0071E698 /* scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scene.cpp; path = ../../scene.cpp; sourceTree = "<group>"; };
+		B23C633C1896316E0071E698 /* texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = texture.cpp; path = ../../texture.cpp; sourceTree = "<group>"; };
+		B23C6346189637670071E698 /* jade.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = jade.h; path = ../../jade.h; sourceTree = "<group>"; };
+		B2DDAB5718964646008016D0 /* JadeOpenGLView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; path = JadeOpenGLView.m; sourceTree = "<group>"; };
+		B2DDAB59189647B3008016D0 /* JadeMacRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JadeMacRenderer.cpp; sourceTree = "<group>"; };
+		B2DDAB5A189647B3008016D0 /* JadeMacRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JadeMacRenderer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +120,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B23C63271892AE550071E698 /* QuartzCore.framework in Frameworks */,
+				B23C6322189238E90071E698 /* OpenGL.framework in Frameworks */,
 				B23C62CF188B94CB0071E698 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -121,6 +160,8 @@
 		B23C62CD188B94CB0071E698 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B23C63261892AE550071E698 /* QuartzCore.framework */,
+				B23C6321189238E90071E698 /* OpenGL.framework */,
 				B23C62CE188B94CB0071E698 /* Cocoa.framework */,
 				B23C62ED188B94CB0071E698 /* XCTest.framework */,
 				B23C62D0188B94CB0071E698 /* Other Frameworks */,
@@ -149,6 +190,10 @@
 				B23C62E3188B94CB0071E698 /* MainMenu.xib */,
 				B23C62E6188B94CB0071E698 /* Images.xcassets */,
 				B23C62D5188B94CB0071E698 /* Supporting Files */,
+				B23C632318923A0B0071E698 /* JadeOpenGLView.h */,
+				B2DDAB5718964646008016D0 /* JadeOpenGLView.m */,
+				B2DDAB59189647B3008016D0 /* JadeMacRenderer.cpp */,
+				B2DDAB5A189647B3008016D0 /* JadeMacRenderer.h */,
 			);
 			path = jade_mac;
 			sourceTree = "<group>";
@@ -193,7 +238,6 @@
 				B23C6309188B962F0071E698 /* geometry.h */,
 				B23C630A188B962F0071E698 /* gl_utility.cpp */,
 				B23C630B188B962F0071E698 /* gl_utility.h */,
-				B23C630C188B962F0071E698 /* gl3w.c */,
 				B23C630E188B962F0071E698 /* image.cpp */,
 				B23C630F188B962F0071E698 /* image.h */,
 				B23C6310188B962F0071E698 /* matrix.h */,
@@ -212,6 +256,19 @@
 		B23C6303188B95B90071E698 /* header */ = {
 			isa = PBXGroup;
 			children = (
+				B23C6328189631480071E698 /* camera.h */,
+				B23C6329189631480071E698 /* light.h */,
+				B23C632A189631480071E698 /* material.h */,
+				B23C632B189631480071E698 /* mesh.h */,
+				B23C632C189631480071E698 /* primitive.h */,
+				B23C632D189631480071E698 /* refcount.h */,
+				B23C632E189631480071E698 /* render_device_gl.h */,
+				B23C632F189631480071E698 /* render_device.h */,
+				B23C6330189631480071E698 /* renderer_gl.h */,
+				B23C6331189631480071E698 /* renderer.h */,
+				B23C6332189631480071E698 /* scene.h */,
+				B23C6333189631480071E698 /* texture.h */,
+				B23C6346189637670071E698 /* jade.h */,
 			);
 			name = header;
 			sourceTree = "<group>";
@@ -219,6 +276,14 @@
 		B23C6304188B95C40071E698 /* source */ = {
 			isa = PBXGroup;
 			children = (
+				B23C63341896316E0071E698 /* camera.cpp */,
+				B23C63361896316E0071E698 /* mesh.cpp */,
+				B23C63371896316E0071E698 /* primitive.cpp */,
+				B23C63381896316E0071E698 /* render_device_gl.cpp */,
+				B23C63391896316E0071E698 /* render_device.cpp */,
+				B23C633A1896316E0071E698 /* renderer_gl.cpp */,
+				B23C633B1896316E0071E698 /* scene.cpp */,
+				B23C633C1896316E0071E698 /* texture.cpp */,
 			);
 			name = source;
 			sourceTree = "<group>";
@@ -321,13 +386,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B23C631B188B962F0071E698 /* gl3w.c in Sources */,
+				B23C63421896316E0071E698 /* render_device.cpp in Sources */,
 				B23C631D188B962F0071E698 /* image.cpp in Sources */,
+				B23C63431896316E0071E698 /* renderer_gl.cpp in Sources */,
 				B23C6319188B962F0071E698 /* file_utility.cpp in Sources */,
+				B23C63411896316E0071E698 /* render_device_gl.cpp in Sources */,
+				B23C633D1896316E0071E698 /* camera.cpp in Sources */,
 				B23C62E2188B94CB0071E698 /* AppDelegate.m in Sources */,
+				B23C63451896316E0071E698 /* texture.cpp in Sources */,
 				B23C631E188B962F0071E698 /* obj_mesh.cpp in Sources */,
+				B23C63441896316E0071E698 /* scene.cpp in Sources */,
 				B23C631A188B962F0071E698 /* gl_utility.cpp in Sources */,
 				B23C6318188B962F0071E698 /* camera.cpp in Sources */,
+				B2DDAB5818964646008016D0 /* JadeOpenGLView.m in Sources */,
+				B23C63401896316E0071E698 /* primitive.cpp in Sources */,
+				B2DDAB5B189647B3008016D0 /* JadeMacRenderer.cpp in Sources */,
+				B23C633F1896316E0071E698 /* mesh.cpp in Sources */,
 				B23C62DB188B94CB0071E698 /* main.m in Sources */,
 				B23C631F188B962F0071E698 /* timer.cpp in Sources */,
 			);
@@ -540,6 +614,7 @@
 				B23C62FE188B94CB0071E698 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B23C62FF188B94CB0071E698 /* Build configuration list for PBXNativeTarget "jade_macTests" */ = {
 			isa = XCConfigurationList;
@@ -548,6 +623,7 @@
 				B23C6301188B94CB0071E698 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

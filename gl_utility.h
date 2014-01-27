@@ -2,11 +2,15 @@
 #define GL_UTILITY_H
 
 #define NOMINMAX
-#include "GL/gl3w.h"
-
 
 #ifdef _WIN32
-#include "GL/wglext.h"
+    #include "GL/wglext.h"
+    #include "GL/gl3w.h"
+#elif defined(__APPLE__)
+#define ESSENTIAL_GL_PRACTICES_SUPPORT_GL3 1
+    #include <OpenGL/gl3.h>
+    #include <OpenGL/gl3ext.h>
+    #include <OpenGL/OpenGL.h>
 #endif
 
 #include "vector.h"
