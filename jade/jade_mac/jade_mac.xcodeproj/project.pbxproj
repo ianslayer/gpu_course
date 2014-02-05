@@ -34,6 +34,10 @@
 		B23C63431896316E0071E698 /* renderer_gl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633A1896316E0071E698 /* renderer_gl.cpp */; };
 		B23C63441896316E0071E698 /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633B1896316E0071E698 /* scene.cpp */; };
 		B23C63451896316E0071E698 /* texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633C1896316E0071E698 /* texture.cpp */; };
+		B2D7A4F01897A6C700EE1E9E /* window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2D7A4EE1897A6C700EE1E9E /* window.cpp */; };
+		B2D7A4F21897F9AC00EE1E9E /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2D7A4F11897F9AC00EE1E9E /* IOKit.framework */; };
+		B2D7A4F51898D47100EE1E9E /* input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2D7A4F31898D47100EE1E9E /* input.cpp */; };
+		B2D7A4F81899EAF800EE1E9E /* JadeWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B2D7A4F71899EAF800EE1E9E /* JadeWindowController.mm */; };
 		B2DDAB5818964646008016D0 /* JadeOpenGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = B2DDAB5718964646008016D0 /* JadeOpenGLView.m */; };
 		B2DDAB5B189647B3008016D0 /* JadeMacRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2DDAB59189647B3008016D0 /* JadeMacRenderer.cpp */; };
 /* End PBXBuildFile section */
@@ -70,7 +74,7 @@
 		B23C62F8188B94CB0071E698 /* jade_macTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = jade_macTests.m; sourceTree = "<group>"; };
 		B23C6305188B962F0071E698 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = camera.cpp; path = ../../../camera.cpp; sourceTree = "<group>"; };
 		B23C6306188B962F0071E698 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera.h; path = ../../../camera.h; sourceTree = "<group>"; };
-		B23C6307188B962F0071E698 /* file_utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = file_utility.cpp; path = ../../../file_utility.cpp; sourceTree = "<group>"; };
+		B23C6307188B962F0071E698 /* file_utility.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = file_utility.cpp; path = ../../../file_utility.cpp; sourceTree = "<group>"; };
 		B23C6308188B962F0071E698 /* file_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = file_utility.h; path = ../../../file_utility.h; sourceTree = "<group>"; };
 		B23C6309188B962F0071E698 /* geometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geometry.h; path = ../../../geometry.h; sourceTree = "<group>"; };
 		B23C630A188B962F0071E698 /* gl_utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_utility.cpp; path = ../../../gl_utility.cpp; sourceTree = "<group>"; };
@@ -110,6 +114,13 @@
 		B23C633B1896316E0071E698 /* scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scene.cpp; path = ../../scene.cpp; sourceTree = "<group>"; };
 		B23C633C1896316E0071E698 /* texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = texture.cpp; path = ../../texture.cpp; sourceTree = "<group>"; };
 		B23C6346189637670071E698 /* jade.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = jade.h; path = ../../jade.h; sourceTree = "<group>"; };
+		B2D7A4EE1897A6C700EE1E9E /* window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = window.cpp; path = ../../../window.cpp; sourceTree = "<group>"; };
+		B2D7A4EF1897A6C700EE1E9E /* window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = window.h; path = ../../../window.h; sourceTree = "<group>"; };
+		B2D7A4F11897F9AC00EE1E9E /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		B2D7A4F31898D47100EE1E9E /* input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = input.cpp; path = ../../../input.cpp; sourceTree = "<group>"; };
+		B2D7A4F41898D47100EE1E9E /* input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = input.h; path = ../../../input.h; sourceTree = "<group>"; };
+		B2D7A4F61899EAF800EE1E9E /* JadeWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JadeWindowController.h; sourceTree = "<group>"; };
+		B2D7A4F71899EAF800EE1E9E /* JadeWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = JadeWindowController.mm; sourceTree = "<group>"; };
 		B2DDAB5718964646008016D0 /* JadeOpenGLView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; path = JadeOpenGLView.m; sourceTree = "<group>"; };
 		B2DDAB59189647B3008016D0 /* JadeMacRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JadeMacRenderer.cpp; sourceTree = "<group>"; };
 		B2DDAB5A189647B3008016D0 /* JadeMacRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JadeMacRenderer.h; sourceTree = "<group>"; };
@@ -120,6 +131,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2D7A4F21897F9AC00EE1E9E /* IOKit.framework in Frameworks */,
 				B23C63271892AE550071E698 /* QuartzCore.framework in Frameworks */,
 				B23C6322189238E90071E698 /* OpenGL.framework in Frameworks */,
 				B23C62CF188B94CB0071E698 /* Cocoa.framework in Frameworks */,
@@ -160,6 +172,7 @@
 		B23C62CD188B94CB0071E698 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B2D7A4F11897F9AC00EE1E9E /* IOKit.framework */,
 				B23C63261892AE550071E698 /* QuartzCore.framework */,
 				B23C6321189238E90071E698 /* OpenGL.framework */,
 				B23C62CE188B94CB0071E698 /* Cocoa.framework */,
@@ -194,6 +207,8 @@
 				B2DDAB5718964646008016D0 /* JadeOpenGLView.m */,
 				B2DDAB59189647B3008016D0 /* JadeMacRenderer.cpp */,
 				B2DDAB5A189647B3008016D0 /* JadeMacRenderer.h */,
+				B2D7A4F61899EAF800EE1E9E /* JadeWindowController.h */,
+				B2D7A4F71899EAF800EE1E9E /* JadeWindowController.mm */,
 			);
 			path = jade_mac;
 			sourceTree = "<group>";
@@ -231,10 +246,12 @@
 		B23C6302188B959D0071E698 /* utility */ = {
 			isa = PBXGroup;
 			children = (
+				B2D7A4EE1897A6C700EE1E9E /* window.cpp */,
+				B2D7A4EF1897A6C700EE1E9E /* window.h */,
 				B23C6305188B962F0071E698 /* camera.cpp */,
 				B23C6306188B962F0071E698 /* camera.h */,
-				B23C6307188B962F0071E698 /* file_utility.cpp */,
 				B23C6308188B962F0071E698 /* file_utility.h */,
+				B23C6307188B962F0071E698 /* file_utility.cpp */,
 				B23C6309188B962F0071E698 /* geometry.h */,
 				B23C630A188B962F0071E698 /* gl_utility.cpp */,
 				B23C630B188B962F0071E698 /* gl_utility.h */,
@@ -249,6 +266,8 @@
 				B23C6316188B962F0071E698 /* timer.h */,
 				B23C6317188B962F0071E698 /* vector.h */,
 				B23C6320188B97040071E698 /* platform.h */,
+				B2D7A4F31898D47100EE1E9E /* input.cpp */,
+				B2D7A4F41898D47100EE1E9E /* input.h */,
 			);
 			name = utility;
 			sourceTree = "<group>";
@@ -387,11 +406,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				B23C63421896316E0071E698 /* render_device.cpp in Sources */,
+				B2D7A4F81899EAF800EE1E9E /* JadeWindowController.mm in Sources */,
 				B23C631D188B962F0071E698 /* image.cpp in Sources */,
+				B2D7A4F51898D47100EE1E9E /* input.cpp in Sources */,
 				B23C63431896316E0071E698 /* renderer_gl.cpp in Sources */,
 				B23C6319188B962F0071E698 /* file_utility.cpp in Sources */,
 				B23C63411896316E0071E698 /* render_device_gl.cpp in Sources */,
 				B23C633D1896316E0071E698 /* camera.cpp in Sources */,
+				B2D7A4F01897A6C700EE1E9E /* window.cpp in Sources */,
 				B23C62E2188B94CB0071E698 /* AppDelegate.m in Sources */,
 				B23C63451896316E0071E698 /* texture.cpp in Sources */,
 				B23C631E188B962F0071E698 /* obj_mesh.cpp in Sources */,

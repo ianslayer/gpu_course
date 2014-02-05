@@ -27,7 +27,8 @@ namespace jade
 		GLuint matShader;
 		GLuint whiteTexture;
 		GLuint blackTexture;
-
+        GLuint blueTexture; //unit z
+        
 		RefCountedPtr<TextureSamplerState> defaultSamplerState;
 	};
 
@@ -64,16 +65,18 @@ namespace jade
 		glClearColor(0.5, 0.5, 0.5, 1);
 	
 
-		glClearColor(0.f, 0.f, 0.f, 0);
+		//glClearColor(0.f, 0.f, 0.f, 0);
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(matShader);
 		GLint positionAttributeLoc = glGetAttribLocation(matShader, "position");
 		GLint normalAttributeLoc = glGetAttribLocation(matShader, "normal");
+        GLint tangentAttributeLoc = glGetAttribLocation(matShader, "tangent");
 		GLint texAttributeLoc = glGetAttribLocation(matShader, "texcoord");
 
 		GLint modelMatLoc = glGetUniformLocation(matShader, "modelMatrix");
+        GLint invModelMatLoc = glGetUniformLocation(matShader, "invModelMatrix");
 		GLint viewMatLoc = glGetUniformLocation(matShader, "viewMatrix");
 		GLint projectionMatLoc = glGetUniformLocation(matShader, "projectionMatrix");
 
@@ -82,18 +85,21 @@ namespace jade
 		GLint specularLoc = glGetUniformLocation(matShader, "specular");
 		GLint roughnessLoc = glGetUniformLocation(matShader, "roughness");
 
-		GLint camPosLocation = glGetUniformLocation(matShader, "cam_pos");
+		GLint camPosLocation = glGetUniformLocation(matShader, "world_cam_pos");
 
-		GLint diffuseTexLoc = glGetUniformLocation(matShader, "diffuseTex"); 
+		GLint diffuseMapLoc = glGetUniformLocation(matShader, "diffuseMap");
+        GLint normalMapLoc = glGetUniformLocation(matShader, "normalMap");
 		
 		GLint lightPosDirLoc = glGetUniformLocation(matShader, "lightPosDir");
 		GLint lightIntensityLoc = glGetUniformLocation(matShader, "lightIntensity");
 
+        glUniform3fv(camPosLocation, 1, reinterpret_cast<const float*>(&camera->position) );
+        
 		Matrix4x4 viewMatrix = camera->ViewMatrix();
 		Matrix4x4 projectionMatrix = camera->PerspectiveMatrix();
 		glUniformMatrix4fv(viewMatLoc, 1, GL_TRUE, viewMatrix.FloatPtr());
 		glUniformMatrix4fv(projectionMatLoc, 1, GL_TRUE, projectionMatrix.FloatPtr() );
-
+        
 		for(size_t lightIdx = 0; lightIdx < scene->lightList.size(); lightIdx++)
 		{
 			if(lightIdx == 0)
@@ -139,7 +145,9 @@ namespace jade
 				const Primitive* prim = scene->primList[primIdx].Get();
 			
 				glUniformMatrix4fv(modelMatLoc, 1, GL_TRUE, prim->ModelMatrix().FloatPtr());
-
+                glUniformMatrix4fv(invModelMatLoc, 1, GL_TRUE, prim->InvModelMatrix().FloatPtr());
+                
+                /*
 				glBindBuffer(GL_ARRAY_BUFFER, prim->mesh->vertexBuffer->GetImpl()->vboID);
 				glEnableVertexAttribArray(positionAttributeLoc);
 				glVertexAttribPointer(positionAttributeLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexP3N3T2), 0);
@@ -150,8 +158,24 @@ namespace jade
 				size_t vertSize = sizeof(VertexP3N3T2);
 				glEnableVertexAttribArray(texAttributeLoc);
 				glVertexAttribPointer(texAttributeLoc, 2, GL_FLOAT, GL_FALSE, sizeof(VertexP3N3T2), (GLvoid*)(sizeof(float) * 6));
-			
-
+			*/
+                
+				glBindBuffer(GL_ARRAY_BUFFER, prim->mesh->vertexBuffer2->GetImpl()->vboID);
+				glEnableVertexAttribArray(positionAttributeLoc);
+				glVertexAttribPointer(positionAttributeLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexP3N3T4T2), 0);
+                
+				glEnableVertexAttribArray(normalAttributeLoc);
+				glVertexAttribPointer(normalAttributeLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexP3N3T4T2), (GLvoid*)(sizeof(float) * 3));
+                
+                
+				glEnableVertexAttribArray(tangentAttributeLoc);
+				glVertexAttribPointer(tangentAttributeLoc, 4, GL_FLOAT, GL_FALSE, sizeof(VertexP3N3T4T2), (GLvoid*)(sizeof(float) * 6));
+                
+                
+				glEnableVertexAttribArray(texAttributeLoc);
+				glVertexAttribPointer(texAttributeLoc, 2, GL_FLOAT, GL_FALSE, sizeof(VertexP3N3T4T2), (GLvoid*)(sizeof(float) * 10));
+                
+             
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, prim->mesh->indexBuffer->GetImpl()->iboID);
 				Matrix4x4 modelMatrix = prim->ModelMatrix();
 				glUniformMatrix4fv(modelMatLoc, 1, GL_TRUE, modelMatrix.FloatPtr());
@@ -161,11 +185,28 @@ namespace jade
 				glUniform3fv(specularLoc, 1, reinterpret_cast<const float*> (&prim->material->specular) );
 
 				glBindSampler(0, defaultSamplerState->GetImpl()->sampler);
+                
+                
 				if(prim->material->diffuseMap && prim->material->diffuseMap->hwTexture)
+				{
+					glUniform1i(diffuseMapLoc, 0);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, prim->material->diffuseMap->hwTexture->GetImpl()->id);
+				}
+				else
+				{
+					glUniform1i(diffuseMapLoc, 0);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D,whiteTexture);
+				}
+
+                /*
+
+				if(prim->material->normalMap && prim->material->normalMap->hwTexture)
 				{
 					glUniform1i(diffuseTexLoc, 0);
 					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, prim->material->diffuseMap->hwTexture->GetImpl()->id);
+					glBindTexture(GL_TEXTURE_2D, prim->material->normalMap->hwTexture->GetImpl()->id);
 				}
 				else
 				{
@@ -173,18 +214,7 @@ namespace jade
 					glActiveTexture(GL_TEXTURE0);
 					glBindTexture(GL_TEXTURE_2D,whiteTexture);
 				}
-
-
-
-				/*
-				if(prim->material->normalMap && prim->material->normalMap->hwTexture)
-				{
-					glUniform1i(texLocation, 0);
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, prim->material->normalMap->hwTexture->GetImpl()->id);
-				}		 
-				*/
-
+*/
 
 				//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				glDrawElements(GL_TRIANGLES, prim->mesh->indexBuffer->IndexCount(), GL_UNSIGNED_INT, 0);

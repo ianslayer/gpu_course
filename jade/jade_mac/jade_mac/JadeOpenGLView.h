@@ -7,13 +7,16 @@
 //
 
 #import <Cocoa/Cocoa.h>
+//#import "JadeWindowController.h"
 
+@class JadeWindowController;
 @interface JadeOpenGLView : NSOpenGLView
 {
     
     NSOpenGLContext* glContext;
     NSOpenGLPixelFormat* glPixelFormat;
     CVDisplayLinkRef displayLink;
+    IBOutlet JadeWindowController* windowController;
 }
 
 

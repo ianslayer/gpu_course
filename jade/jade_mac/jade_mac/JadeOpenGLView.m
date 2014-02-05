@@ -7,6 +7,7 @@
 //
 
 #import "JadeOpenGLView.h"
+#import "JadeWindowController.h"
 #include "JadeMacRenderer.h"
 
 #include <OpenGL/OpenGL.h>
@@ -16,6 +17,7 @@
 
 static void drawAnObject ()
 {
+    InputControl(16.0);
     RenderFrame();
 }
 
@@ -84,6 +86,8 @@ static void drawAnObject ()
 
 - (void)prepareOpenGL
 {
+    //enable retina display
+    [self setWantsBestResolutionOpenGLSurface:YES];
     [super prepareOpenGL];
     [[self openGLContext] makeCurrentContext];
     
@@ -131,8 +135,8 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 	// simultaneously when resizing
 	CGLLockContext([[self openGLContext] CGLContextObj]);
     
-    glClearColor(0, 0, 0, 0);
-    glClear(GL_COLOR_BUFFER_BIT);
+   // glClearColor(0, 0, 0, 0);
+   // glClear(GL_COLOR_BUFFER_BIT);
     drawAnObject();
     glFlush();
    
@@ -148,5 +152,15 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
     CVDisplayLinkRelease(displayLink);
 }
 
+- (void) rightMouseDown:(NSEvent*)currentEvent
+{
+    // for some reason this isn't getting forwarded by the responder chain
+    [windowController rightMouseDown:currentEvent];
+}
+
+- (void) mouseMoved:(NSEvent *) event
+{
+    
+}
 
 @end

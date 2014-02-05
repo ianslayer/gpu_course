@@ -27,6 +27,22 @@ Matrix4x4 Primitive::ModelMatrix() const
 
     return modelMatrix;
 }
+    
+Matrix4x4 Primitive:: InvModelMatrix() const
+{
+    Matrix3x3 m = Matrix3x3(orientation[0][0], orientation[0][1], orientation[0][2],
+              orientation[1][0], orientation[1][1], orientation[1][2],
+              orientation[2][0], orientation[2][1], orientation[2][2]);
+    
+    Matrix3x3 invM = m.Transpose();
+    Vector3 invTranslation = - (invM * translation);
+    
+    return Matrix4x4(invM[0][0], invM[0][1], invM[0][2], invTranslation[0],
+                     invM[1][0], invM[1][1], invM[1][2], invTranslation[1],
+                     invM[2][0], invM[2][1], invM[2][2], invTranslation[2],
+                     0, 0, 0, 1);
+    
+}
 
 void LoadFromObjMesh(const ObjMesh& objMesh, RenderDevice* device, TextureManager* texManater, std::vector<Primitive*>& primList)
 {
@@ -73,11 +89,11 @@ bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* dev
 	if(!mat.mapKd.empty())
 		material->diffuseMap = texManater->Load(folderPath + "\\" + mat.mapKd );
 	if(!mat.mapKs.empty() )
-		material->specularMap = texManater->Load(folderPath + "\\" + mat.mapKs );
+		material->specularMap = texManater->Load( folderPath + "\\" + mat.mapKs );
 	if(!mat.mapBump.empty())
-		material->normalMap = texManater->Load(folderPath + "\\" + mat.mapBump);
+		material->normalMap = texManater->Load( folderPath + "\\" + mat.mapBump );
 	if(!mat.mapD.empty())
-		material->dissolveMask = texManater->Load(folderPath + "\\" + mat.mapD);
+		material->dissolveMask = texManater->Load( folderPath + "\\" + mat.mapD );
 
 	(*outPrim)->mesh = mesh;
 	(*outPrim)->material = material;

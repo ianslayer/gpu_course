@@ -649,15 +649,18 @@
         <window title="jade_mac" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="371">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="335" y="390" width="480" height="360"/>
+            <rect key="contentRect" x="335" y="390" width="602" height="500"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
             <view key="contentView" id="372">
-                <rect key="frame" x="0.0" y="0.0" width="480" height="360"/>
+                <rect key="frame" x="0.0" y="0.0" width="602" height="500"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oa0-Bc-5Sr" customClass="JadeOpenGLView">
-                        <rect key="frame" x="-23" y="-6" width="510" height="413"/>
+                        <rect key="frame" x="0.0" y="0.0" width="602" height="500"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="windowController" destination="mzg-rJ-ZdS" id="lCv-X8-X1X"/>
+                        </connections>
                     </customView>
                 </subviews>
             </view>
@@ -668,5 +671,10 @@
             </connections>
         </customObject>
         <customObject id="420" customClass="NSFontManager"/>
+        <customObject id="mzg-rJ-ZdS" customClass="JadeWindowController">
+            <connections>
+                <outlet property="window" destination="371" id="f4i-XC-Fzm"/>
+            </connections>
+        </customObject>
     </objects>
 </document>

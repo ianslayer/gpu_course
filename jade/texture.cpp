@@ -76,25 +76,26 @@ namespace jade
 
 	Texture* TextureManager::Load(const std::string& path)
 	{
+        std::string nPath = NormalizePath(path);
 		int width, height;
 		unsigned char* imgbuf;
 
-		if(texTable.find(path) != texTable.end())
+		if(texTable.find(nPath) != texTable.end())
 		{
-			return texTable[path];
+			return texTable[nPath];
 		}
 
-		bool success = LoadTGA(path.c_str(), &imgbuf, &width, &height);
+		bool success = LoadTGA(nPath.c_str(), &imgbuf, &width, &height);
 
 		if(!success)
 		{
-			printf("can't open image file: %s\n", path.c_str());
+			printf("can't open image file: %s\n", nPath.c_str());
 			return NULL;
 		}
 
 		Texture* texture = new Texture(this);
-		texTable[path] = texture;
-		texture->path = path;
+		texTable[nPath] = texture;
+		texture->path = nPath;
 		texture->texBuf = imgbuf;
 
 		HWTexture2D* hwTexture = NULL;

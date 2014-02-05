@@ -532,7 +532,7 @@ int Parse(std::vector<Token>& tokens, ObjMesh* mesh)
                 parseToken = parseToken->next;
                 std::string fileName(parseToken->sourceStr, parseToken->count);
 				std::string folder = PathRemoveFileName(mesh->path);
-                LoadObjMaterial(folder + "\\" + fileName, mesh->matList);
+                LoadObjMaterial( NormalizePath(folder + "\\" + fileName), mesh->matList);
                 parseToken = parseToken->next;
             }
             break;

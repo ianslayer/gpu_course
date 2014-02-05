@@ -4,6 +4,10 @@
 #include <algorithm>
 #include "platform.h"
 
+#ifdef __APPLE__
+#include <Foundation/NSString.h>
+#endif
+
 std::string WorkingDir()
 {
 	char strBuf[256];
@@ -26,8 +30,13 @@ std::string NormalizePath(const std::string& path)
 	
 	for(size_t i = 0; i < path.size(); i++)
 	{
+#ifdef _WIN32
 		if(path[i] == '/' || ( i + 1 < path.size() && path[i] == ':' && !(path[i + 1] == '\\' || path[i + 1] == '/') ))
 			normalizedPath[i] = '\\';
+#elif defined (__APPLE__)
+		if(path[i] == '\\' )
+            normalizedPath[i] = '/';
+#endif
 		else
 			normalizedPath[i] = path[i];
 	}
@@ -44,8 +53,13 @@ std::string PathRemoveFileName(const std::string& path)
     
 #ifdef _WIN32
 	BOOL success = PathRemoveFileSpecA(strBuf);
+    std::string retPath = std::string(strBuf);
+#elif defined (__APPLE__)
+    NSString* nsPath  = [ [NSString alloc] initWithUTF8String: strBuf];
+    NSString* folderName = [nsPath stringByDeletingLastPathComponent];
+    std::string retPath = [folderName UTF8String] ;
 #endif
-	std::string retPath = std::string(strBuf);
+	
 
 	delete [] strBuf;
 
@@ -59,10 +73,16 @@ std::string PathRemoveFolder(const std::string& path)
 	strBuf[path.size()] = 0;
 #ifdef _WIN32
 	PathStripPathA(strBuf);
-#endif
 	std::string retPath(strBuf);
-
-	delete [] strBuf;
+    
+#elif defined (__APPLE__)
+    NSString* nsPath  = [ [NSString alloc] initWithUTF8String: strBuf];
+    NSString* theFileName = [nsPath lastPathComponent] ;
+    
+    std::string retPath = [theFileName UTF8String] ;
+    
+#endif
+    delete [] strBuf;
 
 	return retPath;
 }

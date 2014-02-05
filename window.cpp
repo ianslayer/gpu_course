@@ -1,5 +1,7 @@
 #include "window.h"
 
+
+#ifdef _WIN32_
 const TCHAR* windowClass = TEXT("jog2MainWindow");
 const TCHAR* windowTitle = TEXT("jog2RenderWindow");
 
@@ -8,25 +10,6 @@ const TCHAR* windowTitle = TEXT("jog2RenderWindow");
 
 InputListener* gInputListener = NULL;
 
-void InputListener::OnMouseMove(const int x, const int y, const int deltaX, const int deltaY)
-{
-    
-}
-
-void InputListener::OnMouseButton(const int x, const int y, const MouseButton button, const bool pressed)
-{
-    
-}
-
-void InputListener::OnMouseWheel(const int x, const int y, const int scroll)
-{
-    
-}
-
-void InputListener::OnKey(const unsigned int key, const bool pressed)
-{
-    
-}
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -166,3 +149,5 @@ void CaptureMouse(Window& window, const bool value)
     }
     ShowCursor(value);
 }
+
+#endif

@@ -21,7 +21,8 @@ namespace jade
         ~Primitive();
 
         Matrix4x4 ModelMatrix() const;
-
+        Matrix4x4 InvModelMatrix() const;
+        
         RefCountedPtr<Mesh>			mesh;
         RefCountedPtr<Material>		material;
 
