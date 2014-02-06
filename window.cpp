@@ -1,7 +1,7 @@
 #include "window.h"
 
 
-#ifdef _WIN32_
+#ifdef _WIN32
 const TCHAR* windowClass = TEXT("jog2MainWindow");
 const TCHAR* windowTitle = TEXT("jog2RenderWindow");
 

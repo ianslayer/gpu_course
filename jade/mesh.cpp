@@ -119,7 +119,7 @@ void CalculateTangentSpace(const Vector3* posList, const Vector3* normalList, co
     Vector3* tan2 = tan1 + numVertices;
     
     memset(tan1, 0, numVertices * sizeof(Vector3) * 2);
-    
+    float pairity = 1.f;
     for(int i = 0; i < numIndices ; i+=3 )
     {
         int i1 = indices[i];
@@ -142,9 +142,12 @@ void CalculateTangentSpace(const Vector3* posList, const Vector3* normalList, co
         float s2 = w3.x - w1.x;
         float t2 = w3.y - w1.y;
         
+		pairity = cross(w2 - w1, w3 - w1) > 0? 1.f : -1.f;
+
         float r = 1.0f / (s1 * t2 - s2 * t1);
-        Vector3 sdir = (t2 * q1 - t1 * q2) * r;
-        Vector3 tdir = (s1 * q2 - s2 * q1) * r;
+        Vector3 sdir = (t2 * q1 - t1 * q2) * r ;//* pairity;
+        Vector3 tdir = (s1 * q2 - s2 * q1) * r ;
+
         
         tan1[i1] += sdir;
         tan1[i2] += sdir;

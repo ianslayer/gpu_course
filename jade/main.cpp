@@ -184,11 +184,20 @@ void LoadResources()
 	//jade::LoadFromObjMesh("data/db5/db5.obj", device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList);
 	scene->AddPrimitives(primitiveList);
 
-	jade::Light* dirLight = new jade::DirectionLight();
+	jade::Light* dirLight = new jade::DirectionLight(Vector3(1, -1, 1), Vector3(1, 1, 1) );
 	scene->AddLight(dirLight);
 
-	jade::Light* pointLight = new jade::PointLight();
-	scene->AddLight(pointLight);
+	jade::Light* dirLight2 = new jade::DirectionLight(Vector3(0, -1, 1), Vector3(1, 1, 1) );
+	//scene->AddLight(dirLight2);
+
+	jade::Light* dirLight3 = new jade::DirectionLight(Vector3(1, 0, 1), Vector3(1, 1, 1) );
+	//scene->AddLight(dirLight3);
+
+	jade::Light* dirLight4 = new jade::DirectionLight(Vector3(-1, 0, 1), Vector3(1, 1, 1) );
+	//scene->AddLight(dirLight4);
+
+	//jade::Light* pointLight = new jade::PointLight();
+	//scene->AddLight(pointLight);
 	
 
 

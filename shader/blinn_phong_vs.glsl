@@ -29,15 +29,15 @@ void main(void)
 	world_pos = (modelMatrix * vec4(position, 1.0)).xyz;
 	world_normal = (modelMatrix * vec4(normal, 0.0)).xyz;
     
-    vec3 bitangent = cross(normal, tangent.xyz) * tangent.w;
+    vec3 bitangent = cross(normal, vs_fs_tangent.xyz) * tangent.w;
     vec3 modelCamPos = (invModelMatrix * vec4(world_cam_pos, 1.0) ).xyz;
     
     tangentView = modelCamPos - position;
-    tangentView = vec3(dot(tangent.xyz, tangentView), dot(bitangent, tangentView), dot(normal, tangentView));
+    tangentView = vec3(dot(vs_fs_tangent.xyz, tangentView), dot(bitangent, tangentView), dot(normal, tangentView));
     
     vec4 modelLightDir = invModelMatrix * lightPosDir;
     tangentLight = modelLightDir.xyz - position * lightPosDir.w;
-    tangentLight = vec3(dot(tangent.xyz, tangentLight), dot(bitangent, tangentLight), dot(normal, tangentLight) );
+    tangentLight = vec3(dot(vs_fs_tangent.xyz, tangentLight), dot(bitangent, tangentLight), dot(normal, tangentLight) );
     /*
 	vec3 lightDir = lightPosDir.xyz - world_pos * lightPosDir.w;
 	float distToLight = length(lightDir);

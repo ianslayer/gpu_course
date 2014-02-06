@@ -189,6 +189,11 @@ inline bool Vector2::operator == (const Vector2& rhs) const
     return ( (x == rhs.x) && (y == rhs.y));
 }
 
+inline float cross(const Vector2& v1, const Vector2& v2)
+{
+	return v1.x * v2.y - v1.y * v2.x;
+}
+
 class Vector3 {
 public:
 	Vector3();

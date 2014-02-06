@@ -637,7 +637,7 @@ bool ObjMesh::Load(const std::string& path)
     return success;
 }
 
-
+/*
 void ObjMesh::CreateVertexIndexBuffer(int geomIndex, std::vector<ObjMesh::FusedVertex>& vertices, std::vector<int>& indices) const
 {
     std::unordered_map<FusedVertex, int, VertexHash<FusedVertex>, VertexEqual<FusedVertex> > vertIndexTable;
@@ -684,4 +684,46 @@ void ObjMesh::CreateVertexIndexBuffer(int geomIndex, std::vector<ObjMesh::FusedV
         indices.push_back(triIndices[1]);
         indices.push_back(triIndices[2]);
     }
+}
+
+*/
+
+
+void ObjMesh::CreateVertexIndexBuffer(int geomIndex, std::vector<ObjMesh::FusedVertex>& vertices, std::vector<int>& indices) const
+{
+	//std::unordered_map<FusedVertex, int, VertexHash<FusedVertex>, VertexEqual<FusedVertex> > vertIndexTable;
+	//int uniqueIndex = 0;
+	int triIndex = 0;
+	for(size_t t = 0; t < geomList[geomIndex].triangleList.size(); t++)
+	{
+		int triIndices[3];
+
+		Triangle tri = geomList[geomIndex].triangleList[t];
+		for(int v = 0; v < 3; v++)
+		{
+			Vertex vert = tri.v[v];
+			FusedVertex vertex;
+			memset(&vertex, 0, sizeof(vertex));
+
+			vertex.position = posList[vert.vIndex - 1];
+
+			if( vert.HasNormal() )
+			{
+				vertex.normal = normalList[vert.nIndex - 1];
+			}
+
+			if( vert.HasTexcoord() )
+			{
+				vertex.texcoord = texcoordList[vert.tIndex - 1];
+			}
+			//std::unordered_map<FusedVertex, int, VertexHash<FusedVertex>, VertexEqual<FusedVertex> >::iterator indexIter = vertIndexTable.find(vertex);
+
+			vertices.push_back(vertex);
+
+		}
+
+		indices.push_back(triIndex++);
+		indices.push_back(triIndex++);
+		indices.push_back(triIndex++);
+	}
 }

@@ -4,8 +4,9 @@
 #define NOMINMAX
 
 #ifdef _WIN32
+	 #include "GL/gl3w.h"
     #include "GL/wglext.h"
-    #include "GL/gl3w.h"
+   
 #elif defined(__APPLE__)
 #define ESSENTIAL_GL_PRACTICES_SUPPORT_GL3 1
     #include <OpenGL/gl3.h>
