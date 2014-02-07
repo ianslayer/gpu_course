@@ -63,10 +63,12 @@ void InputControl(float frameTime)
         camera.up = cross(camera.right, camera.lookat);
     }
     
+    rendererGL->SetRendererOption(&inputListener->options);
+    
     inputListener->ClearState();
 }
 
-void InitRenderer()
+void InitRenderer(float width, float height)
 {
     std::string workingDir = WorkingDir();
     jade::RenderDeviceSetting deviceSetting;
@@ -109,19 +111,19 @@ void InitScene()
     
 	ObjMesh objMesh, objMesh2;
 	objMesh.Load("data/sponza/sponza.obj");
-    //objMesh2.Load("data/db5/db5.obj");
+    objMesh2.Load("data/db5/db5.obj");
 	jade::LoadFromObjMesh(objMesh, device, texManager,  flipMatrix, texflipMatrix, primitiveList);
     
 	jade::LoadFromObjMesh(objMesh2, device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList);
     
     
 	scene->AddPrimitives(primitiveList);
-	//jade::LoadFromObjMesh("data/db5/db5.obj", device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList);
+
     
 	jade::DirectionLight* dirLight = new jade::DirectionLight(Normalize(Vector3(1, 1, 1)), Vector3(1, 1, 1));
 	scene->AddLight(dirLight);
     
-	//jade::Light* pointLight = new jade::PointLight();
+	jade::Light* pointLight = new jade::PointLight();
 	//scene->AddLight(pointLight);
     
     

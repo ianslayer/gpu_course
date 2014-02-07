@@ -11,6 +11,7 @@ namespace jade
     public:
         virtual ~Renderer() {}
         virtual void Render(const Camera* camera, const Scene* scene) = 0;
+        virtual void SetRendererOption(void* options) {}
     };
 
 }

@@ -127,16 +127,16 @@ void CaptureMouse(Window& window, const bool value);
 
 #elif defined(__APPLE__)
 
-#define KEY_0
-#define KEY_1
-#define KEY_2
-#define KEY_3
-#define KEY_4
-#define KEY_5
-#define KEY_6
-#define KEY_7
-#define KEY_8
-#define KEY_9
+#define KEY_0 int('0')
+#define KEY_1 int('1')
+#define KEY_2 int('2')
+#define KEY_3 int('3')
+#define KEY_4 int('4')
+#define KEY_5 int('5')
+#define KEY_6 int('6')
+#define KEY_7 int('7')
+#define KEY_8 int('8')
+#define KEY_9 int('9')
 
 #define KEY_LEFT
 #define KEY_RIGHT

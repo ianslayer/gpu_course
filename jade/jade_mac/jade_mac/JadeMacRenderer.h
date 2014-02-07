@@ -9,8 +9,23 @@
 #ifndef __jade_mac__JadeMacRenderer__
 #define __jade_mac__JadeMacRenderer__
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+    void InputControl(float frameTime);
+    void InitRenderer(float width, float height);;
+    void InitScene();
+    void RenderFrame();
+    
+#ifdef __cplusplus
+}
+#endif
+
+
 #ifdef __cplusplus
 #include "../../../window.h"
+#include "../../../jade/renderer_gl.h"
 #include <algorithm>
 
 class MyInputListener : public InputListener
@@ -80,12 +95,35 @@ public:
         {
             right = pressed;
         }
+        
+        if(key == KEY_R && pressed == false)
+        {
+            options.reloadShaders = true;
+        }
+        
+        if(key == KEY_0 && pressed == false)
+        {
+            options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_NONE;
+        }
+        
+        if(key == KEY_1 && pressed == false )
+        {
+            options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_UV_TILING;
+        }
+        
+        if(key == KEY_2 && pressed == false)
+        {
+            options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_TANGENT_SPACE;
+        }
+        
     }
     
     void ClearState()
     {
         rx = 0;
         ry = 0;
+        
+        options.reloadShaders = false;
         
         frameCount++;
     }
@@ -104,20 +142,11 @@ public:
     
     uint64_t frameCount;
     
+    jade::GLRendererOptions options;
+    
 };
 #endif
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-    void InputControl(float frameTime);
-    void InitRenderer();
-    void InitScene();
-    void RenderFrame();
- 
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* defined(__jade_mac__JadeMacRenderer__) */

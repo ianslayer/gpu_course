@@ -637,10 +637,61 @@ bool ObjMesh::Load(const std::string& path)
     return success;
 }
 
+class VertexHash
+{
+public:
+    size_t operator () (const ObjMesh::Vertex& vert) const
+    {
+        const unsigned int magic1 = 0x8da6b343;
+        const unsigned int magic2 = 0xd8163841;
+        const unsigned int magic3 = 0xfa769893;
+        
+        return vert.vIndex *magic1 + vert.nIndex * magic2 + vert.tIndex * magic3;
+    }
+};
+
+class VertexEqual
+{
+public:
+    bool operator () (const ObjMesh::Vertex& v1, const ObjMesh::Vertex& v2) const
+    {
+        return (v1.vIndex == v2.vIndex) && (v1.nIndex == v2.nIndex) && (v1.tIndex == v2.tIndex);
+    }
+};
+
+class FusedVertexHash
+{
+public:
+    size_t operator() (const ObjMesh::FusedVertex& vert) const
+    {
+        const unsigned int magic1 = 0x8da6b343;
+        const unsigned int magic2 = 0xd8163841;
+        const unsigned int magic3 = 0xfa769893;
+        const unsigned int magic4 = 0xea489237;
+        const unsigned int magic5 = 0xab389235;
+        const unsigned int magic6 = 0xaf387933;
+        const unsigned int magic7 = 0xce339897;
+        const unsigned int magic8 = 0xad390233;
+        
+        return (unsigned long) vert.position.x * magic1 + vert.position.y * magic2 + vert.position.z * magic3 +
+        vert.normal.x * magic4 + vert.normal.y * magic5 + vert.normal.z * magic6 +
+        vert.texcoord.x * magic7 + vert.texcoord.y * magic8;
+    }
+};
+
+class FusedVertexEqual
+{
+public:
+    bool operator () (const ObjMesh::FusedVertex& vert0, const ObjMesh::FusedVertex& vert1) const
+    {
+        return (vert0.position == vert1.position) && (vert0.normal == vert1.normal) && (vert0.texcoord == vert1.texcoord);
+    }
+};
+
 /*
 void ObjMesh::CreateVertexIndexBuffer(int geomIndex, std::vector<ObjMesh::FusedVertex>& vertices, std::vector<int>& indices) const
 {
-    std::unordered_map<FusedVertex, int, VertexHash<FusedVertex>, VertexEqual<FusedVertex> > vertIndexTable;
+    std::unordered_map<FusedVertex, int, FusedVertexHash, FusedVertexEqual > vertIndexTable;
     int uniqueIndex = 0;
 
     for(size_t t = 0; t < geomList[geomIndex].triangleList.size(); t++)
@@ -665,7 +716,7 @@ void ObjMesh::CreateVertexIndexBuffer(int geomIndex, std::vector<ObjMesh::FusedV
             {
                 vertex.texcoord = texcoordList[vert.tIndex - 1];
             }
-            std::unordered_map<FusedVertex, int, VertexHash<FusedVertex>, VertexEqual<FusedVertex> >::iterator indexIter = vertIndexTable.find(vertex);
+            std::unordered_map<FusedVertex, int, FusedVertexHash, FusedVertexEqual >::iterator indexIter = vertIndexTable.find(vertex);
       
             if(indexIter == vertIndexTable.end() )
             {
@@ -685,14 +736,61 @@ void ObjMesh::CreateVertexIndexBuffer(int geomIndex, std::vector<ObjMesh::FusedV
         indices.push_back(triIndices[2]);
     }
 }
-
 */
 
+void ObjMesh::CreateVertexIndexBuffer2(int geomIndex, std::vector<ObjMesh::FusedVertex>& vertices, std::vector<int>& indices) const
+{
+    std::unordered_map<ObjMesh::Vertex, int, VertexHash, VertexEqual > vertIndexTable;
+    int uniqueIndex = 0;
+    
+    for(size_t t = 0; t < geomList[geomIndex].triangleList.size(); t++)
+    {
+        int triIndices[3];
+        
+        Triangle tri = geomList[geomIndex].triangleList[t];
+        for(int v = 0; v < 3; v++)
+        {
+            Vertex vert = tri.v[v];
+            FusedVertex vertex;
+            memset(&vertex, 0, sizeof(vertex));
+            
+            vertex.position = posList[vert.vIndex - 1];
+            
+            if( vert.HasNormal() )
+            {
+                vertex.normal = normalList[vert.nIndex - 1];
+            }
+            
+            if( vert.HasTexcoord() )
+            {
+                vertex.texcoord = texcoordList[vert.tIndex - 1];
+            }
+            std::unordered_map<ObjMesh::Vertex, int, VertexHash, VertexEqual >::iterator indexIter = vertIndexTable.find(vert);
+            
+            if(indexIter == vertIndexTable.end() )
+            {
+                vertIndexTable[vert] = uniqueIndex;
+                vertices.push_back(vertex);
+                triIndices[v] = uniqueIndex;
+                uniqueIndex++;
+            }
+            else
+            {
+                triIndices[v] = indexIter->second;
+            }
+        }
+        
+        indices.push_back(triIndices[0]);
+        indices.push_back(triIndices[1]);
+        indices.push_back(triIndices[2]);
+    }
+}
 
 void ObjMesh::CreateVertexIndexBuffer(int geomIndex, std::vector<ObjMesh::FusedVertex>& vertices, std::vector<int>& indices) const
 {
 	//std::unordered_map<FusedVertex, int, VertexHash<FusedVertex>, VertexEqual<FusedVertex> > vertIndexTable;
-	//int uniqueIndex = 0;
+    
+    //int uniqueIndex = 0;
 	int triIndex = 0;
 	for(size_t t = 0; t < geomList[geomIndex].triangleList.size(); t++)
 	{

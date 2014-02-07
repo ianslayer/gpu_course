@@ -20,23 +20,32 @@ namespace jade
 
 		virtual void Render(const Camera* camera, const Scene* scene);
 
+        virtual void SetRendererOption(void*);
+
+        void ReloadShaders();
+        
 		void RenderDebugInfo(const Camera* camera, const Scene* scene);
 
 		class RenderDevice* device;
 		GLuint wireframeShader;
 		GLuint matShader;
+        GLuint dbgTangentShader;
+        GLuint dbgUVShader;
+        
 		GLuint whiteTexture;
 		GLuint blackTexture;
         GLuint blueTexture; //unit z
         
 		RefCountedPtr<TextureSamplerState> defaultSamplerState;
+        
+        GLRendererOptions options;
 	};
 
-    RendererGL::RendererGL(RenderDevice* _device) : device(_device), wireframeShader(0)
+    RendererGL::RendererGL(RenderDevice* _device) : device(_device), wireframeShader(0), matShader(0), dbgTangentShader(0), dbgUVShader(0)
     {
-		wireframeShader =  CreateProgram("shader/wireVertexShader.glsl", "shader/wirePixelShader.glsl");
-		matShader = CreateProgram("shader/blinn_phong_vs.glsl", "shader/blinn_phong_ps.glsl");
-
+        
+		ReloadShaders();
+        
 		whiteTexture = GenerateColorTexture(1.f, 1.f, 1.f, 0.f);
 		blackTexture = GenerateColorTexture(0.f, 0.f, 0.f, 0.f);
 		blueTexture = GenerateColorTexture(0.f, 0.f, 1.f, 0.f);
@@ -77,32 +86,40 @@ namespace jade
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glUseProgram(matShader);
-		GLint positionAttributeLoc = glGetAttribLocation(matShader, "position");
-		GLint normalAttributeLoc = glGetAttribLocation(matShader, "normal");
-        GLint tangentAttributeLoc = glGetAttribLocation(matShader, "tangent");
-		GLint texAttributeLoc = glGetAttribLocation(matShader, "texcoord");
+        GLuint sceneShader = 0;
+        if(options.dbgDraw == GLRendererOptions::DBG_DRAW_NONE)
+            sceneShader = matShader;
+        else if(options.dbgDraw == GLRendererOptions::DBG_DRAW_TANGENT_SPACE)
+            sceneShader = dbgTangentShader;
+        else if(options.dbgDraw == GLRendererOptions::DBG_DRAW_UV_TILING)
+            sceneShader = dbgUVShader;
+        
+		glUseProgram(sceneShader);
+		GLint positionAttributeLoc = glGetAttribLocation(sceneShader, "position");
+		GLint normalAttributeLoc = glGetAttribLocation(sceneShader, "normal");
+        GLint tangentAttributeLoc = glGetAttribLocation(sceneShader, "tangent");
+		GLint texAttributeLoc = glGetAttribLocation(sceneShader, "texcoord");
 
-		GLint modelMatLoc = glGetUniformLocation(matShader, "modelMatrix");
-        GLint invModelMatLoc = glGetUniformLocation(matShader, "invModelMatrix");
-		GLint viewMatLoc = glGetUniformLocation(matShader, "viewMatrix");
-		GLint projectionMatLoc = glGetUniformLocation(matShader, "projectionMatrix");
+		GLint modelMatLoc = glGetUniformLocation(sceneShader, "modelMatrix");
+        GLint invModelMatLoc = glGetUniformLocation(sceneShader, "invModelMatrix");
+		GLint viewMatLoc = glGetUniformLocation(sceneShader, "viewMatrix");
+		GLint projectionMatLoc = glGetUniformLocation(sceneShader, "projectionMatrix");
 
-		GLint ambientLoc = glGetUniformLocation(matShader, "ambient");
-		GLint diffuseLoc = glGetUniformLocation(matShader, "diffuse");
-		GLint specularLoc = glGetUniformLocation(matShader, "specular");
-		GLint roughnessLoc = glGetUniformLocation(matShader, "roughness");
+		GLint ambientLoc = glGetUniformLocation(sceneShader, "ambient");
+		GLint diffuseLoc = glGetUniformLocation(sceneShader, "diffuse");
+		GLint specularLoc = glGetUniformLocation(sceneShader, "specular");
+		GLint roughnessLoc = glGetUniformLocation(sceneShader, "roughness");
 
-		GLint camPosLocation = glGetUniformLocation(matShader, "world_cam_pos");
-		GLint useTangentLightLoc = glGetUniformLocation(matShader, "useTangentLight");
+		GLint camPosLocation = glGetUniformLocation(sceneShader, "world_cam_pos");
+		GLint useTangentLightLoc = glGetUniformLocation(sceneShader, "useTangentLight");
 
-		GLint diffuseMapLoc = glGetUniformLocation(matShader, "diffuseMap");
-        GLint normalMapLoc = glGetUniformLocation(matShader, "normalMap");
-		GLint specularMapLoc = glGetUniformLocation(matShader, "specularMap");
-		GLint maskMapLoc = glGetUniformLocation(matShader, "maskMap");
+		GLint diffuseMapLoc = glGetUniformLocation(sceneShader, "diffuseMap");
+        GLint normalMapLoc = glGetUniformLocation(sceneShader, "normalMap");
+		GLint specularMapLoc = glGetUniformLocation(sceneShader, "specularMap");
+		GLint maskMapLoc = glGetUniformLocation(sceneShader, "maskMap");
 
-		GLint lightPosDirLoc = glGetUniformLocation(matShader, "lightPosDir");
-		GLint lightIntensityLoc = glGetUniformLocation(matShader, "lightIntensity");
+		GLint lightPosDirLoc = glGetUniformLocation(sceneShader, "lightPosDir");
+		GLint lightIntensityLoc = glGetUniformLocation(sceneShader, "lightIntensity");
 
         glUniform3fv(camPosLocation, 1, reinterpret_cast<const float*>(&camera->position) );
         
@@ -224,6 +241,43 @@ namespace jade
 		}
     }
 
+    void RendererGL::SetRendererOption(void * _options)
+    {
+        options = *(static_cast<GLRendererOptions*>(_options));
+        
+        if(options.reloadShaders)
+        {
+            ReloadShaders();
+            options.reloadShaders = false;
+        }
+    }
+    
+    void RendererGL::ReloadShaders()
+    {
+        
+		GLuint _wireframeShader =  CreateProgram("shader/wireVertexShader.glsl", "shader/wirePixelShader.glsl");
+		
+        if(_wireframeShader)
+            wireframeShader = _wireframeShader;
+        
+        GLuint  _matShader = CreateProgram("shader/blinn_phong_vs.glsl", "shader/blinn_phong_ps.glsl");
+        
+        if(_matShader)
+            matShader = _matShader;
+        
+        GLuint _dbgTangentShader = CreateProgram("shader/blinn_phong_vs.glsl", "shader/dbg_draw_tangent.glsl");
+        
+        if(_dbgTangentShader)
+            dbgTangentShader = _dbgTangentShader;
+        
+        GLuint _dbgUVShader = CreateProgram("shader/blinn_phong_vs.glsl", "shader/dbg_draw_uv.glsl");
+        
+        if(_dbgUVShader)
+            dbgUVShader = _dbgUVShader;
+        
+        
+    }
+    
     void InitRendererGL(RenderDevice* device, Renderer** renderer)
     {
 		RendererGL* rendererGL = NULL;

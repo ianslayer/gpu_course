@@ -119,6 +119,8 @@ public:
 
     bool Load(const std::string& path);
     void CreateVertexIndexBuffer(int geomIndex, std::vector<FusedVertex>& vertices, std::vector<int>& indices) const;
+    
+    void CreateVertexIndexBuffer2(int geomIndex, std::vector<FusedVertex>& vertices, std::vector<int>& indices) const;
 
 	std::string name;
 	std::string path;
@@ -129,37 +131,6 @@ public:
 
     std::vector<Material> matList;
     std::vector<Geometry> geomList;
-};
-
-template<class VertType>
-class VertexHash
-{
-public:
-    size_t operator() (const VertType& vert) const
-    {
-        const unsigned int magic1 = 0x8da6b343;
-        const unsigned int magic2 = 0xd8163841;
-        const unsigned int magic3 = 0xfa769893;
-        const unsigned int magic4 = 0xea489237;
-        const unsigned int magic5 = 0xab389235;
-        const unsigned int magic6 = 0xaf387933;
-        const unsigned int magic7 = 0xce339897;
-        const unsigned int magic8 = 0xad390233;
-        
-        return (unsigned long) vert.position.x * magic1 + vert.position.y * magic2 + vert.position.z * magic3 +
-        vert.normal.x * magic4 + vert.normal.y * magic5 + vert.normal.z * magic6 +
-        vert.texcoord.x * magic7 + vert.texcoord.y * magic8;
-    }
-};
-
-template<class VertType>
-class VertexEqual
-{
-public:
-    bool operator () (const VertType& vert0, const VertType& vert1) const
-    {
-        return (vert0.position == vert1.position) && (vert0.normal == vert1.normal) && (vert0.texcoord == vert1.texcoord);
-    }
 };
 
 #endif

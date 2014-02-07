@@ -95,8 +95,10 @@ static void drawAnObject ()
     GLint swapInt = 1;
     [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
     
+    NSRect bound = [self bounds];
+    
     //init renderer & load resources
-    InitRenderer();
+    InitRenderer(bound.size.width, bound.size.height);
     InitScene();
     
     
@@ -158,9 +160,5 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
     [windowController rightMouseDown:currentEvent];
 }
 
-- (void) mouseMoved:(NSEvent *) event
-{
-    
-}
 
 @end

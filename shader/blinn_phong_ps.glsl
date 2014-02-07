@@ -30,30 +30,29 @@ void main(void)
 {
 	vec3 normal = vec3(0.5);
 	vec3 halfVector = vec3(0.f);
-	
+	vec3 lightDir = vec3(0);
 	if(useTangentLight)
 	{
+        lightDir = tangentLight;
 		 normal = normalize( texture(normalMap, vs_fs_texcoord).xyz * 2.f - vec3(1.f));
 		 halfVector = normalize(normalize(tangentLight) + normalize(tangentView));
 	}
 	else
 	{
 		normal = normalize(world_normal);
-		vec3 lightDir = normalize(lightPosDir.xyz - world_pos * lightPosDir.w);
-		vec3 viewDir = normalize(world_pos - world_cam_pos);
+		lightDir = normalize(lightPosDir.xyz - world_pos * lightPosDir.w);
+		vec3 viewDir = normalize(world_cam_pos - world_pos);
 		halfVector = normalize(lightDir + viewDir);
 
 	}
 			 
-		float nDotL = max(dot(normal, normalize(tangentLight) ), 0);
-		float nDotH = max(dot(normal, halfVector), 0.0001);
-		float maxPower = 32;
+    float nDotL = max(dot(normal, normalize(lightDir) ), 0);
+    float nDotH = max(dot(normal, halfVector), 0.0001);
+    float maxPower = 32;
 	
-		float roughness = pow(maxPower, texture(specularMap, vs_fs_texcoord).r );
-		float specular = ((roughness + 2.0) / (2 * 3.14) ) * pow(nDotH, roughness);
-	
-		//vec4(fract(vs_fs_texcoord), 0, 0);
-		//vec4( (normalize(vs_fs_tangent) + vec4(1.0)) *0.5);
-		out_color = nDotL * (texture(diffuseMap, vs_fs_texcoord) +  vec4(specular) );
+    float roughness = pow(maxPower, texture(specularMap, vs_fs_texcoord).r );
+    float specular = ((roughness + 2.0) / (2 * 3.14) ) * pow(nDotH, roughness);
+
+    out_color = nDotL * (texture(diffuseMap, vs_fs_texcoord) +  vec4(specular) );
 
 }

@@ -15,6 +15,8 @@ namespace jade
         Matrix4x4 ViewMatrix() const;
         Matrix4x4 PerspectiveMatrix() const;
 
+        void      SetAspectRatio(float width, float height) const ;
+        
         // view transform
         Vector3 position;
 
