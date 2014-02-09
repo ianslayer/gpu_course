@@ -108,6 +108,7 @@ bool InitGL(HWND hwnd, int msaaCount)
         WGL_ACCELERATION_ARB,       WGL_FULL_ACCELERATION_ARB,
         WGL_DOUBLE_BUFFER_ARB,      GL_TRUE,
         WGL_PIXEL_TYPE_ARB,         WGL_TYPE_RGBA_ARB,
+		WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB, GL_TRUE,
         WGL_COLOR_BITS_ARB,         24,
         WGL_DEPTH_BITS_ARB,         24,
         WGL_STENCIL_BITS_ARB,       8,

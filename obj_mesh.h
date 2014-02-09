@@ -94,6 +94,7 @@ public:
     class Geometry
     {
     public:
+		Geometry() : matIndex(-1) {}
         std::string             name;
         std::vector<Face>       faceList;
         std::vector<Triangle>   triangleList; //triangulated from face list

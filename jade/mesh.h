@@ -36,8 +36,7 @@ namespace jade
 
 		std::string		name;
 
-        VertexP3N3T2*   vertices;
-        VertexP3N3T4T2* vertices2;
+        VertexP3N3T4T2* vertices;
         
         Vector3*        positionList;
         Vector3*        normalList;
@@ -50,7 +49,6 @@ namespace jade
         int             numIndices;
 
         RefCountedPtr<HWVertexBuffer> vertexBuffer;
-        RefCountedPtr<HWVertexBuffer> vertexBuffer2;
         RefCountedPtr<HWIndexBuffer>  indexBuffer;
 		AABB			bound;
     };

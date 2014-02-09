@@ -23,7 +23,7 @@ namespace jade
 		delete [] texBuf;
 	}
 
-	bool Texture::Load(RenderDevice* device, const std::string& path)
+	bool Texture::Load(RenderDevice* device, const std::string& path, bool srgbTexture)
 	{
 		int width, height;
 		unsigned char* imgbuf;
@@ -34,7 +34,10 @@ namespace jade
 
 		HWTexture2D::Desc desc;
 		desc.arraySize = 0;
-		desc.format = TEX_FORMAT_RGBA8;
+		if(srgbTexture)
+			desc.format = TEX_FORMAT_SRGB8_ALPHA8;
+		else
+			desc.format = TEX_FORMAT_RGBA8;
 		desc.width = width;
 		desc.height = height;
 		desc.mipLevels = (unsigned int) TotalMipLevels(width, height);
@@ -74,7 +77,7 @@ namespace jade
 		texTable["sys:white"] = whiteTexture;
 	}
 
-	Texture* TextureManager::Load(const std::string& path)
+	Texture* TextureManager::Load(const std::string& path, bool srgbTexture)
 	{
         std::string nPath = NormalizePath(path);
 		int width, height;
@@ -102,7 +105,10 @@ namespace jade
 
 		HWTexture2D::Desc desc;
 		desc.arraySize = 0;
-		desc.format = TEX_FORMAT_RGBA8;
+		if(srgbTexture)
+			desc.format = TEX_FORMAT_SRGB8_ALPHA8;
+		else
+			desc.format = TEX_FORMAT_RGBA8;
 		desc.width = width;
 		desc.height = height;
 		desc.mipLevels = (unsigned int) TotalMipLevels(width, height);

@@ -32,7 +32,7 @@ namespace jade
         
 		GLuint whiteTexture;
 		GLuint blackTexture;
-        GLuint blueTexture; //unit z
+        GLuint uniZTexture; //unit z
         
 		RefCountedPtr<TextureSamplerState> defaultSamplerState;
         
@@ -46,7 +46,7 @@ namespace jade
         
 		whiteTexture = GenerateColorTexture(1.f, 1.f, 1.f, 0.f);
 		blackTexture = GenerateColorTexture(0.f, 0.f, 0.f, 0.f);
-		blueTexture = GenerateColorTexture(0.f, 0.f, 1.f, 0.f);
+		uniZTexture = GenerateColorTexture(0.5f, 0.5f, 1.f, 0.f);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
@@ -77,7 +77,8 @@ namespace jade
 
     void RendererGL::Render(const Camera* camera, const Scene* scene)
     {
-		glClearColor(0.5, 0.5, 0.5, 1);
+		glEnable(GL_FRAMEBUFFER_SRGB);
+		glClearColor(0.1, 0.1, 0.1, 1);
 	
 
 		//glClearColor(0.f, 0.f, 0.f, 0);
@@ -109,8 +110,10 @@ namespace jade
         GLint normalMapLoc = glGetUniformLocation(sceneShader, "normalMap");
 		GLint specularMapLoc = glGetUniformLocation(sceneShader, "specularMap");
 		GLint maskMapLoc = glGetUniformLocation(sceneShader, "maskMap");
+		GLint useMaskLoc = glGetUniformLocation(sceneShader, "useMask");
 
 		GLint lightPosDirLoc = glGetUniformLocation(sceneShader, "lightPosDir");
+		GLint lightRadiusLoc = glGetUniformLocation(sceneShader, "lightRadius");
 		GLint lightIntensityLoc = glGetUniformLocation(sceneShader, "lightIntensity");
 
         GLint dbgDrawModeLoc = glGetUniformLocation(sceneShader, "dbgShowMode");
@@ -126,7 +129,7 @@ namespace jade
         
 		for(size_t lightIdx = 0; lightIdx < scene->lightList.size(); lightIdx++)
 		{
-			if(lightIdx == 0)
+			if(lightIdx == 0 || options.dbgDraw != GLRendererOptions::DBG_DRAW_NONE)
 			{
 				glDisable(GL_BLEND);
 				glDepthFunc(GL_LESS);
@@ -150,6 +153,7 @@ namespace jade
 
 					glUniform4fv(lightPosDirLoc, 1, reinterpret_cast<const float*> (&lightPos) );
 					glUniform3fv(lightIntensityLoc, 1, reinterpret_cast<const float*> (&pointLight->intensity) );
+					glUniform1f(lightRadiusLoc, pointLight->radius);
 				}
 				break;
 			case Light::LT_DIRECTION:
@@ -171,7 +175,7 @@ namespace jade
 				glUniformMatrix4fv(modelMatLoc, 1, GL_TRUE, prim->ModelMatrix().FloatPtr());
                 glUniformMatrix4fv(invModelMatLoc, 1, GL_TRUE, prim->InvModelMatrix().FloatPtr());
                 
-				glBindBuffer(GL_ARRAY_BUFFER, prim->mesh->vertexBuffer2->GetImpl()->vboID);
+				glBindBuffer(GL_ARRAY_BUFFER, prim->mesh->vertexBuffer->GetImpl()->vboID);
 				glEnableVertexAttribArray(positionAttributeLoc);
 				glVertexAttribPointer(positionAttributeLoc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexP3N3T4T2), 0);
                 
@@ -194,11 +198,12 @@ namespace jade
 	
 				glUniform3fv(diffuseLoc, 1, reinterpret_cast<const float*> (&prim->material->diffuse) );
 				glUniform3fv(specularLoc, 1, reinterpret_cast<const float*> (&prim->material->specular) );
+				glUniform1f(roughnessLoc, prim->material->roughness);
 
 				glBindSampler(0, defaultSamplerState->GetImpl()->sampler);
                 
                 
-				if(prim->material->diffuseMap && prim->material->diffuseMap->hwTexture)
+				if(prim->material->diffuseMap)
 				{
 					SetTextureUnit(diffuseMapLoc, 0, prim->material->diffuseMap->hwTexture->GetImpl()->id);
 				}
@@ -207,19 +212,19 @@ namespace jade
 					SetTextureUnit(diffuseMapLoc, 0, whiteTexture);
 				}
 
-				if(prim->material->normalMap && prim->material->normalMap->hwTexture)
+				if(prim->material->normalMap )
 				{
 					SetTextureUnit(normalMapLoc, 1, prim->material->normalMap->hwTexture->GetImpl()->id);
 					glUniform1i(useTangentLightLoc, 1);
 				}
 				else
 				{
-					SetTextureUnit(normalMapLoc, 1, blueTexture);
+					SetTextureUnit(normalMapLoc, 1, uniZTexture);
 					glUniform1i(useTangentLightLoc, 0);
 				}
 
 				
-				if(prim->material->specularMap && prim->material->specularMap->hwTexture)
+				if(prim->material->specularMap )
 				{
 					SetTextureUnit(specularMapLoc, 2, prim->material->specularMap->hwTexture->GetImpl()->id);
 				}
@@ -228,6 +233,19 @@ namespace jade
 					SetTextureUnit(specularMapLoc, 2, blackTexture);
 					
 				}
+
+				
+				if(prim->material->dissolveMask)
+				{
+					SetTextureUnit(maskMapLoc, 3, prim->material->dissolveMask->hwTexture->GetImpl()->id);
+					glUniform1i(useMaskLoc, 1);
+				}
+				else
+				{
+					SetTextureUnit(maskMapLoc, 3, whiteTexture);
+					glUniform1i(useMaskLoc, 0);
+				}
+				
 
 				glDrawElements(GL_TRIANGLES, prim->mesh->indexBuffer->IndexCount(), GL_UNSIGNED_INT, 0);
 			}

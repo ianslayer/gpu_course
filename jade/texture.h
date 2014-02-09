@@ -13,7 +13,7 @@ namespace jade
 		Texture();
 		~Texture();
 
-		bool Load(RenderDevice* device, const std::string& path);
+		bool Load(RenderDevice* device, const std::string& path, bool srgbTexture = false);
 
 		std::string path;
 
@@ -27,7 +27,7 @@ namespace jade
 	public:
 		TextureManager(RenderDevice* device);
 
-		Texture* Load(const std::string& path);
+		Texture* Load(const std::string& path, bool srgbTexture = false);
 
 		void RemoveTexture(const std::string& name);
 

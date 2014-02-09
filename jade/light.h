@@ -25,12 +25,12 @@ namespace jade
 	{
 	public:
 
-		PointLight() : pos(0.f, 0.f, 10.f), intensity(1.f), Light(LT_POINT) { };
-		PointLight(const Vector3& _pos, const Vector3 _intensity) : pos(_pos), intensity(_intensity), Light(LT_POINT) {};
+		PointLight() : pos(0.f, 0.f, 10.f), intensity(1.f), radius(1.f), Light(LT_POINT) { };
+		PointLight(const Vector3& _pos, const Vector3 _intensity, float _radius) : pos(_pos), intensity(_intensity), radius(_radius), Light(LT_POINT) {};
 
 		Vector3 pos;
 		Vector3 intensity;
-
+		float   radius;
 
 	};
 

@@ -79,12 +79,47 @@ public:
         {
             right = pressed;
         }
+
+		if(key == KEY_R && pressed == false)
+		{
+			options.reloadShaders = true;
+		}
+
+		if(key == KEY_0 && pressed == false)
+		{
+			options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_NONE;
+		}
+
+		if(key == KEY_1 && pressed == false )
+		{
+			options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_UV_TILING;
+		}
+
+		if(key == KEY_2 && pressed == false)
+		{
+			options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_TANGENT_SPACE;
+		}
+
+		if(key == KEY_3 && pressed == false)
+		{
+			options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_DIFFUSE;
+		}
+		if(key == KEY_4 && pressed == false)
+		{
+			options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_NORMAL;
+		}
+		if(key == KEY_5 && pressed == false)
+		{
+			options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_SPECULAR;
+		}
     }
 
     void ClearState()
     {
         rx = 0;
         ry = 0;
+
+		options.reloadShaders = false;
     }
 
     bool forward;
@@ -95,6 +130,8 @@ public:
     bool mouseControl;
     float rx;
     float ry;
+
+	jade::GLRendererOptions options;
 };
 
 MyInputListener* inputListener = NULL;
@@ -136,6 +173,7 @@ void InputControl(float frameTime)
 		camera.lookat.Normalize();
         camera.up = cross(camera.right, camera.lookat);
     }
+	rendererGL->SetRendererOption(&inputListener->options);
 
     inputListener->ClearState();
 }
@@ -162,8 +200,6 @@ void Shutdown()
     jade::ShutdownRenderDevice(device);
 }
 
-std::vector<jade::Primitive* > primitiveList;
-
 void LoadResources()
 {
 	Matrix4x4 flipMatrix = Matrix4x4(		
@@ -177,35 +213,26 @@ void LoadResources()
 		0.f, -1.f
 		);
 
-	ObjMesh objMesh;
+	std::vector<jade::Primitive* > primitiveList;
+	ObjMesh objMesh, objMesh2;
 	objMesh.Load("data/sponza/sponza.obj");
-
+	objMesh2.Load("data/db5/db5.obj");
 	jade::LoadFromObjMesh(objMesh, device, texManager,  flipMatrix, texflipMatrix, primitiveList);
-	//jade::LoadFromObjMesh("data/db5/db5.obj", device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList);
+	jade::LoadFromObjMesh(objMesh2, device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList);
 	scene->AddPrimitives(primitiveList);
 
-	jade::Light* dirLight = new jade::DirectionLight(Vector3(1, -1, 1), Vector3(1, 1, 1) );
+	jade::Light* dirLight = new jade::DirectionLight(Vector3(1, -1, 1), Vector3(0.4, 0.4, 0.4) );
 	scene->AddLight(dirLight);
 
-	jade::Light* dirLight2 = new jade::DirectionLight(Vector3(0, -1, 1), Vector3(1, 1, 1) );
-	//scene->AddLight(dirLight2);
-
-	jade::Light* dirLight3 = new jade::DirectionLight(Vector3(1, 0, 1), Vector3(1, 1, 1) );
-	//scene->AddLight(dirLight3);
-
-	jade::Light* dirLight4 = new jade::DirectionLight(Vector3(-1, 0, 1), Vector3(1, 1, 1) );
-	//scene->AddLight(dirLight4);
-
-	//jade::Light* pointLight = new jade::PointLight();
-	//scene->AddLight(pointLight);
+	jade::Light* pointLight = new jade::PointLight(Vector3(1000, 0, 50), Vector3(0.8, 0.5, 0.5), 100 );
+	scene->AddLight(pointLight);
 	
-
-
+	jade::Light* pointLight2 = new jade::PointLight(Vector3(-1000, 0, 10), Vector3(0.5, 0.5, 0.8), 200 );
+	scene->AddLight(pointLight2);
 }
 
 void UnloadResources()
 {
-	primitiveList.clear();
 	delete scene;
 }
 

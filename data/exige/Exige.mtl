@@ -589,7 +589,7 @@ Kd 1 1 1
 Ks 0.9 0.9 0.9
 illum 2
 Ns 24.2515
-map_Kd vehiclelights128.png
+map_Kd vehiclelights128.tga
 map_bump 
 bump 
 map_opacity 
@@ -718,7 +718,7 @@ Kd 1 1 1
 Ks 0.9 0.9 0.9
 illum 2
 Ns 32
-map_Kd vehiclelights128.png
+map_Kd vehiclelights128.tga
 map_bump 
 bump 
 map_opacity 
@@ -960,7 +960,7 @@ Kd 1 1 1
 Ks 0.9 0.9 0.9
 illum 2
 Ns 59.7141
-map_Kd vehiclelights128.png
+map_Kd vehiclelights128.tga
 map_bump 
 bump 
 map_opacity 
@@ -2208,7 +2208,7 @@ Kd 1 1 1
 Ks 0.9 0.9 0.9
 illum 2
 Ns 34.2967
-map_Kd vehiclelights128.png
+map_Kd vehiclelights128.tga
 map_bump 
 bump 
 map_opacity 
@@ -2240,7 +2240,7 @@ Kd 1 1 1
 Ks 0.9 0.9 0.9
 illum 2
 Ns 32
-map_Kd vehiclelights128.png
+map_Kd vehiclelights128.tga
 map_bump 
 bump 
 map_opacity 
@@ -2288,7 +2288,7 @@ Kd 1 1 1
 Ks 0.9 0.9 0.9
 illum 2
 Ns 34.2967
-map_Kd vehiclelights128.png
+map_Kd vehiclelights128.tga
 map_bump 
 bump 
 map_opacity 

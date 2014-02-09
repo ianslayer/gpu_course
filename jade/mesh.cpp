@@ -5,7 +5,7 @@ namespace jade
 {
 
 Mesh::Mesh()
-    : vertices(0), positionList(0), normalList(0), tangentList(0), texcoordList(0), indices(0), numVertices(0), numIndices(0)
+    : positionList(0), normalList(0), tangentList(0), texcoordList(0), indices(0), numVertices(0), numIndices(0)
 {
 
 }
@@ -60,14 +60,13 @@ bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* dev
 	HWVertexBuffer* vertexBuffer;
 	HWIndexBuffer* indexBuffer;
 
-	device->CreateVertexBuffer(sizeof(ObjMesh::FusedVertex) * vertices.size(), &vertices[0], &vertexBuffer);
-    
+
 	device->CreateIndexBuffer(sizeof(int) * indices.size(), &indices[0], &indexBuffer);
 
 	if(*outMesh == NULL)
 		*outMesh = new Mesh();
 
-	(*outMesh)->vertexBuffer = vertexBuffer;
+
 	(*outMesh)->indexBuffer = indexBuffer;
 	(*outMesh)->numVertices = vertices.size();
 	(*outMesh)->numIndices = indices.size();
@@ -77,8 +76,7 @@ bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* dev
     (*outMesh)->tangentList = new Vector4[vertices.size()];
 	(*outMesh)->texcoordList = new Vector2[vertices.size()];
 
-	(*outMesh)->vertices = new VertexP3N3T2[vertices.size()];
-    (*outMesh)->vertices2 = new VertexP3N3T4T2[vertices.size()];
+    (*outMesh)->vertices = new VertexP3N3T4T2[vertices.size()];
     
     (*outMesh)->indices = new int[indices.size()];
     
@@ -86,9 +84,9 @@ bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* dev
 
 	for(size_t v = 0; v < vertices.size(); v++)
 	{
-		(*outMesh)->vertices2[v].position = (*outMesh)->vertices[v].position = (*outMesh)->positionList[v] = vertices[v].position;
-		(*outMesh)->vertices2[v].normal = (*outMesh)->vertices[v].normal = (*outMesh)->normalList[v] = vertices[v].normal;
-		(*outMesh)->vertices2[v].texcoord = (*outMesh)->vertices[v].texcoord = (*outMesh)->texcoordList[v] = vertices[v].texcoord;
+		(*outMesh)->vertices[v].position  = (*outMesh)->positionList[v] = vertices[v].position;
+		(*outMesh)->vertices[v].normal  = (*outMesh)->normalList[v] = vertices[v].normal;
+		(*outMesh)->vertices[v].texcoord  = (*outMesh)->texcoordList[v] = vertices[v].texcoord;
 	}
     
     for(size_t i = 0; i < indices.size(); i++)
@@ -101,14 +99,14 @@ bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* dev
     
     for(size_t v = 0; v < (*outMesh)->numVertices; v++)
     {
-        (*outMesh)->vertices2[v].tangent = (*outMesh)->tangentList[v];
+        (*outMesh)->vertices[v].tangent = (*outMesh)->tangentList[v];
     }
     
     
     HWVertexBuffer* vertexBuffer2;
-	device->CreateVertexBuffer(sizeof(VertexP3N3T4T2) * (*outMesh)->numVertices, (*outMesh)->vertices2, &vertexBuffer2);
+	device->CreateVertexBuffer(sizeof(VertexP3N3T4T2) * (*outMesh)->numVertices, (*outMesh)->vertices, &vertexBuffer2);
     
-    (*outMesh)->vertexBuffer2 = vertexBuffer2;
+    (*outMesh)->vertexBuffer = vertexBuffer2;
     
 	return true;
 }

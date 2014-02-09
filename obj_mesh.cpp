@@ -191,8 +191,9 @@ void LoadObjMaterial(const std::string& path, std::vector<ObjMesh::Material>& ma
 				break;
 			case MAP_D:
 				{
-					//ObjMesh::ObjMaterial* mat = &(matList[currentMatIndex]);
+					ObjMesh::Material* mat = &(matList[currentMatIndex]);
 					sscanf(lineBuf, "%s %s", mapType, TexName);
+					mat->mapD = std::string(TexName);
 					//printf("%s\n", mat->mapD.c_str());					
 				}
 				break;
@@ -549,7 +550,7 @@ int Parse(std::vector<Token>& tokens, ObjMesh* mesh)
                         break;
                     }
                 }
-                if(currentSegment == NULL)
+                if(currentSegment == NULL || (currentSegment->matIndex >=0 && mesh->matList[currentSegment->matIndex].name != matName) ) //TODO: SPLIT GEOMETRY, SHOULD ADD NEW NAME TO THE GEOMETRY
                 {
                     mesh->geomList.push_back(ObjMesh::Geometry() );
                     currentSegment = &(*mesh->geomList.rbegin());

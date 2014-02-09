@@ -20,7 +20,7 @@ out vec3 world_normal;
 out vec4 vs_fs_tangent;
 
 out vec3 tangentView;
-out vec3 tangentLight;
+out vec4 tangentLight;
 
 void main(void)
 {
@@ -36,8 +36,13 @@ void main(void)
     tangentView = vec3(dot(vs_fs_tangent.xyz, tangentView), dot(bitangent, tangentView), dot(normal, tangentView));
     
     vec4 modelLightDir = invModelMatrix * lightPosDir;
-    tangentLight = modelLightDir.xyz - position * lightPosDir.w;
-    tangentLight = vec3(dot(vs_fs_tangent.xyz, tangentLight), dot(bitangent, tangentLight), dot(normal, tangentLight) );
+    tangentLight.xyz = modelLightDir.xyz - position * lightPosDir.w;
+
+    tangentLight.xyz = vec3(dot(vs_fs_tangent.xyz, tangentLight.xyz), dot(bitangent, tangentLight.xyz), dot(normal, tangentLight.xyz) );
+	
+	tangentLight.w = lightPosDir.w;
+	
+		
     /*
 	vec3 lightDir = lightPosDir.xyz - world_pos * lightPosDir.w;
 	float distToLight = length(lightDir);
