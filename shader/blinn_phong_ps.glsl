@@ -26,6 +26,14 @@ uniform float roughness;
 
 uniform vec3 lightIntensity;
 
+uniform int dbgShowMode;
+const int DBG_DRAW_NONE = 0;
+const int DBG_DRAW_UV_TILING = 1;
+const int DBG_DRAW_TANGENT_SPACE = 2;
+const int DBG_DRAW_DIFFUSE = 3;
+const int DBG_DRAW_NORMAL = 4;
+const int DBG_DRAW_SPECULAR = 5;
+
 void main(void)
 {
 	vec3 normal = vec3(0.5);
@@ -53,6 +61,28 @@ void main(void)
     float roughness = pow(maxPower, texture(specularMap, vs_fs_texcoord).r );
     float specular = ((roughness + 2.0) / (2 * 3.14) ) * pow(nDotH, roughness);
 
-    out_color = nDotL * (texture(diffuseMap, vs_fs_texcoord) +  vec4(specular) );
+    out_color = vec4(lightIntensity, 1.0) * nDotL * (texture(diffuseMap, vs_fs_texcoord) +  vec4(specular) );
+    
+    //debug output
+    if(dbgShowMode == DBG_DRAW_UV_TILING)
+    {
+        out_color = 0.7 * vec4( fract(vs_fs_texcoord), 0, 0 ) + 0.3 * texture(diffuseMap, vs_fs_texcoord);
+    }
+    else if(dbgShowMode == DBG_DRAW_TANGENT_SPACE)
+    {
+        out_color = vec4( (normalize(vs_fs_tangent) + vec4(1.0)) *0.5);
+    }
+    else if(dbgShowMode == DBG_DRAW_DIFFUSE)
+    {
+        out_color = texture(diffuseMap, vs_fs_texcoord);
+    }
+    else if(dbgShowMode == DBG_DRAW_NORMAL)
+    {
+        out_color = texture(normalMap, vs_fs_texcoord);
+    }
+    else if(dbgShowMode == DBG_DRAW_SPECULAR)
+    {
+        out_color = texture(specularMap, vs_fs_texcoord);
+    }
 
 }

@@ -14,9 +14,13 @@ namespace jade
         }
         enum DebugDraw
         {
-            DBG_DRAW_NONE,
-            DBG_DRAW_UV_TILING,
-            DBG_DRAW_TANGENT_SPACE,
+            DBG_DRAW_NONE = 0,
+            DBG_DRAW_UV_TILING = 1,
+            DBG_DRAW_TANGENT_SPACE = 2,
+            DBG_DRAW_DIFFUSE = 3,
+            DBG_DRAW_NORMAL = 4,
+            DBG_DRAW_SPECULAR = 5
+            
         };
         
         DebugDraw dbgDraw;

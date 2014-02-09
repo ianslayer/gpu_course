@@ -116,6 +116,21 @@ public:
             options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_TANGENT_SPACE;
         }
         
+        if(key == KEY_3 && pressed == false)
+        {
+            options.dbgDraw =jade::GLRendererOptions::DBG_DRAW_DIFFUSE;
+        }
+        
+        if(key == KEY_4 && pressed == false)
+        {
+            options.dbgDraw =jade::GLRendererOptions::DBG_DRAW_NORMAL;
+        }
+        
+        if(key == KEY_5 && pressed == false)
+        {
+            options.dbgDraw =jade::GLRendererOptions::DBG_DRAW_SPECULAR;
+        }
+        
     }
     
     void ClearState()

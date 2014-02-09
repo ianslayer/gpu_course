@@ -74,8 +74,8 @@ static void Handle_DeviceMatchingCallback(
                                           void *          inSender,        // the IOHIDManagerRef for the new device
                                           IOHIDDeviceRef  inIOHIDDeviceRef // the new HID device
 ) {
-    printf("%s(context: %p, result: %p, sender: %p, device: %p).\n",
-           __PRETTY_FUNCTION__, inContext, (void *) inResult, inSender, (void*) inIOHIDDeviceRef);
+   // printf("%s(context: %p, result: %p, sender: %p, device: %p).\n",
+    //       __PRETTY_FUNCTION__, inContext, (void *) inResult, inSender, (void*) inIOHIDDeviceRef);
 }   // Handle_DeviceMatchingCallback
 
 // this will be called when a HID device is removed (unplugged)
@@ -85,8 +85,8 @@ static void Handle_RemovalCallback(
                                    void *         inSender,        // the IOHIDManagerRef for the device being removed
                                    IOHIDDeviceRef inIOHIDDeviceRef // the removed HID device
 ) {
-    printf("%s(context: %p, result: %p, sender: %p, device: %p).\n",
-           __PRETTY_FUNCTION__, inContext, (void *) inResult, inSender, (void*) inIOHIDDeviceRef);
+   // printf("%s(context: %p, result: %p, sender: %p, device: %p).\n",
+    //       __PRETTY_FUNCTION__, inContext, (void *) inResult, inSender, (void*) inIOHIDDeviceRef);
 }   // Handle_RemovalCallback
 
 static void Handle_IOHIDInputValueCallback(
@@ -108,7 +108,7 @@ static void Handle_IOHIDInputValueCallback(
     CFStringRef elementName = IOHIDElementGetName(element);
     
     uint32_t reportCount = IOHIDElementGetReportCount(element);
-    printf("element report count: %d\n", reportCount);
+   // printf("element report count: %d\n", reportCount);
     
     uint8_t buf[128];
     memset(buf, 0, sizeof(buf));

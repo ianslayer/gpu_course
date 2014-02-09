@@ -29,8 +29,6 @@ namespace jade
 		class RenderDevice* device;
 		GLuint wireframeShader;
 		GLuint matShader;
-        GLuint dbgTangentShader;
-        GLuint dbgUVShader;
         
 		GLuint whiteTexture;
 		GLuint blackTexture;
@@ -41,7 +39,7 @@ namespace jade
         GLRendererOptions options;
 	};
 
-    RendererGL::RendererGL(RenderDevice* _device) : device(_device), wireframeShader(0), matShader(0), dbgTangentShader(0), dbgUVShader(0)
+    RendererGL::RendererGL(RenderDevice* _device) : device(_device), wireframeShader(0), matShader(0)
     {
         
 		ReloadShaders();
@@ -86,13 +84,7 @@ namespace jade
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        GLuint sceneShader = 0;
-        if(options.dbgDraw == GLRendererOptions::DBG_DRAW_NONE)
-            sceneShader = matShader;
-        else if(options.dbgDraw == GLRendererOptions::DBG_DRAW_TANGENT_SPACE)
-            sceneShader = dbgTangentShader;
-        else if(options.dbgDraw == GLRendererOptions::DBG_DRAW_UV_TILING)
-            sceneShader = dbgUVShader;
+        GLuint sceneShader = matShader;
         
 		glUseProgram(sceneShader);
 		GLint positionAttributeLoc = glGetAttribLocation(sceneShader, "position");
@@ -121,12 +113,16 @@ namespace jade
 		GLint lightPosDirLoc = glGetUniformLocation(sceneShader, "lightPosDir");
 		GLint lightIntensityLoc = glGetUniformLocation(sceneShader, "lightIntensity");
 
+        GLint dbgDrawModeLoc = glGetUniformLocation(sceneShader, "dbgShowMode");
+        
         glUniform3fv(camPosLocation, 1, reinterpret_cast<const float*>(&camera->position) );
         
 		Matrix4x4 viewMatrix = camera->ViewMatrix();
 		Matrix4x4 projectionMatrix = camera->PerspectiveMatrix();
 		glUniformMatrix4fv(viewMatLoc, 1, GL_TRUE, viewMatrix.FloatPtr());
 		glUniformMatrix4fv(projectionMatLoc, 1, GL_TRUE, projectionMatrix.FloatPtr() );
+        
+        glUniform1i(dbgDrawModeLoc, options.dbgDraw);
         
 		for(size_t lightIdx = 0; lightIdx < scene->lightList.size(); lightIdx++)
 		{
@@ -233,9 +229,6 @@ namespace jade
 					
 				}
 
-//				if(prim->material->specularMap && )
-
-				//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				glDrawElements(GL_TRIANGLES, prim->mesh->indexBuffer->IndexCount(), GL_UNSIGNED_INT, 0);
 			}
 		}
@@ -264,18 +257,7 @@ namespace jade
         
         if(_matShader)
             matShader = _matShader;
-        
-        GLuint _dbgTangentShader = CreateProgram("shader/blinn_phong_vs.glsl", "shader/dbg_draw_tangent.glsl");
-        
-        if(_dbgTangentShader)
-            dbgTangentShader = _dbgTangentShader;
-        
-        GLuint _dbgUVShader = CreateProgram("shader/blinn_phong_vs.glsl", "shader/dbg_draw_uv.glsl");
-        
-        if(_dbgUVShader)
-            dbgUVShader = _dbgUVShader;
-        
-        
+    
     }
     
     void InitRendererGL(RenderDevice* device, Renderer** renderer)
