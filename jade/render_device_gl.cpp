@@ -1,9 +1,10 @@
 #include "render_device.h"
 #include "../window.h"
 
+#ifdef USE_DEVICE_GL
 namespace jade
 {
-	GLenum GetGLSizedTexFormat(TEXTURE_FORMAT format)
+	static GLenum GetGLSizedTexFormat(TEXTURE_FORMAT format)
 	{
 		switch(format)
 		{
@@ -47,14 +48,25 @@ namespace jade
 	{
 		glDeleteTextures(1, &id);
 	}
+    
+    TextureSamplerStateGL::TextureSamplerStateGL()
+    {
+        glGenSamplers(1, &sampler );
+    }
 
+    TextureSamplerStateGL::~TextureSamplerStateGL()
+    {
+        glDeleteSamplers(1, &sampler);
+    }
+    
     RenderDevice::error_t InitRenderDevice(const Window* window, const RenderDeviceSetting* setting, RenderDevice** device)
     {
-        *device = new RenderDevice();
-        
 #ifdef _WIN32
         InitGL(window->hwnd, setting->msaaCount);
 #endif
+        
+        *device = new RenderDevice();
+        
         return RenderDevice::SUCCESS;
     }
 
@@ -97,16 +109,26 @@ namespace jade
 		
 		glTexStorage2D(GL_TEXTURE_2D, desc->mipLevels, GetGLSizedTexFormat(desc->format), desc->width, desc->height);
 		
-		if(data && data->buf)
+		if(data )
 		{
-			glTexSubImage2D(GL_TEXTURE_2D,
-				0,
-				0, 0,
-				desc->width, desc->height, 
-				GL_RGBA,
-				GL_UNSIGNED_BYTE,
-				data->buf
-				);
+            int mipLevel = 0;
+            int mipWidth = desc->width;
+            int mipHeight = desc->height;
+            
+            do {
+                glTexSubImage2D(GL_TEXTURE_2D,
+                                mipLevel,
+                                0, 0,
+                                mipWidth, mipHeight,
+                                GL_RGBA,
+                                GL_UNSIGNED_BYTE,
+                                data[mipLevel].buf
+                );
+                
+                mipLevel++;
+                mipWidth /=2;
+                mipHeight /=2;
+            } while (mipLevel < desc->mipLevels && !desc->generateMipmap);
 
 			if(desc->generateMipmap)
 				glGenerateMipmap(GL_TEXTURE_2D);
@@ -118,7 +140,7 @@ namespace jade
 		return RenderDevice::SUCCESS;
 	}
 
-	GLint GetGLAddressMode(int addressMode)
+	static GLint GetGLAddressMode(int addressMode)
 	{
 		switch(addressMode)
 		{
@@ -137,18 +159,12 @@ namespace jade
 	}
 
 
-	TextureSamplerStateImpl* TextureSamplerState::GetImpl()
-	{
-		return &impl;
-	}
-
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT      0x84FF //core don't support anisotropic, define myself
 
 	RenderDevice::error_t RenderDevice::CreateSamplerState(TextureSamplerState::Desc* desc, TextureSamplerState** state)
 	{
 		*state = new TextureSamplerState();
 
-		glGenSamplers(1, &(*state)->impl.sampler );
 		(*state)->desc = *desc;
 		switch(desc->filter)
 		{
@@ -178,3 +194,5 @@ namespace jade
 	}
 
 }
+
+#endif

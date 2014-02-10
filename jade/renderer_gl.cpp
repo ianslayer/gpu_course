@@ -1,5 +1,5 @@
 #include "renderer_gl.h"
-#include "render_device_gl.h"
+#include "render_device.h"
 #include "camera.h"
 #include "primitive.h"
 #include "material.h"

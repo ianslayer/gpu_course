@@ -26,6 +26,7 @@ extern "C" {
 #ifdef __cplusplus
 #include "../../../window.h"
 #include "../../../jade/renderer_gl.h"
+#include "../../../jade/renderer_hw1.h"
 #include <algorithm>
 
 class MyInputListener : public InputListener

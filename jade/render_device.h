@@ -2,7 +2,14 @@
 #define RENDER_DEVICE_H
 
 #include "refcount.h"
-#include "render_device_gl.h"
+
+#define USE_DEVICE_GL
+
+#ifdef USE_DEVICE_GL
+    #include "render_device_gl.h"
+#elif defined (USE_DEVICE_HW1)
+    #include "render_device_hw1.h"
+#endif
 
 struct Window;
 
@@ -65,8 +72,6 @@ namespace jade
 	struct SubresourceData
 	{
 		const void* buf;
-		//unsigned int pitch;
-		//unsigned int slicePitch;
 	};
 
 	class HWTexture2D : public RefCounted
@@ -107,6 +112,9 @@ namespace jade
 	public:
 		friend class RenderDevice;
 
+        TextureSamplerState();
+        ~TextureSamplerState();
+        
 		enum TEX_FILTER
 		{
 			TEX_FILTER_MIN_MAG_MIP_POINT,
@@ -143,7 +151,8 @@ namespace jade
     public:
         enum RDError
         {
-            SUCCESS = 0
+            SUCCESS = 0,
+            FAIL = 1
         };
         typedef int error_t;
 

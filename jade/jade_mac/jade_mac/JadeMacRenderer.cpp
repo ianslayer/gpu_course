@@ -76,6 +76,9 @@ void InitRenderer(float width, float height)
     
     jade::InitRenderDevice(&window, &deviceSetting, &device);
     jade::InitRendererGL(device, &rendererGL);
+    
+    //jade::InitRendererHW(device, &rendererGL);
+    
 	texManager = new jade::TextureManager(device);
 	scene = new jade::Scene();
   

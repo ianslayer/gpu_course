@@ -1,5 +1,6 @@
 #ifndef RENDER_DEVICE_GL_H
 #define RENDER_DEVICE_GL_H
+
 #include "../gl_utility.h"
 
 namespace jade
@@ -34,6 +35,9 @@ namespace jade
 	class TextureSamplerStateGL
 	{
 	public:
+        TextureSamplerStateGL();
+        ~TextureSamplerStateGL();
+        
 		GLint minFilter;
 		GLint magFilter;
 		GLint mipFilter;
@@ -46,6 +50,7 @@ namespace jade
 		GLuint sampler;
 	};
 
+    
     typedef VertexBufferGL VertexBufferImpl;
     typedef IndexBufferGL IndexBufferImpl;
 	typedef Texture2DGL Texture2DImpl;

@@ -86,5 +86,21 @@ Texture2DImpl* HWTexture2D::GetImpl()
 	return &impl;
 }
 
-
+TextureSamplerState::TextureSamplerState()
+{
+        
+}
+    
+TextureSamplerState::~TextureSamplerState()
+{
+        
+}
+  
+    
+TextureSamplerStateImpl* TextureSamplerState::GetImpl()
+{
+    return &impl;
+}
+    
+    
 }
