@@ -79,6 +79,8 @@ void InitRenderer(float width, float height)
 	texManager = new jade::TextureManager(device);
 	scene = new jade::Scene();
   
+    camera.SetAspectRatio(width, height);
+    
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
     
@@ -97,8 +99,7 @@ void ShutdownRenderer()
 void InitScene()
 {
     
-    std::vector<jade::Primitive* > primitiveList;
-	Matrix4x4 flipMatrix = Matrix4x4(
+ 	Matrix4x4 flipMatrix = Matrix4x4(
                                      1.f, 0, 0, 0,
                                      0, 0, 1.f, 0,
                                      0, 1.f, 0, 0,
@@ -109,23 +110,22 @@ void InitScene()
                                          0.f, -1.f
                                          );
     
+	std::vector<jade::Primitive* > primitiveList;
 	ObjMesh objMesh, objMesh2;
 	objMesh.Load("data/sponza/sponza.obj");
-    objMesh2.Load("data/db5/db5.obj");
+	//objMesh2.Load("data/db5/db5.obj");
 	jade::LoadFromObjMesh(objMesh, device, texManager,  flipMatrix, texflipMatrix, primitiveList);
-    
 	//jade::LoadFromObjMesh(objMesh2, device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList);
-    
-    
 	scene->AddPrimitives(primitiveList);
-
     
-	jade::DirectionLight* dirLight = new jade::DirectionLight(Normalize(Vector3(1, 1, 1)), Vector3(0.5, 0.5, 0.5));
+	jade::Light* dirLight = new jade::DirectionLight(Vector3(1, -1, 1), Vector3(0.4, 0.4, 0.4) );
 	scene->AddLight(dirLight);
     
-	jade::Light* pointLight = new jade::PointLight();
-	//scene->AddLight(pointLight);
-    
+	jade::Light* pointLight = new jade::PointLight(Vector3(1000, 0, 50), Vector3(0.8, 0.5, 0.5), 100 );
+	scene->AddLight(pointLight);
+	
+	jade::Light* pointLight2 = new jade::PointLight(Vector3(-1000, 0, 10), Vector3(0.5, 0.5, 0.8), 200 );
+	scene->AddLight(pointLight2);
     
 }
 

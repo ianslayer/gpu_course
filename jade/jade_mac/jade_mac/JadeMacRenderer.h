@@ -41,7 +41,7 @@ public:
         ClearState();
         mouseControl =false;
         
-        cameraMoveSpeed = 50.f;
+        cameraMoveSpeed = 200.f;
         cameraTurnSpeed = 2.f;
         
         frameCount = 0;
@@ -129,6 +129,21 @@ public:
         if(key == KEY_5 && pressed == false)
         {
             options.dbgDraw =jade::GLRendererOptions::DBG_DRAW_SPECULAR;
+        }
+        
+        if(key == KEY_6 && pressed == false)
+        {
+            options.dbgDraw =jade::GLRendererOptions::DBG_DRAW_DIFFUSE_LIGHTING;
+        }
+        
+        if(key == KEY_7 && pressed == false)
+        {
+            options.dbgDraw =jade::GLRendererOptions::DBG_DRAW_SPECULAR_LIGHTING;
+        }
+        
+        if(key == KEY_8 && pressed == false)
+        {
+            options.dbgDraw =jade::GLRendererOptions::DBG_DRAW_FRESNEL_SPECULAR_LIGHTING;
         }
         
     }

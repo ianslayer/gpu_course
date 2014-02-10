@@ -15,7 +15,10 @@ namespace jade
         Matrix4x4 ViewMatrix() const;
         Matrix4x4 PerspectiveMatrix() const;
 
-        void      SetAspectRatio(float width, float height) const ;
+        void      SetAspectRatio(float width, float height);
+        void      SetXFov(float angleRad);
+        
+        void      DeriveProjectionParamter();
         
         // view transform
         Vector3 position;
@@ -24,9 +27,13 @@ namespace jade
         Vector3 right; //view space +x
         Vector3 up;    //view space +y
 
+        float   xFov;
+        float   width, height;
+        
         //projection
         float    n;
         float	 f;
+        //following parameter is derived from fov, aspect ratio and near plane
         float	 l;
         float	 r;
         float	 t;

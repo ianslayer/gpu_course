@@ -9,14 +9,41 @@ namespace jade
         right = Vector3(0, 1, 0);
         up = Vector3(0, 0, 1);
 
+        xFov = 3.14f / 2.f;
+        width = 1024.f;
+        height = 1024.f;
+        
         n = 0.1f;
         f = 3000.f;
-        l = -0.1f;
-        r = 0.1f;
-        t = 0.1f;
-        b = -0.1f;
+
+        DeriveProjectionParamter();
+
     }
 
+    void Camera::SetAspectRatio(float _width, float _height)
+    {
+        width = _width;
+        height = _height;
+        
+        DeriveProjectionParamter();
+    }
+    
+    void Camera::SetXFov(float angleRad)
+    {
+        xFov = angleRad;
+        
+        DeriveProjectionParamter();
+    }
+    
+    void Camera::DeriveProjectionParamter()
+    {
+        r = n * tan(xFov/2.f);
+        l = -r;
+        
+        t = r * (height / width);
+        b = -t;
+    }
+    
     Matrix4x4 Camera::ViewMatrix() const
     {
         Matrix4x4 camAxis = Matrix4x4(right.x, up.x, -lookat.x, 0,

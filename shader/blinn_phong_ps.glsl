@@ -35,18 +35,21 @@ const int DBG_DRAW_TANGENT_SPACE = 2;
 const int DBG_DRAW_DIFFUSE = 3;
 const int DBG_DRAW_NORMAL = 4;
 const int DBG_DRAW_SPECULAR = 5;
+const int DBG_DRAW_DIFFUSE_LIGHTING = 6;
+const int DBG_DRAW_SPECULAR_LIGHTING = 7;
+const int DBG_DRAW_FRESNEL_SPECULAR_LIGHTING = 8;
 
 void main(void)
 {
 	vec3 normal = vec3(0.5);
-	vec3 halfVector = vec3(0.f);
+	vec3 halfVector = vec3(0);
 	vec3 lightDir = vec3(0);
 	float distToLight = distance(lightPosDir.xyz, world_pos);
 	
 	if(useTangentLight)
 	{
         lightDir = tangentLight.xyz;
-		 normal = normalize( texture(normalMap, vs_fs_texcoord).xyz * 2.f - vec3(1.f));
+		 normal = normalize( texture(normalMap, vs_fs_texcoord).xyz * 2.0 - vec3(1.0));
 		 halfVector = normalize(normalize(tangentLight.xyz) + normalize(tangentView));
 	}
 	else
@@ -60,15 +63,31 @@ void main(void)
 			 
     float nDotL = max(dot(normal, normalize(lightDir) ), 0);
     float nDotH = max(dot(normal, halfVector), 0.0001);
-	
+	float lDotH = max(dot(normalize(lightDir), halfVector), 0);
+    
     float alpha = pow(roughness, texture(specularMap, vs_fs_texcoord).r );
+    alpha *= alpha; // this is only to exaggerate specular more
+    
     float specular = ((alpha + 2.0) / (2 * 3.14) ) * pow(nDotH, alpha);
 
+    //experiment GGX
+    /*
+    alpha = pow(roughness, 1.0 - texture(specularMap, vs_fs_texcoord).r );
+    alpha /= roughness;
+    float beta = ((nDotH * nDotH) * (alpha * alpha - 1) + 1);
+    beta *= beta;
+    specular = alpha * alpha / (3.14 * beta);
+    */
+    
+    //Fresnel
+    vec4 F0 = vec4(0.04);
+    vec4 FSchlick = F0 + (vec4(1.0) - F0) * pow((1.0 - lDotH), 5 );
+    
 	float distanceAtt = 1.0;
 	if(lightPosDir.w == 1.0) //this is point light
 		distanceAtt = 1.0/ ( (1.0 + distToLight / lightRadius ) * (1.0 + distToLight / lightRadius ) ); //see http://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/ for details
     
-	out_color = distanceAtt * vec4(lightIntensity, 1.0) * nDotL * (texture(diffuseMap, vs_fs_texcoord) +  vec4(specular) ) ;
+	out_color = distanceAtt * vec4(lightIntensity, 1.0) * nDotL * ((vec4(1.0) - FSchlick) *texture(diffuseMap, vs_fs_texcoord) +  FSchlick * vec4(specular) ) ;
     
 	if(useMask)
 	{
@@ -96,6 +115,18 @@ void main(void)
     else if(dbgShowMode == DBG_DRAW_SPECULAR)
     {
         out_color = texture(specularMap, vs_fs_texcoord);
+    }
+    else if(dbgShowMode == DBG_DRAW_DIFFUSE_LIGHTING)
+    {
+        out_color =  distanceAtt * vec4(lightIntensity, 1.0) * nDotL * ((vec4(1.0) - FSchlick) *texture(diffuseMap, vs_fs_texcoord) );
+    }
+    else if(dbgShowMode == DBG_DRAW_SPECULAR_LIGHTING)
+    {
+          out_color =  distanceAtt * vec4(lightIntensity, 1.0) * nDotL * vec4(specular);
+    }
+    else if(dbgShowMode == DBG_DRAW_FRESNEL_SPECULAR_LIGHTING)
+    {
+          out_color =  distanceAtt * vec4(lightIntensity, 1.0) * nDotL * FSchlick * vec4(specular);
     }
 
 }

@@ -41,13 +41,6 @@ void main(void)
     tangentLight.xyz = vec3(dot(vs_fs_tangent.xyz, tangentLight.xyz), dot(bitangent, tangentLight.xyz), dot(normal, tangentLight.xyz) );
 	
 	tangentLight.w = lightPosDir.w;
-	
-		
-    /*
-	vec3 lightDir = lightPosDir.xyz - world_pos * lightPosDir.w;
-	float distToLight = length(lightDir);
-	lightDir /= distToLight;
-    */
     
 	gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( position, 1.0);
 }

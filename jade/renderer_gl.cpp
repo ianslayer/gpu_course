@@ -129,7 +129,7 @@ namespace jade
         
 		for(size_t lightIdx = 0; lightIdx < scene->lightList.size(); lightIdx++)
 		{
-			if(lightIdx == 0 || options.dbgDraw != GLRendererOptions::DBG_DRAW_NONE)
+			if(lightIdx == 0 || (options.dbgDraw >= GLRendererOptions::DBG_DRAW_UV_TILING && options.dbgDraw <= GLRendererOptions::DBG_DRAW_SPECULAR) )
 			{
 				glDisable(GL_BLEND);
 				glDepthFunc(GL_LESS);

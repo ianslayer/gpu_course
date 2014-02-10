@@ -19,7 +19,11 @@ namespace jade
             DBG_DRAW_TANGENT_SPACE = 2,
             DBG_DRAW_DIFFUSE = 3,
             DBG_DRAW_NORMAL = 4,
-            DBG_DRAW_SPECULAR = 5
+            DBG_DRAW_SPECULAR = 5,
+            
+            DBG_DRAW_DIFFUSE_LIGHTING = 6,
+            DBG_DRAW_SPECULAR_LIGHTING = 7,
+            DBG_DRAW_FRESNEL_SPECULAR_LIGHTING = 8,
             
         };
         
