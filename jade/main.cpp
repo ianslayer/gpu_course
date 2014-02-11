@@ -12,16 +12,17 @@
 #include "texture.h"
 #include "scene.h"
 #include "renderer_gl.h"
+#include "renderer_hw1.h"
 #include "camera.h"
 
 Window window;
 jade::RenderDevice* device;
 jade::TextureManager* texManager;
 jade::Scene* scene;
-jade::Renderer* rendererGL;
+jade::Renderer* renderer;
 jade::Camera camera;
 
-float cameraMoveSpeed = 2.f;
+float cameraMoveSpeed = 100.f;
 float cameraTurnSpeed = 1.f;
 
 class MyInputListener : public InputListener
@@ -112,6 +113,21 @@ public:
 		{
 			options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_SPECULAR;
 		}
+		if(key == KEY_6 && pressed == false)
+		{
+			options.dbgDraw =jade::GLRendererOptions::DBG_DRAW_DIFFUSE_LIGHTING;
+		}
+
+		if(key == KEY_7 && pressed == false)
+		{
+			options.dbgDraw =jade::GLRendererOptions::DBG_DRAW_SPECULAR_LIGHTING;
+		}
+
+		if(key == KEY_8 && pressed == false)
+		{
+			options.dbgDraw =jade::GLRendererOptions::DBG_DRAW_FRESNEL_SPECULAR_LIGHTING;
+		}
+
     }
 
     void ClearState()
@@ -173,20 +189,21 @@ void InputControl(float frameTime)
 		camera.lookat.Normalize();
         camera.up = cross(camera.right, camera.lookat);
     }
-	rendererGL->SetRendererOption(&inputListener->options);
+	renderer->SetRendererOption(&inputListener->options);
 
     inputListener->ClearState();
 }
 
 void Init()
 {
-    if(!InitWindow(1024, 1024, window))
+    if(!InitWindow(1024, 768, window))
         return;
-
+	camera.SetAspectRatio(1024, 768);
     jade::RenderDeviceSetting deviceSetting;
 	deviceSetting.msaaCount = 4;
     jade::InitRenderDevice(&window, &deviceSetting, &device);
-    jade::InitRendererGL(device, &rendererGL);    
+    jade::InitRendererGL(device, &renderer);    
+	//jade::InitRendererHW(device, &renderer);
 	texManager = new jade::TextureManager(device);
 	scene = new jade::Scene();
     inputListener = new MyInputListener();
@@ -196,8 +213,10 @@ void Init()
 void Shutdown()
 {
 	delete texManager;
-    jade::ShutdownRendererGL(rendererGL);
-    jade::ShutdownRenderDevice(device);
+    
+	jade::ShutdownRendererGL(renderer);
+//  jade::ShutdownRendererHW(renderer);
+	jade::ShutdownRenderDevice(device);
 }
 
 void LoadResources()
@@ -221,10 +240,10 @@ void LoadResources()
 	jade::LoadFromObjMesh(objMesh2, device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList);
 	scene->AddPrimitives(primitiveList);
 
-	jade::Light* dirLight = new jade::DirectionLight(Vector3(1, -1, 1), Vector3(0.4, 0.4, 0.4) );
+	jade::Light* dirLight = new jade::DirectionLight(Vector3(1, -1, 1), Vector3(0.6, 0.6, 0.6) );
 	scene->AddLight(dirLight);
 
-	jade::Light* pointLight = new jade::PointLight(Vector3(1000, 0, 50), Vector3(0.8, 0.5, 0.5), 100 );
+	jade::Light* pointLight = new jade::PointLight(Vector3(1000, 0, 50), Vector3(0.9, 0.6, 0.6), 100 );
 	scene->AddLight(pointLight);
 	
 	jade::Light* pointLight2 = new jade::PointLight(Vector3(-1000, 0, 10), Vector3(0.5, 0.5, 0.8), 200 );
@@ -239,9 +258,26 @@ void UnloadResources()
 void Render(double frameTime)
 {
 
-	rendererGL->Render(&camera, scene);
+	renderer->Render(&camera, scene);
 
     SwapBuffers(window.hdc);
+}
+
+void PrintUsage()
+{
+	printf("key control:\n");
+	printf("w, a, s, d, mouse moving\n");
+	printf("key 0: normal rendering\n");
+	printf("key 1: show texture UV\n");
+	printf("key 2: show tangent space\n");
+	printf("key 3: draw diffuse\n");
+	printf("key 4: draw normal\n");
+	printf("key 5: draw roughness\n");
+	printf("key 6: draw diffuse lighting\n");
+	printf("key 7: draw specular lighting without Fresnel\n");
+	printf("key 8: draw specular lighting with Fresnel\n");
+	printf("key r: re compile shader\n");
+	printf("\n");
 }
 
 void main()
@@ -249,6 +285,8 @@ void main()
     double frameTime = 16.0;
 
     FastTimer::Initialize();
+
+	PrintUsage();
 
     Init();
 

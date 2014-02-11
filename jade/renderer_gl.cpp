@@ -65,7 +65,11 @@ namespace jade
 
     RendererGL::~RendererGL()
     {
-
+		glDeleteTextures(1, &whiteTexture);
+		glDeleteTextures(1, &blackTexture);
+		glDeleteTextures(1, &uniZTexture);
+		glDeleteShader(wireframeShader);
+		glDeleteShader(matShader);
     }
 
 	void SetTextureUnit(GLint texLoc, int activeTex, GLuint texID)
@@ -79,9 +83,6 @@ namespace jade
     {
 		glEnable(GL_FRAMEBUFFER_SRGB);
 		glClearColor(0.1, 0.1, 0.1, 1);
-	
-
-		//glClearColor(0.f, 0.f, 0.f, 0);
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

@@ -85,9 +85,11 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="primitive.cpp" />
+    <ClCompile Include="renderer_hw1.cpp" />
     <ClCompile Include="render_device.cpp" />
     <ClCompile Include="render_device_gl.cpp" />
     <ClCompile Include="renderer_gl.cpp" />
+    <ClCompile Include="render_device_hw1.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="texture.cpp" />
   </ItemGroup>
@@ -112,10 +114,12 @@
     <ClInclude Include="mesh.h" />
     <ClInclude Include="primitive.h" />
     <ClInclude Include="refcount.h" />
+    <ClInclude Include="renderer_hw1.h" />
     <ClInclude Include="render_device.h" />
     <ClInclude Include="render_device_gl.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="renderer_gl.h" />
+    <ClInclude Include="render_device_hw1.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="texture.h" />
   </ItemGroup>

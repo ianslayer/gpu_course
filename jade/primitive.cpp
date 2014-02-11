@@ -87,7 +87,7 @@ bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* dev
 	std::string folderPath = PathRemoveFileName(objMesh.path);
 
 	if(!mat.mapKd.empty())
-		material->diffuseMap = texManater->Load(folderPath + "\\" + mat.mapKd);
+		material->diffuseMap = texManater->Load(folderPath + "\\" + mat.mapKd, true);
 	if(!mat.mapKs.empty() )
 		material->specularMap = texManater->Load( folderPath + "\\" + mat.mapKs );
 	if(!mat.mapBump.empty())

@@ -75,6 +75,12 @@
     <ClCompile Include="texture.cpp">
       <Filter>jade\Source</Filter>
     </ClCompile>
+    <ClCompile Include="render_device_hw1.cpp">
+      <Filter>jade\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer_hw1.cpp">
+      <Filter>jade\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\GL\gl3w.h">
@@ -153,6 +159,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="texture.h">
+      <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="render_device_hw1.h">
+      <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer_hw1.h">
       <Filter>jade\Header</Filter>
     </ClInclude>
   </ItemGroup>
