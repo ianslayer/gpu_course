@@ -412,7 +412,7 @@ int ParseTexcoord(const Token* const token, Token** nextToken, Vector2* texcoord
 {
     *nextToken = token->next;
     int i = 0; 
-    Vector3 texcoord3D;
+    Vector3 texcoord3D = Vector3(0.f);
     for(; i < 3 && *nextToken && (*nextToken)->type == OBJ_TOK_FLOAT; i++)
     {
         texcoord3D[i] = (float)atof((*nextToken)->sourceStr);

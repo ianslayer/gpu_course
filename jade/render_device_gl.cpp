@@ -140,6 +140,17 @@ namespace jade
 		return RenderDevice::SUCCESS;
 	}
 
+    RenderDevice::error_t RenderDevice::CreateRenderTexture2D(HWTexture2D *texture, HWRenderTexture2D::Desc *desc, HWRenderTexture2D **rtTexture)
+    {
+        *rtTexture = new HWRenderTexture2D();
+        if(texture->GetDesc()->format != desc->format) //create another texture view
+        {
+            
+        }
+       
+        return RenderDevice::SUCCESS;
+    }
+    
 	static GLint GetGLAddressMode(int addressMode)
 	{
 		switch(addressMode)

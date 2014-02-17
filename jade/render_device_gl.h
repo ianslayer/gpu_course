@@ -50,11 +50,24 @@ namespace jade
 		GLuint sampler;
 	};
 
+    class RenderTexture2DGL
+    {
+    public:
+        
+    };
+    
+    class DepthStencilSurfaceGL
+    {
+    public:
+        
+    };
     
     typedef VertexBufferGL VertexBufferImpl;
     typedef IndexBufferGL IndexBufferImpl;
 	typedef Texture2DGL Texture2DImpl;
-	typedef TextureSamplerStateGL TextureSamplerStateImpl;
+    typedef TextureSamplerStateGL TextureSamplerStateImpl;
+    typedef RenderTexture2DGL RenderTexture2DImpl;
+	typedef DepthStencilSurfaceGL DepthStencilSurfaceImpl;
 
 }
 

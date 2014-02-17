@@ -9,7 +9,7 @@ namespace jade
 {
 
 Primitive::Primitive()
-    : mesh(0), translation(0.f)
+    : mesh(0), translation(0.f), castShadow(false), receiveShadow(false)
 {
     orientation.MakeIdentity();
 }

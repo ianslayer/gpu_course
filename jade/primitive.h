@@ -28,6 +28,9 @@ namespace jade
 
         Matrix3x3					orientation;
         Vector3						translation;
+        
+        bool                        castShadow;
+        bool                        receiveShadow;
     };
 
 	bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* device, TextureManager* texManater, Matrix4x4 transform, Matrix2x2 texcoordMatrix, Primitive** outPrim);

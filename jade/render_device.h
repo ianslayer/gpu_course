@@ -91,10 +91,42 @@ namespace jade
 		size_t				    Size() const;
 		const Texture2DImpl*	GetImpl() const;
 		Texture2DImpl*			GetImpl();
+        const Desc*             GetDesc() const;
     private:
 		Desc desc;
 		Texture2DImpl impl;
 	};
+    
+    class HWRenderTexture2D : public RefCounted
+    {
+    public:
+        friend class RenderDevice;
+        struct Desc
+        {
+            TEXTURE_FORMAT format;
+            unsigned int mipLevel;
+        };
+        HWTexture2D* GetTexture();
+    private:
+        Desc desc;
+        RefCountedPtr<HWTexture2D> texture; //referenced original texture;
+        RenderTexture2DImpl impl;
+    };
+    
+    class HWDepthStencilSurface : public RefCounted
+    {
+    public:
+        friend class RenderDevice;
+        struct Desc
+        {
+            TEXTURE_FORMAT format;
+        };
+        HWTexture2D* GetTexture();
+    private:
+        Desc desc;
+        RefCountedPtr<HWTexture2D> texture;
+        DepthStencilSurfaceImpl impl;
+    };
 
 	class TextureSamplerDesc
 	{
@@ -160,6 +192,8 @@ namespace jade
         error_t CreateIndexBuffer(size_t size, void* buf, HWIndexBuffer** buffer);
 		error_t CreateTexture2D(HWTexture2D::Desc* desc, SubresourceData* data, HWTexture2D** texture);
 		error_t CreateSamplerState(TextureSamplerState::Desc* desc, TextureSamplerState** state);
+        error_t CreateRenderTexture2D(HWTexture2D* texture, HWRenderTexture2D::Desc* desc, HWRenderTexture2D** rtTexture);
+        error_t CreateDepthStencilSurface(HWTexture2D* texture, HWDepthStencilSurface::Desc* desc,  HWDepthStencilSurface** surface);
     };
 
     struct RenderDeviceSetting

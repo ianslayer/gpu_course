@@ -36,6 +36,9 @@ namespace jade
         
 		RefCountedPtr<TextureSamplerState> defaultSamplerState;
         
+        RefCountedPtr<HWDepthStencilSurface> sceneDepthMap;
+        RefCountedPtr<HWRenderTexture2D> shadowMap;
+        
         GLRendererOptions options;
 	};
 

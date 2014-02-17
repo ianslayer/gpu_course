@@ -76,6 +76,11 @@ IndexBufferImpl* HWIndexBuffer::GetImpl()
 	return &impl;
 }
 
+const HWTexture2D::Desc* HWTexture2D::GetDesc() const
+{
+    return &desc;
+}
+    
 const Texture2DImpl* HWTexture2D::GetImpl() const
 {
 	return &impl;
