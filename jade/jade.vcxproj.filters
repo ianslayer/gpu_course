@@ -81,6 +81,9 @@
     <ClCompile Include="renderer_hw1.cpp">
       <Filter>jade\Source</Filter>
     </ClCompile>
+    <ClCompile Include="light.cpp">
+      <Filter>jade\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\GL\gl3w.h">

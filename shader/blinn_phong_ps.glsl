@@ -4,6 +4,7 @@ in vec2 vs_fs_texcoord;
 in vec3 world_pos;
 in vec3 world_normal;
 in vec4 vs_fs_tangent;
+in vec4 shadow_pos;
 
 in vec3 tangentView;
 in vec4 tangentLight;
@@ -18,6 +19,8 @@ uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform sampler2D specularMap;
 uniform sampler2D maskMap;
+uniform sampler2D shadowMap;
+
 uniform bool useMask;
 
 uniform vec3 ambient;
@@ -70,14 +73,12 @@ void main(void)
     alpha *= alpha; // this is only to exaggerate specular light, it has no physical meaning
     float specular = ((alpha + 2.0) / (2 * 3.14) ) * pow(nDotH, alpha);
 
-	
     //GGX NDF
     alpha = pow(roughness, 1.0 - texture(specularMap, vs_fs_texcoord).r );
     alpha /= roughness;
     float beta = ((nDotH * nDotH) * (alpha * alpha - 1) + 1);
     beta *= beta;
     specular = alpha * alpha / (3.14 * beta);
-    
     
     //Fresnel
     vec4 F0 = vec4(0.04);
@@ -87,7 +88,12 @@ void main(void)
 	if(lightPosDir.w == 1.0) //this is point light
 		distanceAtt = 1.0/ ( (1.0 + distToLight / lightRadius ) * (1.0 + distToLight / lightRadius ) ); //see http://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/ for details
     
-	out_color = distanceAtt * vec4(lightIntensity, 1.0) * nDotL * ((vec4(1.0) - FSchlick) *texture(diffuseMap, vs_fs_texcoord) / 3.14 +  FSchlick * vec4(specular) ) ;
+	float shadow = 0.f;
+	vec4 shadow_coord = shadow_pos / shadow_pos.w;
+	if(texture(shadowMap, shadow_coord.xy).r <  shadow_coord.z)
+		shadow = 0.7f;
+	
+	out_color = (1 - shadow) * distanceAtt * vec4(lightIntensity, 1.0) * nDotL * ((vec4(1.0) - FSchlick) *texture(diffuseMap, vs_fs_texcoord) / 3.14 +  FSchlick * vec4(specular) ) ;
     
 	if(useMask)
 	{

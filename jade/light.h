@@ -1,6 +1,9 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 #include "refcount.h"
+#include "../vector.h"
+#include "../matrix.h"
+#include "../geometry.h"
 
 namespace jade
 {
@@ -40,6 +43,9 @@ namespace jade
 
 		DirectionLight() : dir(0, 0, 1), intensity(1.f), Light(LT_DIRECTION) {}
 		DirectionLight(const Vector3& _dir, const Vector3 _intensity) : dir(_dir), intensity(_intensity), Light(LT_DIRECTION) {}
+		Matrix4x4 ShadowViewMatrix() const;
+		Matrix4x4 InvShadowViewMatrix() const;
+		Matrix4x4 ShadowProjMatrix(const AABB& worldBound) const;
 
 		Vector3 dir;
 		Vector3 intensity;

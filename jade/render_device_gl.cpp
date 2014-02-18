@@ -14,9 +14,44 @@ namespace jade
 			return GL_RGBA16F;
 		case TEX_FORMAT_SRGB8_ALPHA8:
 			return GL_SRGB8_ALPHA8;
+		case TEX_FORMAT_DEPTH32F:
+			return GL_DEPTH_COMPONENT32F;
 		}
 
 		return 0;
+	}
+
+	static GLenum GetGLTexFormat(TEXTURE_FORMAT format)
+	{
+		switch(format)
+		{
+		case TEX_FORMAT_RGBA8:
+			return GL_RGBA;
+		case TEX_FORMAT_RGBA16F:
+			return GL_RGBA;
+		case TEX_FORMAT_SRGB8_ALPHA8:
+			return GL_RGBA;
+		case TEX_FORMAT_DEPTH32F:
+			return GL_DEPTH_COMPONENT;			
+		}
+	}
+
+	static GLenum GetGLTexDataType(TEXTURE_FORMAT format)
+	{
+		switch(format)
+		{
+		case TEX_FORMAT_RGBA8:
+			return GL_UNSIGNED_BYTE;
+		case TEX_FORMAT_RGBA16F:
+			return GL_HALF_FLOAT;
+		case TEX_FORMAT_SRGB8_ALPHA8:
+			return GL_UNSIGNED_BYTE;
+		case TEX_FORMAT_DEPTH32F:
+			return GL_FLOAT;
+		}
+
+		return 0;
+
 	}
 
     VertexBufferGL::VertexBufferGL()
@@ -120,8 +155,8 @@ namespace jade
                                 mipLevel,
                                 0, 0,
                                 mipWidth, mipHeight,
-                                GL_RGBA,
-                                GL_UNSIGNED_BYTE,
+                                GetGLTexFormat(desc->format),
+                                GetGLTexDataType(desc->format),
                                 data[mipLevel].buf
                 );
                 
@@ -142,8 +177,13 @@ namespace jade
 
     RenderDevice::error_t RenderDevice::CreateRenderTexture2D(HWTexture2D *texture, HWRenderTexture2D::Desc *desc, HWRenderTexture2D **rtTexture)
     {
+		if(texture == NULL)
+			return RenderDevice::FAIL;
+
         *rtTexture = new HWRenderTexture2D();
-        if(texture->GetDesc()->format != desc->format) //create another texture view
+		(*rtTexture)->texture = texture;
+		(*rtTexture)->desc = *desc;
+        if(texture->GetDesc()->format != desc->format) //TODO: create another texture view
         {
             
         }
@@ -151,6 +191,18 @@ namespace jade
         return RenderDevice::SUCCESS;
     }
     
+	RenderDevice::error_t RenderDevice::CreateDepthStencilSurface(HWTexture2D* texture, HWDepthStencilSurface::Desc* desc, HWDepthStencilSurface** surface)
+	{
+		if(texture == NULL)
+			return RenderDevice::FAIL;
+
+		*surface = new HWDepthStencilSurface();
+		(*surface)->texture = texture;
+		(*surface)->desc = *desc;
+
+		return RenderDevice::SUCCESS;
+	}
+
 	static GLint GetGLAddressMode(int addressMode)
 	{
 		switch(addressMode)

@@ -548,4 +548,19 @@ inline Matrix4x4 RotateAxis(const Vector3& r, float rad)
 					 0, 0, 0, 1.f);
 }
 
+inline Matrix4x4 InverseAffine(Matrix4x4& m)
+{
+    Matrix3x3 orien = Matrix3x3(m[0][0], m[0][1], m[0][2],
+              m[1][0], m[1][1], m[1][2],
+              m[2][0], m[2][1], m[2][2]);
+    
+    Matrix3x3 invM = orien.Transpose();
+    Vector3 invTranslation = - (invM * Vector3(m[0][3], m[1][3], m[2][3]));
+    
+    return Matrix4x4(invM[0][0], invM[0][1], invM[0][2], invTranslation[0],
+                     invM[1][0], invM[1][1], invM[1][2], invTranslation[1],
+                     invM[2][0], invM[2][1], invM[2][2], invTranslation[2],
+                     0, 0, 0, 1);
+}
+
 #endif

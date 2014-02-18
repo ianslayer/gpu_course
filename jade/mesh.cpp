@@ -79,8 +79,6 @@ bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* dev
     (*outMesh)->vertices = new VertexP3N3T4T2[vertices.size()];
     
     (*outMesh)->indices = new int[indices.size()];
-    
-	(*outMesh)->bound = ComputeBound(**outMesh);
 
 	for(size_t v = 0; v < vertices.size(); v++)
 	{
@@ -93,8 +91,8 @@ bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* dev
     {
         (*outMesh)->indices[i] = indices[i];
     }
-
-    
+        
+	(*outMesh)->bound = ComputeBound(**outMesh);
     CalculateTangentSpace( (*outMesh)->positionList, (*outMesh)->normalList, (*outMesh)->texcoordList, (*outMesh)->numVertices, (*outMesh)->indices, (*outMesh)->numIndices, (*outMesh)->tangentList);
     
     for(size_t v = 0; v < (*outMesh)->numVertices; v++)

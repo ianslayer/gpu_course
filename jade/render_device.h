@@ -24,7 +24,6 @@ namespace jade
 
         size_t				    Size() const;
         const VertexBufferImpl*	GetImpl() const;
-        VertexBufferImpl*       GetImpl();
 
     private:
         size_t              size;
@@ -41,7 +40,6 @@ namespace jade
         size_t				    Size() const;
         size_t                  IndexCount() const;
         const IndexBufferImpl*	GetImpl() const;
-        IndexBufferImpl*        GetImpl();
 
     private:
         size_t             size;
@@ -62,6 +60,8 @@ namespace jade
 		TEX_FORMAT_SRGB8_ALPHA8,
 		TEX_FORMAT_RGBA16F,
 		TEX_FORMAT_RGBA32F,
+
+		TEX_FORMAT_DEPTH32F,
 	};
 
 	int TotalMipLevels(int width, int height);
@@ -90,7 +90,6 @@ namespace jade
 
 		size_t				    Size() const;
 		const Texture2DImpl*	GetImpl() const;
-		Texture2DImpl*			GetImpl();
         const Desc*             GetDesc() const;
     private:
 		Desc desc;
@@ -106,7 +105,11 @@ namespace jade
             TEXTURE_FORMAT format;
             unsigned int mipLevel;
         };
-        HWTexture2D* GetTexture();
+        HWTexture2D* GetTexture() const;
+
+		const Desc*					GetDesc() const;
+		const RenderTexture2DImpl* GetImpl() const;
+		
     private:
         Desc desc;
         RefCountedPtr<HWTexture2D> texture; //referenced original texture;
@@ -120,8 +123,12 @@ namespace jade
         struct Desc
         {
             TEXTURE_FORMAT format;
+			unsigned int mipLevel;
         };
-        HWTexture2D* GetTexture();
+        HWTexture2D* GetTexture() const;
+
+		const Desc*					GetDesc() const;
+		const DepthStencilSurfaceImpl* GetImpl() const;
     private:
         Desc desc;
         RefCountedPtr<HWTexture2D> texture;

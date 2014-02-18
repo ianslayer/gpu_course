@@ -1,6 +1,7 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 #include "vector.h"
+#include "matrix.h"
 #include <algorithm>
 #include <float.h>
 
@@ -76,6 +77,42 @@ inline void GetVertices(const AABB& bound, Vector3 vert[8] )
     {
         vert[i] = bound.center + offset[i];
     }
+}
+
+inline AABB Transform(Matrix4x4& m, const AABB& bound)
+{
+	Vector3 vert[8];
+	GetVertices(bound, vert);
+	for(int i = 0; i < 8 ; i++)
+	{
+		vert[i] = DiscardW(m * Vector4(vert[i], 1.f));
+	}
+
+	float xmax, xmin, ymax, ymin, zmax, zmin;
+	xmax = xmin = vert[0].x;
+	ymax = ymin = vert[0].y;
+	zmax = zmin = vert[0].z;
+
+	for(int i = 0; i < 8; i++)
+	{
+		xmax = std::max(xmax, vert[i].x);
+		xmin = std::min(xmin, vert[i].x);
+
+		ymax = std::max(ymax, vert[i].y);
+		ymin = std::min(ymin, vert[i].y);
+
+		zmax = std::max(zmax, vert[i].z);
+		zmin = std::min(zmin, vert[i].z);
+	}
+
+	Vector3 _max = Vector3(xmax, ymax, zmax);
+	Vector3 _min = Vector3(xmin, ymin, zmin);
+	AABB transformedBound;
+	transformedBound.center = (_max + _min) / 2.f;
+	transformedBound.radius = (_max - _min) / 2.f;
+	
+
+	return transformedBound;
 }
 
 inline Plane ComputePlane(Vector3 a, Vector3 b, Vector3 c)

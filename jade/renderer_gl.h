@@ -24,7 +24,7 @@ namespace jade
             DBG_DRAW_DIFFUSE_LIGHTING = 6,
             DBG_DRAW_SPECULAR_LIGHTING = 7,
             DBG_DRAW_FRESNEL_SPECULAR_LIGHTING = 8,
-            
+            DBG_DRAW_SHADOW_MAP = 9,
         };
         
         DebugDraw dbgDraw;

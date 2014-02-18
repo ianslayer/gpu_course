@@ -9,6 +9,7 @@ uniform mat4 modelMatrix;
 uniform mat4 invModelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
+uniform mat4 shadowMapMatrix;
 
 uniform vec3 world_cam_pos;
 uniform vec4 lightPosDir;
@@ -18,6 +19,7 @@ out vec2 vs_fs_texcoord;
 out vec3 world_pos;
 out vec3 world_normal;
 out vec4 vs_fs_tangent;
+out vec4 shadow_pos;
 
 out vec3 tangentView;
 out vec4 tangentLight;
@@ -28,7 +30,8 @@ void main(void)
     vs_fs_tangent = tangent;
 	world_pos = (modelMatrix * vec4(position, 1.0)).xyz;
 	world_normal = (modelMatrix * vec4(normal, 0.0)).xyz;
-    
+    shadow_pos = (shadowMapMatrix * vec4(world_pos, 1.0));
+	
     vec3 bitangent = cross(normal, vs_fs_tangent.xyz) * tangent.w;
     vec3 modelCamPos = (invModelMatrix * vec4(world_cam_pos, 1.0) ).xyz;
     

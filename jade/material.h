@@ -19,7 +19,6 @@ namespace jade
 		RefCountedPtr<Texture> lightMap;
 		RefCountedPtr<Texture> diffuseMap;
 		RefCountedPtr<Texture> specularMap;
-		RefCountedPtr<Texture> roughnessMap;
 		RefCountedPtr<Texture> normalMap;
 		RefCountedPtr<Texture> dissolveMask;
 	};

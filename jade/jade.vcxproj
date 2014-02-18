@@ -82,6 +82,7 @@
     <ClCompile Include="..\timer.cpp" />
     <ClCompile Include="..\window.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="primitive.cpp" />

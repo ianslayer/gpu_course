@@ -3,6 +3,7 @@
 #include "refcount.h"
 #include "../matrix.h"
 #include "../vector.h"
+#include "../geometry.h"
 #include <vector>
 
 class ObjMesh;
@@ -22,7 +23,8 @@ namespace jade
 
         Matrix4x4 ModelMatrix() const;
         Matrix4x4 InvModelMatrix() const;
-        
+        AABB	  WorldBound() const;
+
         RefCountedPtr<Mesh>			mesh;
         RefCountedPtr<Material>		material;
 

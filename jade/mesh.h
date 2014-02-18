@@ -12,6 +12,12 @@ class ObjMesh;
 
 namespace jade
 {
+	struct VertexP3T2
+	{
+		Vector3 position;
+		Vector2 texcoord;
+	};
+
     struct VertexP3N3T2
     {
         Vector3 position;

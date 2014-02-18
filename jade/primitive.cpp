@@ -30,19 +30,15 @@ Matrix4x4 Primitive::ModelMatrix() const
     
 Matrix4x4 Primitive:: InvModelMatrix() const
 {
-    Matrix3x3 m = Matrix3x3(orientation[0][0], orientation[0][1], orientation[0][2],
-              orientation[1][0], orientation[1][1], orientation[1][2],
-              orientation[2][0], orientation[2][1], orientation[2][2]);
-    
-    Matrix3x3 invM = m.Transpose();
-    Vector3 invTranslation = - (invM * translation);
-    
-    return Matrix4x4(invM[0][0], invM[0][1], invM[0][2], invTranslation[0],
-                     invM[1][0], invM[1][1], invM[1][2], invTranslation[1],
-                     invM[2][0], invM[2][1], invM[2][2], invTranslation[2],
-                     0, 0, 0, 1);
-    
+	return InverseAffine(ModelMatrix());
 }
+
+
+AABB Primitive::WorldBound() const
+{
+	return Transform(ModelMatrix(), mesh->bound);
+}
+
 
 void LoadFromObjMesh(const ObjMesh& objMesh, RenderDevice* device, TextureManager* texManater, std::vector<Primitive*>& primList)
 {

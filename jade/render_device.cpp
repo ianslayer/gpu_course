@@ -41,11 +41,6 @@ const VertexBufferImpl* HWVertexBuffer::GetImpl() const
 	return &impl;
 }
 
-VertexBufferImpl* HWVertexBuffer::GetImpl()
-{
-	return &impl;
-}
-
 HWIndexBuffer::HWIndexBuffer() : size(0)
 {
 
@@ -71,11 +66,6 @@ const IndexBufferImpl* HWIndexBuffer::GetImpl() const
 	return &impl;
 }
 
-IndexBufferImpl* HWIndexBuffer::GetImpl()
-{
-	return &impl;
-}
-
 const HWTexture2D::Desc* HWTexture2D::GetDesc() const
 {
     return &desc;
@@ -86,7 +76,27 @@ const Texture2DImpl* HWTexture2D::GetImpl() const
 	return &impl;
 }
 
-Texture2DImpl* HWTexture2D::GetImpl()
+const HWRenderTexture2D::Desc* HWRenderTexture2D::GetDesc() const
+{
+	return &desc;
+}
+
+HWTexture2D* HWRenderTexture2D::GetTexture() const
+{
+	return texture;
+}
+
+const HWDepthStencilSurface::Desc* HWDepthStencilSurface::GetDesc() const
+{
+	return &desc;
+}
+
+HWTexture2D* HWDepthStencilSurface::GetTexture() const
+{
+	return texture;
+}
+
+const DepthStencilSurfaceImpl* HWDepthStencilSurface::GetImpl() const
 {
 	return &impl;
 }
