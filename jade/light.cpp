@@ -36,14 +36,15 @@ namespace jade
 
 	Matrix4x4 DirectionLight::InvShadowViewMatrix() const
 	{
-		return InverseAffine(ShadowViewMatrix());
+        Matrix4x4 shadowMatrix = ShadowViewMatrix();
+		return InverseAffine(shadowMatrix);
 	}
 
 	Matrix4x4 DirectionLight::ShadowProjMatrix(const AABB& worldBound) const
 	{
 
-
-		AABB viewBound = Transform(ShadowViewMatrix(), worldBound);
+        Matrix4x4 shadowMatrix = ShadowViewMatrix();
+		AABB viewBound = Transform(shadowMatrix, worldBound);
 
 		Vector3 radius = viewBound.radius;
 		Vector3 center = viewBound.center;
@@ -52,8 +53,8 @@ namespace jade
 		float xmin = center.x - radius.x;
 		float ymax = center.y + radius.y;
 		float ymin = center.y - radius.y;
-		float zmax = center.z + radius.z;
-		float zmin = center.z - radius.z;
+		float zmax = -(center.z - radius.z);
+		float zmin = -(center.z + radius.z);
 
 		float width = xmax - xmin;
 		float height= ymax - ymin;

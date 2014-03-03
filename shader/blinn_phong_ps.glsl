@@ -89,11 +89,12 @@ void main(void)
 		distanceAtt = 1.0/ ( (1.0 + distToLight / lightRadius ) * (1.0 + distToLight / lightRadius ) ); //see http://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/ for details
     
 	float shadow = 0.f;
-	vec4 shadow_coord = shadow_pos / shadow_pos.w;
-	if(texture(shadowMap, shadow_coord.xy).r <  shadow_coord.z)
+	vec4 shadow_coord = shadow_pos ;/// shadow_pos.w;
+	if(textureProj(shadowMap, shadow_coord).r <  min(shadow_coord.z, 1.f))
 		shadow = 0.7f;
-	
-	out_color = (1 - shadow) * distanceAtt * vec4(lightIntensity, 1.0) * nDotL * ((vec4(1.0) - FSchlick) *texture(diffuseMap, vs_fs_texcoord) / 3.14 +  FSchlick * vec4(specular) ) ;
+//	0.7 * ( vec4(shadow_pos.xy/shadow_pos.w, 0, 0) )
+//    0.1 * ( fract(vec4(shadow_pos.xy/shadow_pos.w, 0, 0)  )) + 0.9 *
+	out_color =(1 - shadow) * distanceAtt * vec4(lightIntensity, 1.0) * nDotL * ((vec4(1.0) - FSchlick) *texture(diffuseMap, vs_fs_texcoord) / 3.14 +  FSchlick * vec4(specular) ) ;
     
 	if(useMask)
 	{

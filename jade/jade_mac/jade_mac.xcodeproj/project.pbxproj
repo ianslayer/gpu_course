@@ -34,6 +34,7 @@
 		B23C63431896316E0071E698 /* renderer_gl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633A1896316E0071E698 /* renderer_gl.cpp */; };
 		B23C63441896316E0071E698 /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633B1896316E0071E698 /* scene.cpp */; };
 		B23C63451896316E0071E698 /* texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633C1896316E0071E698 /* texture.cpp */; };
+		B24E144018B35CAE0004BE63 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B24E143F18B35CAE0004BE63 /* light.cpp */; };
 		B2D7A4F01897A6C700EE1E9E /* window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2D7A4EE1897A6C700EE1E9E /* window.cpp */; };
 		B2D7A4F21897F9AC00EE1E9E /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2D7A4F11897F9AC00EE1E9E /* IOKit.framework */; };
 		B2D7A4F51898D47100EE1E9E /* input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2D7A4F31898D47100EE1E9E /* input.cpp */; };
@@ -116,6 +117,7 @@
 		B23C633B1896316E0071E698 /* scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scene.cpp; path = ../../scene.cpp; sourceTree = "<group>"; };
 		B23C633C1896316E0071E698 /* texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = texture.cpp; path = ../../texture.cpp; sourceTree = "<group>"; };
 		B23C6346189637670071E698 /* jade.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = jade.h; path = ../../jade.h; sourceTree = "<group>"; };
+		B24E143F18B35CAE0004BE63 /* light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = light.cpp; path = ../../light.cpp; sourceTree = "<group>"; };
 		B2D7A4EE1897A6C700EE1E9E /* window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = window.cpp; path = ../../../window.cpp; sourceTree = "<group>"; };
 		B2D7A4EF1897A6C700EE1E9E /* window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = window.h; path = ../../../window.h; sourceTree = "<group>"; };
 		B2D7A4F11897F9AC00EE1E9E /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
@@ -303,6 +305,7 @@
 		B23C6304188B95C40071E698 /* source */ = {
 			isa = PBXGroup;
 			children = (
+				B24E143F18B35CAE0004BE63 /* light.cpp */,
 				B23C63341896316E0071E698 /* camera.cpp */,
 				B23C63361896316E0071E698 /* mesh.cpp */,
 				B23C63371896316E0071E698 /* primitive.cpp */,
@@ -417,6 +420,7 @@
 			files = (
 				B23C63421896316E0071E698 /* render_device.cpp in Sources */,
 				B2D7A4F81899EAF800EE1E9E /* JadeWindowController.mm in Sources */,
+				B24E144018B35CAE0004BE63 /* light.cpp in Sources */,
 				B23C631D188B962F0071E698 /* image.cpp in Sources */,
 				B2D7A4F51898D47100EE1E9E /* input.cpp in Sources */,
 				B23C63431896316E0071E698 /* renderer_gl.cpp in Sources */,

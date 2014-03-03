@@ -34,6 +34,7 @@ namespace jade
 		case TEX_FORMAT_DEPTH32F:
 			return GL_DEPTH_COMPONENT;			
 		}
+        return 0;
 	}
 
 	static GLenum GetGLTexDataType(TEXTURE_FORMAT format)

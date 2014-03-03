@@ -30,13 +30,15 @@ Matrix4x4 Primitive::ModelMatrix() const
     
 Matrix4x4 Primitive:: InvModelMatrix() const
 {
-	return InverseAffine(ModelMatrix());
+    Matrix4x4 modelMatrix = ModelMatrix();
+	return InverseAffine(modelMatrix);
 }
 
 
 AABB Primitive::WorldBound() const
 {
-	return Transform(ModelMatrix(), mesh->bound);
+    Matrix4x4 modelMatrix = ModelMatrix();
+	return Transform(modelMatrix, mesh->bound);
 }
 
 

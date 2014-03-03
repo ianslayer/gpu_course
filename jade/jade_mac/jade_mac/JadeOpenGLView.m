@@ -77,7 +77,7 @@ static void drawAnObject ()
     
 #if SUPPORT_RETINA_RESOLUTION
     // Opt-In to Retina resolution
-    [self setWantsBestResolutionOpenGLSurface:YES];
+    //[self setWantsBestResolutionOpenGLSurface:YES];
 #endif // SUPPORT_RETINA_RESOLUTION
 
     
@@ -87,7 +87,7 @@ static void drawAnObject ()
 - (void)prepareOpenGL
 {
     //enable retina display
-    [self setWantsBestResolutionOpenGLSurface:YES];
+   // [self setWantsBestResolutionOpenGLSurface:YES];
     [super prepareOpenGL];
     [[self openGLContext] makeCurrentContext];
     

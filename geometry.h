@@ -93,7 +93,7 @@ inline AABB Transform(Matrix4x4& m, const AABB& bound)
 	ymax = ymin = vert[0].y;
 	zmax = zmin = vert[0].z;
 
-	for(int i = 0; i < 8; i++)
+	for(int i = 1; i < 8; i++)
 	{
 		xmax = std::max(xmax, vert[i].x);
 		xmin = std::min(xmin, vert[i].x);

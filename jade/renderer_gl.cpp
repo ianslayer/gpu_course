@@ -28,6 +28,8 @@ namespace jade
         
 		void RenderDebugInfo(const Camera* camera, const Scene* scene);
 
+        void DrawBoundingBox(const Camera* camera, const AABB& bound);
+        
 		class RenderDevice* device;
 		GLuint wireframeShader;
 		GLuint matShader;
@@ -38,17 +40,23 @@ namespace jade
 		GLuint blackTexture;
         GLuint uniZTexture; //unit z
         
+        GLuint cubeVbo;
+        GLuint cubeIbo;
+        
 		RefCountedPtr<TextureSamplerState> defaultSamplerState;
         RefCountedPtr<TextureSamplerState> shadowSamplerState;
 
 		RefCountedPtr<HWVertexBuffer> fullScreenQuadVB;
 		RefCountedPtr<HWIndexBuffer> fullScreenQuadIB;
 
+        RefCountedPtr<HWRenderTexture2D> sceneLightAccumMap;
+        RefCountedPtr<HWRenderTexture2D> scenePosMap;
         RefCountedPtr<HWDepthStencilSurface> sceneDepthMap;
 
 		GLuint shadowMapFbo;
 		RefCountedPtr<HWDepthStencilSurface> shadowMap;
-        RefCountedPtr<HWRenderTexture2D> shadowColorMap; //for debugging
+        RefCountedPtr<HWRenderTexture2D> shadowAccumMap;
+        
         
         GLRendererOptions options;
 	};
@@ -85,36 +93,14 @@ namespace jade
 		device->CreateSamplerState(&shadowSamplerStateDesc, &samplerState);
 		shadowSamplerState = samplerState;
 
-		/*
-		HWTexture2D* shadowColorTexture = NULL;
-		{
-			HWTexture2D::Desc desc;
-			desc.arraySize =1;
-			desc.format = TEX_FORMAT_SRGB8_ALPHA8;
-			desc.width = 2048;
-			desc.height = 2048;
-			desc.mipLevels = 1;
-			desc.generateMipmap = false;
-			device->CreateTexture2D(&desc, NULL, &shadowColorTexture);
-		}
-
-		{
-			HWRenderTexture2D::Desc desc;
-			desc.format = TEX_FORMAT_SRGB8_ALPHA8;
-			desc.mipLevel = 0;
-			HWRenderTexture2D* rtTexture = NULL;
-			device->CreateRenderTexture2D(shadowColorTexture, &desc, &rtTexture);
-			shadowColorMap = rtTexture;
-		}
-		*/
 
 		HWTexture2D* shadowTexure = NULL;
 		{
 			HWTexture2D::Desc desc;
 			desc.arraySize = 1;
 			desc.format = TEX_FORMAT_DEPTH32F;
-			desc.width = 2048;
-			desc.height = 2048;
+			desc.width = 512;
+			desc.height = 512;
 			desc.mipLevels = 1;
 			desc.generateMipmap =false;
 			
@@ -132,7 +118,6 @@ namespace jade
 
 		glGenFramebuffers(1, &shadowMapFbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFbo);
-		//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, shadowColorMap->GetTexture()->GetImpl()->id, shadowColorMap->GetDesc()->mipLevel);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap->GetTexture()->GetImpl()->id, shadowMap->GetDesc()->mipLevel);
 			
 		GLenum fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -159,6 +144,9 @@ namespace jade
 		HWIndexBuffer* ib = NULL;
 		device->CreateIndexBuffer(sizeof(quadIndices), quadIndices, &ib);
 		fullScreenQuadIB = ib;
+        
+        cubeVbo = CreateCubeVertexBuffer();
+        cubeIbo = CreateWireCubeIndexBuffer();
 	}
 
     RendererGL::~RendererGL()
@@ -170,7 +158,7 @@ namespace jade
 		glDeleteShader(matShader);
     }
 
-	void TurnOffAllAttributes()
+	static void TurnOffAllAttributes()
 	{
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
@@ -182,12 +170,19 @@ namespace jade
 		glDisableVertexAttribArray(7);
 	}
 
-	void SetTextureUnit(GLint texLoc, int activeTex, GLuint texID)
+	static void SetTextureUnit(GLint texLoc, int activeTex, GLuint texID)
 	{
 		glUniform1i(texLoc, activeTex);
 		glActiveTexture(GL_TEXTURE0 + activeTex);
 		glBindTexture(GL_TEXTURE_2D, texID);
 	}
+    
+    static void SetTextureUnit(GLint texLoc, int activeTex, const RefCountedPtr<HWTexture2D>& tex)
+    {
+		glUniform1i(texLoc, activeTex);
+		glActiveTexture(GL_TEXTURE0 + activeTex);
+        glBindTexture(GL_TEXTURE_2D, tex->GetImpl()->id);
+    }
 
 	void ShadowBound(const Scene* scene, AABB& outBound)
 	{
@@ -209,14 +204,14 @@ namespace jade
 		GLint modelMatLoc = glGetUniformLocation(shadowCasterShader, "modelMatrix");
 		GLint shadowMapMatrixLoc = glGetUniformLocation(shadowCasterShader, "shadowMapMatrix");
 
-		glClearColor(0.0, 0.1, 0.0, 1);
+		glViewport(0, 0, shadowMap->GetTexture()->GetDesc()->width, shadowMap->GetTexture()->GetDesc()->height);
+        
+		glClearColor(1.0, 1.0, 1.0, 1);
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glDisable(GL_BLEND);
 		glDepthFunc(GL_LESS);
-
-		glViewport(0, 0, 2048, 2048);
 
 
 		Matrix4x4 shadowMapMatrix = light->ShadowProjMatrix(bound) * light->ShadowViewMatrix();
@@ -266,6 +261,7 @@ namespace jade
         GLuint sceneShader = matShader;
         
 		glUseProgram(sceneShader);
+        TurnOffAllAttributes();
 		GLint positionAttributeLoc = glGetAttribLocation(sceneShader, "position");
 		GLint normalAttributeLoc = glGetAttribLocation(sceneShader, "normal");
         GLint tangentAttributeLoc = glGetAttribLocation(sceneShader, "tangent");
@@ -347,7 +343,7 @@ namespace jade
 					glUniformMatrix4fv(shadowMapMatrixLoc, 1, GL_TRUE, shadowMapMatrix.FloatPtr());
 					glBindSampler(4, shadowSamplerState->GetImpl()->sampler);
 
-					SetTextureUnit(shadowMapLoc, 4, this->shadowMap->GetTexture()->GetImpl()->id);
+					SetTextureUnit(shadowMapLoc, 4, this->shadowMap->GetTexture());
 					RenderShadowMap(dirLight, bound, scene);
 
 
@@ -408,7 +404,7 @@ namespace jade
 
 				if(prim->material->diffuseMap)
 				{
-					SetTextureUnit(diffuseMapLoc, 0, prim->material->diffuseMap->hwTexture->GetImpl()->id);
+					SetTextureUnit(diffuseMapLoc, 0, prim->material->diffuseMap->hwTexture);
 				}
 				else
 				{
@@ -417,7 +413,7 @@ namespace jade
 
 				if(prim->material->normalMap )
 				{
-					SetTextureUnit(normalMapLoc, 1, prim->material->normalMap->hwTexture->GetImpl()->id);
+					SetTextureUnit(normalMapLoc, 1, prim->material->normalMap->hwTexture);
 					glUniform1i(useTangentLightLoc, 1);
 				}
 				else
@@ -429,7 +425,7 @@ namespace jade
 				
 				if(prim->material->specularMap )
 				{
-					SetTextureUnit(specularMapLoc, 2, prim->material->specularMap->hwTexture->GetImpl()->id);
+					SetTextureUnit(specularMapLoc, 2, prim->material->specularMap->hwTexture);
 				}
 				else
 				{
@@ -440,7 +436,7 @@ namespace jade
 				
 				if(prim->material->dissolveMask)
 				{
-					SetTextureUnit(maskMapLoc, 3, prim->material->dissolveMask->hwTexture->GetImpl()->id);
+					SetTextureUnit(maskMapLoc, 3, prim->material->dissolveMask->hwTexture);
 					glUniform1i(useMaskLoc, 1);
 				}
 				else
@@ -453,6 +449,11 @@ namespace jade
 			}
 		}
 
+        
+        //AABB bound;
+       // ShadowBound(scene, bound);
+       // DrawBoundingBox(camera, bound);
+        
 		if(options.dbgDraw == GLRendererOptions::DBG_DRAW_SHADOW_MAP)
 		{
 			TurnOffAllAttributes();
@@ -513,6 +514,45 @@ namespace jade
 
 		if(_shadowCasterShader)
 			shadowCasterShader = _shadowCasterShader;
+    }
+    
+    void RendererGL::DrawBoundingBox(const Camera* camera, const AABB& bound)
+    {
+        TurnOffAllAttributes();
+        glUseProgram(wireframeShader);
+        
+        glDisable(GL_BLEND);
+        glDepthFunc(GL_LESS);
+        
+        GLint positionAttributeLocation = glGetAttribLocation(wireframeShader, "position");
+        GLint colorAttributeLocation = glGetAttribLocation(wireframeShader, "color");
+        
+        GLint modelMatLocation = glGetUniformLocation(wireframeShader, "modelMatrix");
+        GLint viewMatLocation = glGetUniformLocation(wireframeShader, "viewMatrix");
+        GLint projectionMatLocation = glGetUniformLocation(wireframeShader, "projectionMatrix");
+        
+        Matrix4x4 viewMatrix = camera->ViewMatrix();
+        Matrix4x4 projectionMatrix = camera->PerspectiveMatrix();
+        
+        glUniformMatrix4fv(viewMatLocation, 1, GL_TRUE, viewMatrix.FloatPtr());
+        glUniformMatrix4fv(projectionMatLocation, 1, GL_TRUE, projectionMatrix.FloatPtr() );
+        
+        
+        Matrix4x4 modelMatrix = Translate(bound.center) * Scale(bound.radius);
+        glUniformMatrix4fv(modelMatLocation, 1, GL_TRUE, modelMatrix.FloatPtr());
+        
+        
+        glBindBuffer(GL_ARRAY_BUFFER, cubeVbo);
+        glEnableVertexAttribArray(positionAttributeLocation);
+        glVertexAttribPointer(positionAttributeLocation, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
+        glEnableVertexAttribArray(colorAttributeLocation);
+        glVertexAttribPointer(colorAttributeLocation, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (GLvoid*)(sizeof(float) * 3));
+        
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIbo);
+        
+
+        glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, 0);
+        
     }
     
     void InitRendererGL(RenderDevice* device, Renderer** renderer)
