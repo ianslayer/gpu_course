@@ -53,15 +53,15 @@ namespace jade
 		float xmin = center.x - radius.x;
 		float ymax = center.y + radius.y;
 		float ymin = center.y - radius.y;
-		float zmax = -(center.z - radius.z);
-		float zmin = -(center.z + radius.z);
+		float zmax = center.z - radius.z;
+		float zmin = center.z + radius.z;
 
 		float width = xmax - xmin;
 		float height= ymax - ymin;
 		
 		return Matrix4x4(2.f / width, 0, 0, -(xmax + xmin) / width,
 						 0, 2.f / height, 0, -(ymax + ymin) / height,
-						 0, 0, -2.f / (zmax - zmin), -(zmax + zmin) / (zmax - zmin),
+						 0, 0, 2.f / (zmax - zmin), -(zmax + zmin) / (zmax - zmin),
 						 0, 0, 0, 1);
 	}
 
