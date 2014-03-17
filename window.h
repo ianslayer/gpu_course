@@ -12,7 +12,7 @@ struct Window
 #ifdef _WIN32
     HWND hwnd;
     HDC hdc;
-#elseif defined (__APPLE__)
+#else if defined (__APPLE__)
     NSWindow* window;
 #endif    
     int width;
