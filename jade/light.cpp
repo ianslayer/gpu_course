@@ -3,6 +3,52 @@
 
 namespace jade
 {
+	Matrix4x4 PointLight::ShadowViewMatrix(int dir) const
+	{
+		Camera cam;
+		cam.position = pos;
+		switch (dir)
+		{
+		case POSITIVE_X:
+			cam.lookat = Vector3(1, 0, 0);
+			cam.right = Vector3(0, -1, 0);
+			cam.up = Vector3(0, 0, 1);
+			break;
+		case NEGATIVE_X:
+			cam.lookat = Vector3(-1, 0, 0);
+			cam.right = Vector3(0, 1, 0);
+			cam.up = Vector3(0, 0, 1);
+			break;
+		case POSITIVE_Y:
+			cam.lookat = Vector3(0, 1, 0);
+			cam.right = Vector3(1, 0, 0);
+			cam.up = Vector3(0, 0, 1);
+			break;
+		case NEGATIVE_Y:
+			cam.lookat = Vector3(0, -1, 0);
+			cam.right = Vector3(-1, 0, 0);
+			cam.up = Vector3(0, 0, 1);
+		case POSITIVE_Z:
+			cam.lookat = Vector3(0, 0, 1);
+			cam.right = Vector3(0, 1, 0);
+			cam.up = Vector3(1, 0, 0);
+		case NEGATIVE_Z:
+			cam.lookat = Vector3(0, 0, -1);
+			cam.right = Vector3(0, -1, 0);
+			cam.up = Vector3(1, 0, 0);
+		}
+
+		return cam.ViewMatrix();
+	}
+
+	Matrix4x4 PointLight::ShadowProjMatrix() const
+	{
+		Camera cam;
+		cam.SetAspectRatio(1, 1);
+		cam.SetXFov(3.14f / 2.f);
+		return cam.PerspectiveMatrix();
+	}
+
 	Matrix4x4 DirectionLight::ShadowViewMatrix() const
 	{
 		Vector3 lookAt = -dir;
@@ -53,7 +99,7 @@ namespace jade
 		float xmin = center.x - radius.x;
 		float ymax = center.y + radius.y;
 		float ymin = center.y - radius.y;
-		float zmax = center.z - radius.z;
+		float zmax = -3000.f;//center.z - radius.z;
 		float zmin = center.z + radius.z;
 
 		float width = xmax - xmin;

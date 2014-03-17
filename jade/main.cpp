@@ -256,13 +256,15 @@ void LoadResources()
 	scene->AddPrimitives(primitiveList);
 	scene->AddPrimitives(primitiveList2);
 	jade::Light* dirLight = new jade::DirectionLight(Normalize(Vector3(1, -1, 1)), Vector3(0.6, 0.6, 0.6) );
-	scene->AddLight(dirLight);
+	scene->AddLight(dirLight);	
 
-	jade::Light* pointLight = new jade::PointLight(Vector3(1000, 0, 50), Vector3(0.9, 0.6, 0.6), 100 );
+	jade::Light* pointLight = new jade::PointLight(Vector3(500, 0, 100), Vector3(0.9, 0.6, 0.6), 100 );
 	scene->AddLight(pointLight);
 	
 	jade::Light* pointLight2 = new jade::PointLight(Vector3(-1000, 0, 10), Vector3(0.5, 0.5, 0.8), 200 );
 	scene->AddLight(pointLight2);
+
+
 }
 
 void UnloadResources()

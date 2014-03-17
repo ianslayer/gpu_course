@@ -31,6 +31,18 @@ namespace jade
 		PointLight() : pos(0.f, 0.f, 10.f), intensity(1.f), radius(1.f), Light(LT_POINT) { };
 		PointLight(const Vector3& _pos, const Vector3 _intensity, float _radius) : pos(_pos), intensity(_intensity), radius(_radius), Light(LT_POINT) {};
 
+		enum SHADOW_VIEW
+		{
+			POSITIVE_X,
+			NEGATIVE_X,
+			POSITIVE_Y,
+			NEGATIVE_Y,
+			POSITIVE_Z,
+			NEGATIVE_Z
+		};
+		Matrix4x4 ShadowViewMatrix(int dir) const;
+		Matrix4x4 ShadowProjMatrix() const;
+
 		Vector3 pos;
 		Vector3 intensity;
 		float   radius;

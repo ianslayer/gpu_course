@@ -15,7 +15,8 @@ void main(void)
     vec4 shadow_pos = (shadowMapMatrix * vec4(world_pos, 1.0));
     
     float shadow = 0.0;
-    if(textureProj(shadowMap, shadow_pos).r <  min(shadow_pos.z, 1.f))
+	vec4 shadow_coord = shadow_pos / shadow_pos.w;
+    if(textureProj(shadowMap, shadow_pos).r <  min(shadow_coord.z, 1.f) && shadow_coord.x <= 1.0 && shadow_coord.x >=  0 && shadow_coord.y <= 1.0 && shadow_coord.y >=  0  && shadow_coord.z >=  0 && shadow_coord.z <=  1.0)
 		shadow = 0.7f;
     
 	out_color = vec4(shadow);

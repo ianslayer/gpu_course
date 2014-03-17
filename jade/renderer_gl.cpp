@@ -23,8 +23,9 @@ namespace jade
 
         void RenderGBuffer(const Camera* camera, const Scene* scene);
         void RenderShadowMap(const Camera* camera, const Scene* scene);
-        void RenderShadowMap(const PointLight* light, const Scene* scene);
+        void RenderShadowMap(const PointLight* light, const Scene* scene, const Camera* cam);
 		void RenderShadowMap(const DirectionLight* light, const AABB& bound,  const Scene* scene);
+		void ClearDeferredShadow();
         void AccumDeferredShadow(const Matrix4x4& shadowMapMatrix);
         
         virtual void SetRendererOption(void*);
@@ -344,6 +345,7 @@ namespace jade
         
     }
     
+	
     void RendererGL::RenderShadowMap(const Camera* camera, const Scene* scene)
     {
 		for(size_t lightIdx = 0; lightIdx < scene->lightList.size(); lightIdx++)
@@ -355,7 +357,8 @@ namespace jade
 			{
 				case Light::LT_POINT:
 				{
-					
+					const PointLight* ptLight = static_cast<const PointLight*> (light);
+					RenderShadowMap(ptLight, scene, camera);
 				}
 				break;
 					
@@ -375,49 +378,89 @@ namespace jade
        
     }
     
-    void RendererGL::RenderShadowMap(const jade::PointLight *light, const jade::Scene *scene)
+    void RendererGL::RenderShadowMap(const jade::PointLight *light, const jade::Scene *scene, const Camera* cam)
     {
-        
+
+		glDisable(GL_BLEND);
+		glDepthFunc(GL_LESS);
+		glDisable(GL_BLEND);
+
+
+
+		GLint modelMatLoc = glGetUniformLocation(shadowCasterShader, "modelMatrix");
+		GLint shadowMapMatrixLoc = glGetUniformLocation(shadowCasterShader, "shadowMapMatrix");
+		
+		for(int i = 0; i < 6; i++)
+		//int i = 1;
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFbo);
+			glUseProgram(shadowCasterShader);
+			glViewport(0, 0, shadowMap->GetTexture()->GetDesc()->width, shadowMap->GetTexture()->GetDesc()->height);
+			glClearDepth(1.0f);
+			glClear(GL_DEPTH_BUFFER_BIT);
+
+			//Matrix4x4 shadowViewMatrix = cam->ViewMatrix();//light->ShadowViewMatrix(i);
+			//Matrix4x4 shadowProjMatrix = cam->PerspectiveMatrix();//light->ShadowProjMatrix();
+
+			Matrix4x4 shadowViewMatrix = light->ShadowViewMatrix(i);
+			Matrix4x4 shadowProjMatrix = light->ShadowProjMatrix();
+
+			Matrix4x4 shadowMapMatrix = shadowProjMatrix * shadowViewMatrix;
+			for(size_t primIdx = 0; primIdx < scene->primList.size(); primIdx++)
+			{
+				if(scene->primList[primIdx]->castShadow )
+				{
+					const Primitive* prim = scene->primList[primIdx].Get();
+					glUniformMatrix4fv(modelMatLoc, 1, GL_TRUE, prim->ModelMatrix().FloatPtr());
+					glUniformMatrix4fv(shadowMapMatrixLoc, 1, GL_TRUE, shadowMapMatrix.FloatPtr() );
+
+					glBindBuffer(GL_ARRAY_BUFFER, prim->mesh->vertexBuffer->GetImpl()->vboID);
+					glEnableVertexAttribArray(0);
+
+					SetVertexAttributeP3N3T4T2(0, 1, -1, -1);
+
+					glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, prim->mesh->indexBuffer->GetImpl()->iboID);
+
+					glDrawElements(GL_TRIANGLES, prim->mesh->indexBuffer->IndexCount(), GL_UNSIGNED_INT, 0);
+				}
+			}
+
+			Matrix4x4 shadowMat = Matrix4x4(0.5, 0, 0, 0.5,
+				0, 0.5, 0, 0.5,
+				0, 0, 0.5, 0.5,
+				0, 0, 0, 1) * shadowMapMatrix;
+
+			AccumDeferredShadow(shadowMat);
+		}
+
+
     }
     
 	void RendererGL::RenderShadowMap(const DirectionLight* light, const AABB& bound,  const Scene* scene)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFbo);
-		glUseProgram(shadowCasterShader);
-
-		GLint diffuseMapLoc = glGetUniformLocation(shadowCasterShader, "diffuseMap");
-		GLint modelMatLoc = glGetUniformLocation(shadowCasterShader, "modelMatrix");
-		GLint shadowMapMatrixLoc = glGetUniformLocation(shadowCasterShader, "shadowMapMatrix");
 
 		glViewport(0, 0, shadowMap->GetTexture()->GetDesc()->width, shadowMap->GetTexture()->GetDesc()->height);
-        
-		glClearColor(1.0, 1.0, 1.0, 1);
+
 		glClearDepth(1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT);
 
 		glDisable(GL_BLEND);
 		glDepthFunc(GL_LESS);
 
+		glUseProgram(shadowCasterShader);
+
+		GLint modelMatLoc = glGetUniformLocation(shadowCasterShader, "modelMatrix");
+		GLint shadowMapMatrixLoc = glGetUniformLocation(shadowCasterShader, "shadowMapMatrix");
 
 		Matrix4x4 shadowMapMatrix = light->ShadowProjMatrix(bound) * light->ShadowViewMatrix();
-		int i = 0;
 		for(size_t primIdx = 0; primIdx < scene->primList.size(); primIdx++)
 		{
 			if(scene->primList[primIdx]->castShadow )
 			{
-				i++;
 				const Primitive* prim = scene->primList[primIdx].Get();
 				glUniformMatrix4fv(modelMatLoc, 1, GL_TRUE, prim->ModelMatrix().FloatPtr());
 				glUniformMatrix4fv(shadowMapMatrixLoc, 1, GL_TRUE, shadowMapMatrix.FloatPtr() );
-
-				if(prim->material->diffuseMap)
-				{
-					SetTextureUnit(diffuseMapLoc, 0, prim->material->diffuseMap->hwTexture->GetImpl()->id);
-				}
-				else
-				{
-					SetTextureUnit(diffuseMapLoc, 0, whiteTexture);
-				}
 
 				glBindBuffer(GL_ARRAY_BUFFER, prim->mesh->vertexBuffer->GetImpl()->vboID);
 				glEnableVertexAttribArray(0);
@@ -430,8 +473,6 @@ namespace jade
 			}
 		}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        
         Matrix4x4 shadowMat = Matrix4x4(0.5, 0, 0, 0.5,
                                           0, 0.5, 0, 0.5,
                                           0, 0, 0.5, 0.5,
@@ -441,14 +482,24 @@ namespace jade
 		
 	}
 
+	void RendererGL::ClearDeferredShadow()
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, shadowAccumFbo);
+		glViewport(0, 0, sceneShadowAccumMap->GetTexture()->GetDesc()->width, sceneShadowAccumMap->GetTexture()->GetDesc()->height);
+
+		glClearColor(0, 0, 0, 0);
+
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
     void RendererGL::AccumDeferredShadow(const Matrix4x4& mat)
     {
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowAccumFbo);
 		glViewport(0, 0, sceneShadowAccumMap->GetTexture()->GetDesc()->width, sceneShadowAccumMap->GetTexture()->GetDesc()->height);
-        
-		glClearColor(0, 0, 0, 0);
-		
-		glClear(GL_COLOR_BUFFER_BIT);
+
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_MAX);
+		glBlendFunc(GL_ONE, GL_ONE);
         
 		glUseProgram(deferredShadowShader);
 		GLint posMapLoc = glGetUniformLocation(deferredShadowShader, "scenePos");
@@ -472,12 +523,19 @@ namespace jade
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->fullScreenQuadIB->GetImpl()->iboID);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+
+		SetTextureUnit(posMapLoc, 0, (GLuint)0 );
+		SetTextureUnit(shadowMapLoc, 1, (GLuint)0 ); //make sure input != output
+		glDisable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+		
     }
     
     void RendererGL::Render(const Camera* camera, const Scene* scene)
     {
 		RenderGBuffer(camera, scene);
-		RenderShadowMap(camera, scene);
+		ClearDeferredShadow();
+		//RenderShadowMap(camera, scene);
         
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glEnable(GL_FRAMEBUFFER_SRGB);	
@@ -489,7 +547,7 @@ namespace jade
 		GLuint sceneShader = matShader;
         
 		glUseProgram(sceneShader);
-      TurnOffAllAttributes();
+		TurnOffAllAttributes();
 		GLint positionAttributeLoc = glGetAttribLocation(sceneShader, "position");
 		GLint normalAttributeLoc = glGetAttribLocation(sceneShader, "normal");
 		GLint tangentAttributeLoc = glGetAttribLocation(sceneShader, "tangent");
@@ -537,6 +595,11 @@ namespace jade
 		for(size_t lightIdx = 0; lightIdx < scene->lightList.size(); lightIdx++)
 		{
 
+			//make sure render texture is not bound to texture unit
+			{
+				SetTextureUnit(shadowMapLoc, 4, (GLuint)0);
+			}
+
 			const Light* light = scene->lightList[lightIdx];
 
 			switch(light->type)
@@ -550,9 +613,9 @@ namespace jade
 					glUniform4fv(lightPosDirLoc, 1, reinterpret_cast<const float*> (&lightPos) );
 					glUniform3fv(lightIntensityLoc, 1, reinterpret_cast<const float*> (&pointLight->intensity) );
 					glUniform1f(lightRadiusLoc, pointLight->radius);
+					ClearDeferredShadow();
+					RenderShadowMap(pointLight, scene, camera);
 
-					glBindSampler(4, shadowSamplerState->GetImpl()->sampler);
-					SetTextureUnit(shadowMapLoc, 4, whiteTexture);
 				}
 				break;
 			case Light::LT_DIRECTION:
@@ -574,11 +637,13 @@ namespace jade
 					Matrix4x4 shadowMapMatrix = shadowVpMat * dirLight->ShadowProjMatrix(bound) * dirLight->ShadowViewMatrix();
                      
 					glUniformMatrix4fv(shadowMapMatrixLoc, 1, GL_TRUE, shadowMapMatrix.FloatPtr());
-                    
-
+                    ClearDeferredShadow();
+					RenderShadowMap(dirLight, bound, scene);
 				}
 				break;
 			}
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
 			if(lightIdx == 0 || (options.dbgDraw >= GLRendererOptions::DBG_DRAW_UV_TILING && options.dbgDraw <= GLRendererOptions::DBG_DRAW_SPECULAR) )
 			{
@@ -588,6 +653,7 @@ namespace jade
 			else
 			{
 				glEnable(GL_BLEND);
+				glBlendEquation(GL_FUNC_ADD);
 				glBlendFunc(GL_ONE, GL_ONE);
 				glDepthFunc(GL_EQUAL);
 			}
@@ -657,22 +723,16 @@ namespace jade
 					glUniform1i(useMaskLoc, 0);
 				}
 				
-				bool useDeferrdShadow = true;
-				if(useDeferrdShadow)
 				{
 					glUniform1i(useDeferredShadowLoc, 1);
 					glBindSampler(4, shadowSamplerState->GetImpl()->sampler);
 					SetTextureUnit(shadowMapLoc, 4, this->sceneShadowAccumMap->GetTexture());
 				}
-				else
-				{
-					glUniform1i(useDeferredShadowLoc, 0);
-					glBindSampler(4, shadowSamplerState->GetImpl()->sampler);
-					SetTextureUnit(shadowMapLoc, 4, this->shadowMap->GetTexture());
-				}
-				
+
 				glDrawElements(GL_TRIANGLES, prim->mesh->indexBuffer->IndexCount(), GL_UNSIGNED_INT, 0);
 			}
+
+
 		}
 
         
