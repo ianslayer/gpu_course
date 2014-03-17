@@ -35,6 +35,17 @@
 		B23C63441896316E0071E698 /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633B1896316E0071E698 /* scene.cpp */; };
 		B23C63451896316E0071E698 /* texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633C1896316E0071E698 /* texture.cpp */; };
 		B24E144018B35CAE0004BE63 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B24E143F18B35CAE0004BE63 /* light.cpp */; };
+		B27F7A8718D4266C0023F9C1 /* blinn_phong_ps.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A7F18D4266C0023F9C1 /* blinn_phong_ps.glsl */; };
+		B27F7A8818D4266C0023F9C1 /* blinn_phong_vs.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A8018D4266C0023F9C1 /* blinn_phong_vs.glsl */; };
+		B27F7A8918D4266C0023F9C1 /* full_screen_blit_ps.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A8118D4266C0023F9C1 /* full_screen_blit_ps.glsl */; };
+		B27F7A8A18D4266C0023F9C1 /* full_screen_vs.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A8218D4266C0023F9C1 /* full_screen_vs.glsl */; };
+		B27F7A8B18D4266C0023F9C1 /* shadow_caster_ps.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A8318D4266C0023F9C1 /* shadow_caster_ps.glsl */; };
+		B27F7A8C18D4266C0023F9C1 /* shadow_caster_vs.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A8418D4266C0023F9C1 /* shadow_caster_vs.glsl */; };
+		B27F7A8D18D4266C0023F9C1 /* wirePixelShader.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A8518D4266C0023F9C1 /* wirePixelShader.glsl */; };
+		B27F7A8E18D4266C0023F9C1 /* wireVertexShader.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A8618D4266C0023F9C1 /* wireVertexShader.glsl */; };
+		B27F7A9018D426F80023F9C1 /* gbuffer_vs.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A8F18D426F80023F9C1 /* gbuffer_vs.glsl */; };
+		B27F7A9218D428D50023F9C1 /* gbuffer_ps.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A9118D428D50023F9C1 /* gbuffer_ps.glsl */; };
+		B27F7A9618D465750023F9C1 /* deferred_shadow_ps.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A9518D465750023F9C1 /* deferred_shadow_ps.glsl */; };
 		B2D7A4F01897A6C700EE1E9E /* window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2D7A4EE1897A6C700EE1E9E /* window.cpp */; };
 		B2D7A4F21897F9AC00EE1E9E /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2D7A4F11897F9AC00EE1E9E /* IOKit.framework */; };
 		B2D7A4F51898D47100EE1E9E /* input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2D7A4F31898D47100EE1E9E /* input.cpp */; };
@@ -118,6 +129,17 @@
 		B23C633C1896316E0071E698 /* texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = texture.cpp; path = ../../texture.cpp; sourceTree = "<group>"; };
 		B23C6346189637670071E698 /* jade.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = jade.h; path = ../../jade.h; sourceTree = "<group>"; };
 		B24E143F18B35CAE0004BE63 /* light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = light.cpp; path = ../../light.cpp; sourceTree = "<group>"; };
+		B27F7A7F18D4266C0023F9C1 /* blinn_phong_ps.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = blinn_phong_ps.glsl; path = ../../../shader/blinn_phong_ps.glsl; sourceTree = "<group>"; };
+		B27F7A8018D4266C0023F9C1 /* blinn_phong_vs.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = blinn_phong_vs.glsl; path = ../../../shader/blinn_phong_vs.glsl; sourceTree = "<group>"; };
+		B27F7A8118D4266C0023F9C1 /* full_screen_blit_ps.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = full_screen_blit_ps.glsl; path = ../../../shader/full_screen_blit_ps.glsl; sourceTree = "<group>"; };
+		B27F7A8218D4266C0023F9C1 /* full_screen_vs.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = full_screen_vs.glsl; path = ../../../shader/full_screen_vs.glsl; sourceTree = "<group>"; };
+		B27F7A8318D4266C0023F9C1 /* shadow_caster_ps.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = shadow_caster_ps.glsl; path = ../../../shader/shadow_caster_ps.glsl; sourceTree = "<group>"; };
+		B27F7A8418D4266C0023F9C1 /* shadow_caster_vs.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = shadow_caster_vs.glsl; path = ../../../shader/shadow_caster_vs.glsl; sourceTree = "<group>"; };
+		B27F7A8518D4266C0023F9C1 /* wirePixelShader.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = wirePixelShader.glsl; path = ../../../shader/wirePixelShader.glsl; sourceTree = "<group>"; };
+		B27F7A8618D4266C0023F9C1 /* wireVertexShader.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = wireVertexShader.glsl; path = ../../../shader/wireVertexShader.glsl; sourceTree = "<group>"; };
+		B27F7A8F18D426F80023F9C1 /* gbuffer_vs.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = gbuffer_vs.glsl; path = ../../../shader/gbuffer_vs.glsl; sourceTree = "<group>"; };
+		B27F7A9118D428D50023F9C1 /* gbuffer_ps.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = gbuffer_ps.glsl; path = ../../../shader/gbuffer_ps.glsl; sourceTree = "<group>"; };
+		B27F7A9518D465750023F9C1 /* deferred_shadow_ps.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = deferred_shadow_ps.glsl; path = ../../../shader/deferred_shadow_ps.glsl; sourceTree = "<group>"; };
 		B2D7A4EE1897A6C700EE1E9E /* window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = window.cpp; path = ../../../window.cpp; sourceTree = "<group>"; };
 		B2D7A4EF1897A6C700EE1E9E /* window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = window.h; path = ../../../window.h; sourceTree = "<group>"; };
 		B2D7A4F11897F9AC00EE1E9E /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
@@ -203,6 +225,7 @@
 		B23C62D4188B94CB0071E698 /* jade_mac */ = {
 			isa = PBXGroup;
 			children = (
+				B27F7A7E18D4263C0023F9C1 /* shader */,
 				B23C6304188B95C40071E698 /* source */,
 				B23C6303188B95B90071E698 /* header */,
 				B23C6302188B959D0071E698 /* utility */,
@@ -320,6 +343,24 @@
 			name = source;
 			sourceTree = "<group>";
 		};
+		B27F7A7E18D4263C0023F9C1 /* shader */ = {
+			isa = PBXGroup;
+			children = (
+				B27F7A9518D465750023F9C1 /* deferred_shadow_ps.glsl */,
+				B27F7A7F18D4266C0023F9C1 /* blinn_phong_ps.glsl */,
+				B27F7A8018D4266C0023F9C1 /* blinn_phong_vs.glsl */,
+				B27F7A8118D4266C0023F9C1 /* full_screen_blit_ps.glsl */,
+				B27F7A8218D4266C0023F9C1 /* full_screen_vs.glsl */,
+				B27F7A8318D4266C0023F9C1 /* shadow_caster_ps.glsl */,
+				B27F7A8418D4266C0023F9C1 /* shadow_caster_vs.glsl */,
+				B27F7A8518D4266C0023F9C1 /* wirePixelShader.glsl */,
+				B27F7A8618D4266C0023F9C1 /* wireVertexShader.glsl */,
+				B27F7A8F18D426F80023F9C1 /* gbuffer_vs.glsl */,
+				B27F7A9118D428D50023F9C1 /* gbuffer_ps.glsl */,
+			);
+			name = shader;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -396,10 +437,21 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B27F7A8918D4266C0023F9C1 /* full_screen_blit_ps.glsl in Resources */,
 				B23C62D9188B94CB0071E698 /* InfoPlist.strings in Resources */,
+				B27F7A8818D4266C0023F9C1 /* blinn_phong_vs.glsl in Resources */,
 				B23C62E7188B94CB0071E698 /* Images.xcassets in Resources */,
+				B27F7A9218D428D50023F9C1 /* gbuffer_ps.glsl in Resources */,
 				B23C62DF188B94CB0071E698 /* Credits.rtf in Resources */,
+				B27F7A8E18D4266C0023F9C1 /* wireVertexShader.glsl in Resources */,
+				B27F7A8B18D4266C0023F9C1 /* shadow_caster_ps.glsl in Resources */,
+				B27F7A8A18D4266C0023F9C1 /* full_screen_vs.glsl in Resources */,
+				B27F7A9618D465750023F9C1 /* deferred_shadow_ps.glsl in Resources */,
 				B23C62E5188B94CB0071E698 /* MainMenu.xib in Resources */,
+				B27F7A9018D426F80023F9C1 /* gbuffer_vs.glsl in Resources */,
+				B27F7A8D18D4266C0023F9C1 /* wirePixelShader.glsl in Resources */,
+				B27F7A8C18D4266C0023F9C1 /* shadow_caster_vs.glsl in Resources */,
+				B27F7A8718D4266C0023F9C1 /* blinn_phong_ps.glsl in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

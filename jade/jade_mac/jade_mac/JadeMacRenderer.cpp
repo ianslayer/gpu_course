@@ -68,11 +68,12 @@ void InputControl(float frameTime)
     inputListener->ClearState();
 }
 
-void InitRenderer(float width, float height)
+void InitRenderer(float width, float height, float scaleFactor)
 {
     std::string workingDir = WorkingDir();
     jade::RenderDeviceSetting deviceSetting;
 	deviceSetting.msaaCount = 4;
+    deviceSetting.screenScaleFactor = scaleFactor;
     
     window.width = width;
     window.height = height;

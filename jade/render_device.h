@@ -56,6 +56,7 @@ namespace jade
 
 	enum TEXTURE_FORMAT
 	{
+        TEX_FORMAT_R8,
 		TEX_FORMAT_RGBA8,
 		TEX_FORMAT_SRGB8_ALPHA8,
 		TEX_FORMAT_RGBA16F,
@@ -185,6 +186,18 @@ namespace jade
 		TextureSamplerStateImpl impl;
 	};
 
+    
+    struct RenderDeviceSetting
+    {
+        RenderDeviceSetting()
+        {
+            msaaCount = 0;
+            screenScaleFactor = 1.0f;
+        }
+        int msaaCount;
+        float screenScaleFactor; //support retina display
+    };
+    
     class RenderDevice
     {
     public:
@@ -195,21 +208,19 @@ namespace jade
         };
         typedef int error_t;
 
+        RenderDevice(const Window* _window) : window(_window) {};
+        
         error_t CreateVertexBuffer(size_t size, void* buf, HWVertexBuffer** buffer);
         error_t CreateIndexBuffer(size_t size, void* buf, HWIndexBuffer** buffer);
 		error_t CreateTexture2D(HWTexture2D::Desc* desc, SubresourceData* data, HWTexture2D** texture);
 		error_t CreateSamplerState(TextureSamplerState::Desc* desc, TextureSamplerState** state);
         error_t CreateRenderTexture2D(HWTexture2D* texture, HWRenderTexture2D::Desc* desc, HWRenderTexture2D** rtTexture);
+        error_t CreateRenderTexture2D(HWTexture2D::Desc* texDesc, HWRenderTexture2D::Desc* rtDesc, HWRenderTexture2D** rtTexture);
         error_t CreateDepthStencilSurface(HWTexture2D* texture, HWDepthStencilSurface::Desc* desc,  HWDepthStencilSurface** surface);
-    };
-
-    struct RenderDeviceSetting
-    {
-        RenderDeviceSetting()
-        {
-            msaaCount = 0;
-        }
-        int msaaCount;
+        error_t CreateDepthStencilSurface(HWTexture2D::Desc* texDesc, HWDepthStencilSurface::Desc* dsDesc, HWDepthStencilSurface** surface);
+        
+        RenderDeviceSetting setting;
+        const Window*       window;
     };
 
     RenderDevice::error_t InitRenderDevice(const Window* window, const RenderDeviceSetting* setting, RenderDevice** device);

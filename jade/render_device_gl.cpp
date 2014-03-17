@@ -8,10 +8,14 @@ namespace jade
 	{
 		switch(format)
 		{
+        case TEX_FORMAT_R8:
+            return GL_R8;
 		case TEX_FORMAT_RGBA8:
 			return GL_RGBA8;
 		case TEX_FORMAT_RGBA16F:
 			return GL_RGBA16F;
+        case TEX_FORMAT_RGBA32F:
+            return GL_RGBA32F;
 		case TEX_FORMAT_SRGB8_ALPHA8:
 			return GL_SRGB8_ALPHA8;
 		case TEX_FORMAT_DEPTH32F:
@@ -25,10 +29,14 @@ namespace jade
 	{
 		switch(format)
 		{
+        case TEX_FORMAT_R8:
+            return GL_RED;
 		case TEX_FORMAT_RGBA8:
 			return GL_RGBA;
 		case TEX_FORMAT_RGBA16F:
 			return GL_RGBA;
+        case TEX_FORMAT_RGBA32F:
+            return GL_RGBA;
 		case TEX_FORMAT_SRGB8_ALPHA8:
 			return GL_RGBA;
 		case TEX_FORMAT_DEPTH32F:
@@ -41,10 +49,14 @@ namespace jade
 	{
 		switch(format)
 		{
+        case TEX_FORMAT_R8:
+            return GL_UNSIGNED_BYTE;
 		case TEX_FORMAT_RGBA8:
 			return GL_UNSIGNED_BYTE;
 		case TEX_FORMAT_RGBA16F:
 			return GL_HALF_FLOAT;
+        case TEX_FORMAT_RGBA32F:
+            return GL_FLOAT;
 		case TEX_FORMAT_SRGB8_ALPHA8:
 			return GL_UNSIGNED_BYTE;
 		case TEX_FORMAT_DEPTH32F:
@@ -101,8 +113,8 @@ namespace jade
         InitGL(window->hwnd, setting->msaaCount);
 #endif
         
-        *device = new RenderDevice();
-        
+        *device = new RenderDevice(window);
+        (*device)->setting = *setting;
         return RenderDevice::SUCCESS;
     }
 
@@ -192,6 +204,18 @@ namespace jade
         return RenderDevice::SUCCESS;
     }
     
+    RenderDevice::error_t RenderDevice::CreateRenderTexture2D(HWTexture2D::Desc* texDesc, HWRenderTexture2D::Desc* rtDesc, HWRenderTexture2D** rtTexture)
+    {
+        HWTexture2D* texture = NULL;
+        error_t err = CreateTexture2D(texDesc, NULL, &texture);
+        if(err!= SUCCESS)
+            return err;
+   
+        err = CreateRenderTexture2D(texture, rtDesc, rtTexture);
+        
+        return err;
+    }
+    
 	RenderDevice::error_t RenderDevice::CreateDepthStencilSurface(HWTexture2D* texture, HWDepthStencilSurface::Desc* desc, HWDepthStencilSurface** surface)
 	{
 		if(texture == NULL)
@@ -204,6 +228,19 @@ namespace jade
 		return RenderDevice::SUCCESS;
 	}
 
+    RenderDevice::error_t RenderDevice::CreateDepthStencilSurface(HWTexture2D::Desc *texDesc, HWDepthStencilSurface::Desc *dsDesc, jade::HWDepthStencilSurface **surface)
+    {
+        HWTexture2D* texture = NULL;
+        error_t err = CreateTexture2D(texDesc, NULL, &texture);
+        
+        if(err != SUCCESS)
+            return err;
+        
+        err = CreateDepthStencilSurface(texture, dsDesc, surface);
+        
+        return err;
+    }
+    
 	static GLint GetGLAddressMode(int addressMode)
 	{
 		switch(addressMode)

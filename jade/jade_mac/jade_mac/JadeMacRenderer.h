@@ -14,7 +14,7 @@
 extern "C" {
 #endif
     void InputControl(float frameTime);
-    void InitRenderer(float width, float height);;
+    void InitRenderer(float width, float height, float scaleFactor);
     void InitScene();
     void RenderFrame();
     

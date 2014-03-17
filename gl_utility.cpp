@@ -233,7 +233,11 @@ GLuint CompileShader(char* filename, GLuint shaderType)
 {
     GLchar* shaderSource = 0;
     GLint shaderLen = 0;
-    LoadShader(filename, &shaderSource, &shaderLen);
+    if(LoadShader(filename, &shaderSource, &shaderLen) < 0)
+    {
+        printf("can't load shader: %s\n", filename);
+        return 0;
+    }
     GLuint shader = glCreateShader(shaderType);
 
     if(shaderLen == 0)
@@ -297,6 +301,21 @@ GLuint CreateProgram(char* vsFilename, char* psFileName)
     } 
     else
     {
+        int infologLength = 0;
+		
+        int charsWritten  = 0;
+        char *infoLog;
+		
+       // glGetProgramiv(shader, GL_INFO_LOG_LENGTH,&infologLength);
+		glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &infologLength);
+        if (infologLength > 0)
+        {
+            infoLog = new char[infologLength];
+            glGetProgramInfoLog(shaderProgram, infologLength, &charsWritten, infoLog);
+			
+            printf(infoLog);
+            delete [] infoLog;
+        }
         printf("program link error\n");
     }
     return shaderProgram;
