@@ -1,10 +1,11 @@
 #version 330 core
 
 in vec3 world_pos;
+in vec3 world_normal;
 
-out vec4 out_pos;
+layout (location = 0) out  vec4 g_buffer0;
 
 void main()
 {
-    out_pos = vec4(world_pos, 1.0);
+    g_buffer0 = vec4(world_normal, 1.0);
 }

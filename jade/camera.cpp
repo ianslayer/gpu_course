@@ -56,6 +56,12 @@ namespace jade
         return viewMatrix;
     }
 
+	Matrix4x4 Camera::InvViewMatrix() const
+	{
+		Matrix4x4 viewMat = ViewMatrix();
+		return InverseAffine(viewMat);
+	}
+	
     Matrix4x4 Camera::PerspectiveMatrix() const
     {
 
@@ -66,4 +72,14 @@ namespace jade
 
         return projMatrix;
     }
+	
+	
+	Matrix4x4 Camera::InvPerspectiveMatrix() const
+	{
+		Matrix4x4 invertProjMatrix = Matrix4x4((r-l)/(2*n), 0, 0, (r+l)/(2*n),
+											   0, (t-b)/(2*n), 0, (t+b)/(2*n),
+											   0, 0, 0, -1,
+											   0, 0, -(f-n)/(2*f*n), (f+n)/(2*f*n));
+		return invertProjMatrix;
+	}
 }

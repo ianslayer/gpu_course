@@ -13,7 +13,7 @@ struct Window
     HWND hwnd;
     HDC hdc;
 #else if defined (__APPLE__)
-    NSWindow* window;
+    //NSWindow* window;
 #endif    
     int width;
     int height;

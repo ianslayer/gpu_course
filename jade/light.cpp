@@ -28,14 +28,17 @@ namespace jade
 			cam.lookat = Vector3(0, -1, 0);
 			cam.right = Vector3(-1, 0, 0);
 			cam.up = Vector3(0, 0, 1);
+			break;
 		case POSITIVE_Z:
 			cam.lookat = Vector3(0, 0, 1);
 			cam.right = Vector3(0, 1, 0);
 			cam.up = Vector3(1, 0, 0);
+			break;
 		case NEGATIVE_Z:
 			cam.lookat = Vector3(0, 0, -1);
 			cam.right = Vector3(0, -1, 0);
 			cam.up = Vector3(1, 0, 0);
+			break;
 		}
 
 		return cam.ViewMatrix();

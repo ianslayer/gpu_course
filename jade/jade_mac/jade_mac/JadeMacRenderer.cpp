@@ -130,7 +130,7 @@ void InitScene()
 	objMesh2.Load("data/db5/db5.obj");
 	jade::LoadFromObjMesh(objMesh, device, texManager,  flipMatrix, texflipMatrix, primitiveList);
 	jade::LoadFromObjMesh(objMesh2, device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList2);
-    
+    //SetCastShadow(primitiveList);
 	SetCastShadow(primitiveList2);
     
 	scene->AddPrimitives(primitiveList);
@@ -138,10 +138,10 @@ void InitScene()
 	jade::Light* dirLight = new jade::DirectionLight(Normalize(Vector3(1, -1, 1)), Vector3(0.6, 0.6, 0.6) );
 	scene->AddLight(dirLight);
     
-	jade::Light* pointLight = new jade::PointLight(Vector3(1000, 0, 50), Vector3(0.9, 0.6, 0.6), 100 );
+	jade::Light* pointLight = new jade::PointLight(Vector3(200, 0, 200), 500 * Vector3(0.9, 0.6, 0.6), 10 );
 	scene->AddLight(pointLight);
 	
-	jade::Light* pointLight2 = new jade::PointLight(Vector3(-1000, 0, 10), Vector3(0.5, 0.5, 0.8), 200 );
+	jade::Light* pointLight2 = new jade::PointLight(Vector3(-200, 0, 100), 500 * Vector3(0.5, 0.5, 0.8), 20 );
 	scene->AddLight(pointLight2);
 }
 

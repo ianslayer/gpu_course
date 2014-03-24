@@ -13,8 +13,9 @@ namespace jade
         Camera();
 
         Matrix4x4 ViewMatrix() const;
+		Matrix4x4 InvViewMatrix() const;
         Matrix4x4 PerspectiveMatrix() const;
-
+		Matrix4x4 InvPerspectiveMatrix() const;
         void      SetAspectRatio(float width, float height);
         void      SetXFov(float angleRad);
         

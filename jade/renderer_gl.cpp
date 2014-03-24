@@ -21,55 +21,56 @@ namespace jade
 
 		virtual void Render(const Camera* camera, const Scene* scene);
 
-        void RenderGBuffer(const Camera* camera, const Scene* scene);
-        void RenderShadowMap(const Camera* camera, const Scene* scene);
-        void RenderShadowMap(const PointLight* light, const Scene* scene, const Camera* cam);
-		void RenderShadowMap(const DirectionLight* light, const AABB& bound,  const Scene* scene);
+		void RenderGBuffer(const Camera* camera, const Scene* scene);
+		//void RenderShadowMap(const Camera* camera, const Scene* scene);
+		void RenderShadowMap(const PointLight* light, const Scene* scene, const Camera* cam);
+		void RenderShadowMap(const DirectionLight* light, const AABB& bound,  const Scene* scene, const Camera* cam);
 		void ClearDeferredShadow();
-        void AccumDeferredShadow(const Matrix4x4& shadowMapMatrix);
+		void AccumDeferredShadow(const Matrix4x4& shadowMapMatrix, const Camera* cam);
         
-        virtual void SetRendererOption(void*);
+		virtual void SetRendererOption(void*);
 
-        void ReloadShaders();
+		void ReloadShaders();
         
 		void RenderDebugInfo(const Camera* camera, const Scene* scene);
 
-        void DrawBoundingBox(const Camera* camera, const AABB& bound);
-        
-        void DrawTexture(int x, int y, int width, int height, const HWTexture2D* tex);
+		void DrawBoundingBox(const Camera* camera, const AABB& bound);
+		void DrawLightBounding(const Camera* camera, const Scene* scene);
+		
+		void DrawTexture(int x, int y, int width, int height, const HWTexture2D* tex);
         
 		class RenderDevice* device;
 		GLuint wireframeShader;
 		GLuint matShader;
 		GLuint blitShader;
 		GLuint shadowCasterShader;
-        GLuint gbufferShader;
-        GLuint deferredShadowShader;
+		GLuint gbufferShader;
+		GLuint deferredShadowShader;
         
 		GLuint whiteTexture;
 		GLuint blackTexture;
-        GLuint uniZTexture; //unit z
+		GLuint uniZTexture; //unit z
         
-        GLuint cubeVbo;
-        GLuint cubeIbo;
+		GLuint cubeVbo;
+		GLuint cubeIbo;
         
 		RefCountedPtr<TextureSamplerState> defaultSamplerState;
-        RefCountedPtr<TextureSamplerState> shadowSamplerState;
+		RefCountedPtr<TextureSamplerState> shadowSamplerState;
 
 		RefCountedPtr<HWVertexBuffer> fullScreenQuadVB;
 		RefCountedPtr<HWIndexBuffer> fullScreenQuadIB;
 
-        GLuint gBufferFbo;
-        RefCountedPtr<HWRenderTexture2D> scenePosMap;
-        RefCountedPtr<HWDepthStencilSurface> sceneDepthMap;
+		GLuint gBufferFbo;
+		RefCountedPtr<HWRenderTexture2D> gbuffer0;
+		RefCountedPtr<HWDepthStencilSurface> sceneDepthMap;
         
-        GLuint shadowAccumFbo;
-        RefCountedPtr<HWRenderTexture2D> sceneShadowAccumMap;
+		GLuint shadowAccumFbo;
+		RefCountedPtr<HWRenderTexture2D> sceneShadowAccumMap;
 
 		GLuint shadowMapFbo;
 		RefCountedPtr<HWDepthStencilSurface> shadowMap;
         
-        GLRendererOptions options;
+		GLRendererOptions options;
 	};
 
     RendererGL::RendererGL(RenderDevice* _device) : device(_device), wireframeShader(0), matShader(0)
@@ -109,8 +110,8 @@ namespace jade
 			HWTexture2D::Desc texDesc;
 			texDesc.arraySize = 1;
 			texDesc.format = TEX_FORMAT_DEPTH32F;
-			texDesc.width = 512;
-			texDesc.height = 512;
+			texDesc.width = 1024;
+			texDesc.height = 1024;
 			texDesc.mipLevels = 1;
 			texDesc.generateMipmap =false;
 		
@@ -139,19 +140,19 @@ namespace jade
 		{
 			HWTexture2D::Desc texDesc;
 			texDesc.arraySize = 1;
-			texDesc.format = TEX_FORMAT_RGBA32F;
+			texDesc.format = TEX_FORMAT_RGBA16F;
 			texDesc.width = device->window->width;
 			texDesc.height = device->window->height;
 			texDesc.mipLevels = 1;
 			texDesc.generateMipmap =false;
 			
             HWRenderTexture2D::Desc rtDesc;
-            rtDesc.format = TEX_FORMAT_RGBA32F;
+            rtDesc.format = TEX_FORMAT_RGBA16F;
             rtDesc.mipLevel = 0;
             
             HWRenderTexture2D* rtPosMap = NULL;
 			device->CreateRenderTexture2D(&texDesc, &rtDesc, &rtPosMap);
-            scenePosMap = rtPosMap;
+            gbuffer0 = rtPosMap;
 		}
         
         {
@@ -173,7 +174,7 @@ namespace jade
         
         glGenFramebuffers(1, &gBufferFbo);
         glBindFramebuffer(GL_FRAMEBUFFER, gBufferFbo);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, scenePosMap->GetTexture()->GetImpl()->id, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gbuffer0->GetTexture()->GetImpl()->id, 0);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, sceneDepthMap->GetTexture()->GetImpl()->id, 0);
         
 		fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -189,7 +190,7 @@ namespace jade
         {
 			HWTexture2D::Desc texDesc;
 			texDesc.arraySize = 1;
-			texDesc.format = TEX_FORMAT_R8;
+			texDesc.format = TEX_FORMAT_RGBA8;
 			texDesc.width = device->window->width;
 			texDesc.height = device->window->height;
 			texDesc.mipLevels = 1;
@@ -345,7 +346,7 @@ namespace jade
         
     }
     
-	
+	/*
     void RendererGL::RenderShadowMap(const Camera* camera, const Scene* scene)
     {
 		for(size_t lightIdx = 0; lightIdx < scene->lightList.size(); lightIdx++)
@@ -369,14 +370,14 @@ namespace jade
 					AABB bound;
 					ShadowBound(scene, bound);
 					
-					RenderShadowMap(dirLight, bound, scene);
+					RenderShadowMap(dirLight, bound, scene, cam);
                     
 				}
 				break;
 			}
         }
        
-    }
+    }*/
     
     void RendererGL::RenderShadowMap(const jade::PointLight *light, const jade::Scene *scene, const Camera* cam)
     {
@@ -391,7 +392,7 @@ namespace jade
 		GLint shadowMapMatrixLoc = glGetUniformLocation(shadowCasterShader, "shadowMapMatrix");
 		
 		for(int i = 0; i < 6; i++)
-		//int i = 1;
+		//int i = 0;
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFbo);
 			glUseProgram(shadowCasterShader);
@@ -430,13 +431,13 @@ namespace jade
 				0, 0, 0.5, 0.5,
 				0, 0, 0, 1) * shadowMapMatrix;
 
-			AccumDeferredShadow(shadowMat);
+			AccumDeferredShadow(shadowMat, cam);
 		}
 
 
     }
     
-	void RendererGL::RenderShadowMap(const DirectionLight* light, const AABB& bound,  const Scene* scene)
+	void RendererGL::RenderShadowMap(const DirectionLight* light, const AABB& bound,  const Scene* scene, const Camera* cam)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFbo);
 
@@ -478,7 +479,7 @@ namespace jade
                                           0, 0, 0.5, 0.5,
                                           0, 0, 0, 1) * shadowMapMatrix;
         
-        AccumDeferredShadow(shadowMat);
+        AccumDeferredShadow(shadowMat, cam);
 		
 	}
 
@@ -492,7 +493,7 @@ namespace jade
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-    void RendererGL::AccumDeferredShadow(const Matrix4x4& mat)
+    void RendererGL::AccumDeferredShadow(const Matrix4x4& shadowMapMat, const Camera* cam)
     {
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowAccumFbo);
 		glViewport(0, 0, sceneShadowAccumMap->GetTexture()->GetDesc()->width, sceneShadowAccumMap->GetTexture()->GetDesc()->height);
@@ -502,17 +503,31 @@ namespace jade
 		glBlendFunc(GL_ONE, GL_ONE);
         
 		glUseProgram(deferredShadowShader);
-		GLint posMapLoc = glGetUniformLocation(deferredShadowShader, "scenePos");
+		GLint gbuffer0Loc = glGetUniformLocation(deferredShadowShader, "gbuffer0");
+		GLint depthMapLoc = glGetUniformLocation(deferredShadowShader, "sceneDepthMap");
+		GLint invViewProjMatLoc = glGetUniformLocation(deferredShadowShader, "invViewProjMatrix");
 		GLint shadowMapLoc = glGetUniformLocation(deferredShadowShader, "shadowMap");
 		GLint shadowMatLoc = glGetUniformLocation(deferredShadowShader, "shadowMapMatrix");
         
-		glUniformMatrix4fv(shadowMatLoc, 1, GL_TRUE, mat.FloatPtr());
-        
-		SetTextureUnit(posMapLoc, 0, scenePosMap->GetTexture() );
+		glUniformMatrix4fv(shadowMatLoc, 1, GL_TRUE, shadowMapMat.FloatPtr());
+		
+		Matrix4x4 invProjMatrix = cam->InvPerspectiveMatrix();
+		Matrix4x4 test = invProjMatrix * cam->PerspectiveMatrix();
+		
+		Matrix4x4 invViewMatrix = cam->InvViewMatrix();
+		
+		test  = invViewMatrix * cam->ViewMatrix();
+		
+		Matrix4x4 invViewProjMatrix = invViewMatrix * invProjMatrix;
+		glUniformMatrix4fv(invViewProjMatLoc, 1, GL_TRUE, invViewProjMatrix.FloatPtr());
+		
+		SetTextureUnit(gbuffer0Loc, 0, gbuffer0->GetTexture() );
 		SetTextureUnit(shadowMapLoc, 1, shadowMap->GetTexture() );
+		SetTextureUnit(depthMapLoc, 2, sceneDepthMap->GetTexture() );
 		glBindSampler(0, shadowSamplerState->GetImpl()->sampler);
 		glBindSampler(1, shadowSamplerState->GetImpl()->sampler);
-        
+          glBindSampler(2, shadowSamplerState->GetImpl()->sampler);
+		
 		glBindBuffer(GL_ARRAY_BUFFER, this->fullScreenQuadVB->GetImpl()->vboID);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexP3T2), 0);
@@ -524,7 +539,7 @@ namespace jade
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 
-		SetTextureUnit(posMapLoc, 0, (GLuint)0 );
+		SetTextureUnit(gbuffer0Loc, 0, (GLuint)0 );
 		SetTextureUnit(shadowMapLoc, 1, (GLuint)0 ); //make sure input != output
 		glDisable(GL_BLEND);
 		glBlendEquation(GL_FUNC_ADD);
@@ -534,8 +549,6 @@ namespace jade
     void RendererGL::Render(const Camera* camera, const Scene* scene)
     {
 		RenderGBuffer(camera, scene);
-		ClearDeferredShadow();
-		//RenderShadowMap(camera, scene);
         
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glEnable(GL_FRAMEBUFFER_SRGB);	
@@ -559,7 +572,7 @@ namespace jade
 		GLint projectionMatLoc = glGetUniformLocation(sceneShader, "projectionMatrix");
 		GLint shadowMapMatrixLoc = glGetUniformLocation(sceneShader, "shadowMapMatrix");
 		GLint windowSizeLoc = glGetUniformLocation(sceneShader, "window_size");
-		glUniform2f(windowSizeLoc, camera->width, camera->height);
+		glUniform2f(windowSizeLoc, camera->width * device->setting.screenScaleFactor, camera->height * device->setting.screenScaleFactor);
 		
 		GLint ambientLoc = glGetUniformLocation(sceneShader, "ambient");
 		GLint diffuseLoc = glGetUniformLocation(sceneShader, "diffuse");
@@ -637,8 +650,8 @@ namespace jade
 					Matrix4x4 shadowMapMatrix = shadowVpMat * dirLight->ShadowProjMatrix(bound) * dirLight->ShadowViewMatrix();
                      
 					glUniformMatrix4fv(shadowMapMatrixLoc, 1, GL_TRUE, shadowMapMatrix.FloatPtr());
-                    ClearDeferredShadow();
-					RenderShadowMap(dirLight, bound, scene);
+					ClearDeferredShadow();
+					RenderShadowMap(dirLight, bound, scene, camera);
 				}
 				break;
 			}
@@ -664,7 +677,7 @@ namespace jade
 				const Primitive* prim = scene->primList[primIdx].Get();
 			
 				glUniformMatrix4fv(modelMatLoc, 1, GL_TRUE, prim->ModelMatrix().FloatPtr());
-                glUniformMatrix4fv(invModelMatLoc, 1, GL_TRUE, prim->InvModelMatrix().FloatPtr());
+				glUniformMatrix4fv(invModelMatLoc, 1, GL_TRUE, prim->InvModelMatrix().FloatPtr());
                 
 
 				glBindBuffer(GL_ARRAY_BUFFER, prim->mesh->vertexBuffer->GetImpl()->vboID);
@@ -677,8 +690,8 @@ namespace jade
 				glUniform1f(roughnessLoc, prim->material->roughness);
 
 				glBindSampler(0, defaultSamplerState->GetImpl()->sampler);
-                glBindSampler(1, defaultSamplerState->GetImpl()->sampler);
-                glBindSampler(2, defaultSamplerState->GetImpl()->sampler);
+				glBindSampler(1, defaultSamplerState->GetImpl()->sampler);
+				glBindSampler(2, defaultSamplerState->GetImpl()->sampler);
 				glBindSampler(3, defaultSamplerState->GetImpl()->sampler);
 
 				if(prim->material->diffuseMap)
@@ -744,8 +757,10 @@ namespace jade
 		{
 			DrawTexture(0, 0, 256, 256, this->shadowMap->GetTexture());
 			DrawTexture(0, 256, 256, 256, this->sceneShadowAccumMap->GetTexture());
+			DrawLightBounding(camera, scene);
 		}
 		
+
         
     }
 
@@ -832,6 +847,21 @@ namespace jade
         glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, 0);
         
     }
+	
+	void RendererGL::DrawLightBounding(const jade::Camera *camera, const jade::Scene *scene)
+	{
+		for(size_t i = 0; i < scene->lightList.size(); i++)
+		{
+			if(scene->lightList[i]->type == Light::LT_POINT)
+			{
+				PointLight* ptLight = static_cast<PointLight*>(scene->lightList[i].Get());
+				AABB bound;
+				bound.center = ptLight->pos;
+				bound.radius = Vector3(ptLight->radius);
+				DrawBoundingBox(camera, bound);
+			}
+		}
+	}
     
     void RendererGL::DrawTexture(int x, int y, int width, int height, const jade::HWTexture2D *tex)
     {

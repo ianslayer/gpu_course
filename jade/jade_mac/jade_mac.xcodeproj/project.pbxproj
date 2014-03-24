@@ -31,7 +31,6 @@
 		B23C63401896316E0071E698 /* primitive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C63371896316E0071E698 /* primitive.cpp */; };
 		B23C63411896316E0071E698 /* render_device_gl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C63381896316E0071E698 /* render_device_gl.cpp */; };
 		B23C63421896316E0071E698 /* render_device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C63391896316E0071E698 /* render_device.cpp */; };
-		B23C63431896316E0071E698 /* renderer_gl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633A1896316E0071E698 /* renderer_gl.cpp */; };
 		B23C63441896316E0071E698 /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633B1896316E0071E698 /* scene.cpp */; };
 		B23C63451896316E0071E698 /* texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633C1896316E0071E698 /* texture.cpp */; };
 		B24E144018B35CAE0004BE63 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B24E143F18B35CAE0004BE63 /* light.cpp */; };
@@ -46,6 +45,7 @@
 		B27F7A9018D426F80023F9C1 /* gbuffer_vs.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A8F18D426F80023F9C1 /* gbuffer_vs.glsl */; };
 		B27F7A9218D428D50023F9C1 /* gbuffer_ps.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A9118D428D50023F9C1 /* gbuffer_ps.glsl */; };
 		B27F7A9618D465750023F9C1 /* deferred_shadow_ps.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A9518D465750023F9C1 /* deferred_shadow_ps.glsl */; };
+		B27F7A9718DD8F430023F9C1 /* renderer_gl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633A1896316E0071E698 /* renderer_gl.cpp */; };
 		B2D7A4F01897A6C700EE1E9E /* window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2D7A4EE1897A6C700EE1E9E /* window.cpp */; };
 		B2D7A4F21897F9AC00EE1E9E /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2D7A4F11897F9AC00EE1E9E /* IOKit.framework */; };
 		B2D7A4F51898D47100EE1E9E /* input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2D7A4F31898D47100EE1E9E /* input.cpp */; };
@@ -470,12 +470,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B27F7A9718DD8F430023F9C1 /* renderer_gl.cpp in Sources */,
 				B23C63421896316E0071E698 /* render_device.cpp in Sources */,
 				B2D7A4F81899EAF800EE1E9E /* JadeWindowController.mm in Sources */,
 				B24E144018B35CAE0004BE63 /* light.cpp in Sources */,
 				B23C631D188B962F0071E698 /* image.cpp in Sources */,
 				B2D7A4F51898D47100EE1E9E /* input.cpp in Sources */,
-				B23C63431896316E0071E698 /* renderer_gl.cpp in Sources */,
 				B23C6319188B962F0071E698 /* file_utility.cpp in Sources */,
 				B23C63411896316E0071E698 /* render_device_gl.cpp in Sources */,
 				B23C633D1896316E0071E698 /* camera.cpp in Sources */,

@@ -146,6 +146,11 @@ public:
         {
             options.dbgDraw =jade::GLRendererOptions::DBG_DRAW_FRESNEL_SPECULAR_LIGHTING;
         }
+		
+		if(key == KEY_9 && pressed == false)
+		{
+			options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_SHADOW_MAP;
+		}
         
     }
     
