@@ -346,39 +346,6 @@ namespace jade
         
     }
     
-	/*
-    void RendererGL::RenderShadowMap(const Camera* camera, const Scene* scene)
-    {
-		for(size_t lightIdx = 0; lightIdx < scene->lightList.size(); lightIdx++)
-		{
-            
-			const Light* light = scene->lightList[lightIdx];
-            
-			switch(light->type)
-			{
-				case Light::LT_POINT:
-				{
-					const PointLight* ptLight = static_cast<const PointLight*> (light);
-					RenderShadowMap(ptLight, scene, camera);
-				}
-				break;
-					
-				case Light::LT_DIRECTION:
-				{
-					const DirectionLight* dirLight = static_cast<const DirectionLight*> (light);
-                    
-					AABB bound;
-					ShadowBound(scene, bound);
-					
-					RenderShadowMap(dirLight, bound, scene, cam);
-                    
-				}
-				break;
-			}
-        }
-       
-    }*/
-    
     void RendererGL::RenderShadowMap(const jade::PointLight *light, const jade::Scene *scene, const Camera* cam)
     {
 
@@ -508,7 +475,7 @@ namespace jade
 		GLint invViewProjMatLoc = glGetUniformLocation(deferredShadowShader, "invViewProjMatrix");
 		GLint shadowMapLoc = glGetUniformLocation(deferredShadowShader, "shadowMap");
 		GLint shadowMatLoc = glGetUniformLocation(deferredShadowShader, "shadowMapMatrix");
-        
+		
 		glUniformMatrix4fv(shadowMatLoc, 1, GL_TRUE, shadowMapMat.FloatPtr());
 		
 		Matrix4x4 invProjMatrix = cam->InvPerspectiveMatrix();

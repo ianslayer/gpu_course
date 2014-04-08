@@ -12,6 +12,7 @@
 #include "../../../file_utility.h"
 #include "../../../obj_mesh.h"
 #include "../../../input.h"
+#include "../../../timer.h"
 
 GLuint vao;
 
@@ -27,7 +28,8 @@ MyInputListener* inputListener = NULL;
 
 void InputControl(float frameTime)
 {
-    
+    FastTimer timer;
+	timer.Start();
     if(inputListener->forward)
     {
         camera.position += camera.lookat * inputListener->cameraMoveSpeed * frameTime / 1000.f;
@@ -64,7 +66,7 @@ void InputControl(float frameTime)
     }
     
     rendererGL->SetRendererOption(&inputListener->options);
-    
+    timer.End();
     inputListener->ClearState();
 }
 

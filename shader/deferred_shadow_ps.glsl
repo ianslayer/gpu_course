@@ -12,11 +12,23 @@ uniform vec4 lightPosDir;
 
 out vec4 out_color;
 
-vec2 get_shadow_offsets(vec3 N, vec3 L) {
+vec2 GetShadowOffsets(vec3 N, vec3 L) {
     float cos_alpha = clamp(dot(N, L), 0, 1);
     float offset_scale_N = sqrt(1 - cos_alpha*cos_alpha); // sin(acos(L·N))
     float offset_scale_L = offset_scale_N / cos_alpha;    // tan(acos(L·N))
     return vec2(offset_scale_N, min(2, offset_scale_L));
+}
+
+
+float shadow_offset_lookup(vec4 shadowCoord, vec2 shadowOffset, vec2 offset)
+{
+
+	shadowCoord /= shadowCoord.w;
+	float shadowBias = shadowOffset.y * 0.000005;
+	
+	if(shadowCoord.x <= 1.01 && shadowCoord.x >=  -0.01 && shadowCoord.y <= 1.01 && shadowCoord.y >=  -0.01  && shadowCoord.z >=  0 && shadowCoord.z <=  1.0 && texture(shadowMap, shadowCoord.xy + offset ) .r + shadowBias <  min(shadowCoord.z, 1.f)  )
+		return 1.0f;
+	return 0.0f;
 }
 
 void main(void)
@@ -32,16 +44,20 @@ void main(void)
 	
 	vec3 lightDir = normalize(lightPosDir.xyz - world_pos.xyz * lightPosDir.w);
 	
-	vec2 shadow_offset = get_shadow_offsets(world_normal.xyz, lightDir);
+	vec2 shadow_offset = GetShadowOffsets(world_normal.xyz, lightDir);
 	
-    vec4 shadow_pos = (shadowMapMatrix * vec4(world_pos.xyz, 1.0));
-    
+	vec3 normalOffset = world_normal.xyz * shadow_offset.x * 0.5;
+    vec4 shadow_pos = (shadowMapMatrix * vec4(world_pos.xyz +  normalOffset, 1.0));
+	
     float shadow = 0.0;
-	vec4 shadow_coord = shadow_pos / shadow_pos.w;
-	float offset = (shadow_offset.x * 0.000005 + shadow_offset.y * 0.000005 + 0.00000);
 	
-    if(texture(shadowMap, shadow_coord.xy).r + offset <  min(shadow_coord.z, 1.f) && shadow_coord.x <= 1.01 && shadow_coord.x >=  -0.01 && shadow_coord.y <= 1.01 && shadow_coord.y >=  -0.01  && shadow_coord.z >=  0 && shadow_coord.z <=  1.0)
-		shadow = 1.0f;
+	 ivec2 shadowMapSize = textureSize(shadowMap, 0);
+	vec2 pixelOffset = vec2(1.f) / shadowMapSize;
+	
+	for(float y = -1.5; y <=1.5; y+=1.0)
+		for(float x = -1.5; x <= 1.5; x+=1.0)
+			shadow += shadow_offset_lookup(shadow_pos, shadow_offset, vec2(x, y) * pixelOffset);
     
+	shadow /=16.0;
 	out_color = vec4(shadow);
 }
