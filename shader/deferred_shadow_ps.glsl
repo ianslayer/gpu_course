@@ -24,7 +24,7 @@ float shadow_offset_lookup(vec4 shadowCoord, vec2 shadowOffset, vec2 offset)
 {
 
 	shadowCoord /= shadowCoord.w;
-	float shadowBias = shadowOffset.y * 0.000005;
+	float shadowBias = shadowOffset.y * 0.0001;
 	
 	if(shadowCoord.x <= 1.01 && shadowCoord.x >=  -0.01 && shadowCoord.y <= 1.01 && shadowCoord.y >=  -0.01  && shadowCoord.z >=  0 && shadowCoord.z <=  1.0 && texture(shadowMap, shadowCoord.xy + offset ) .r + shadowBias <  min(shadowCoord.z, 1.f)  )
 		return 1.0f;
@@ -33,7 +33,7 @@ float shadow_offset_lookup(vec4 shadowCoord, vec2 shadowOffset, vec2 offset)
 
 void main(void)
 {
-    vec4 world_normal = texture(gbuffer0, vs_fs_texcoord);
+    vec4 world_normal ;//= texture(gbuffer0, vs_fs_texcoord);
 	float depth = texture(sceneDepthMap, vs_fs_texcoord).r;
 	
 	vec4 world_pos = invViewProjMatrix * vec4(2.0 * vs_fs_texcoord - vec2(1.0),  2.0 * depth -1.0, 1.0);
@@ -46,7 +46,7 @@ void main(void)
 	
 	vec2 shadow_offset = GetShadowOffsets(world_normal.xyz, lightDir);
 	
-	vec3 normalOffset = world_normal.xyz * shadow_offset.x * 0.5;
+	vec3 normalOffset = world_normal.xyz * shadow_offset.x * 0.2;
     vec4 shadow_pos = (shadowMapMatrix * vec4(world_pos.xyz +  normalOffset, 1.0));
 	
     float shadow = 0.0;
@@ -54,10 +54,10 @@ void main(void)
 	 ivec2 shadowMapSize = textureSize(shadowMap, 0);
 	vec2 pixelOffset = vec2(1.f) / shadowMapSize;
 	
-	for(float y = -1.5; y <=1.5; y+=1.0)
-		for(float x = -1.5; x <= 1.5; x+=1.0)
-			shadow += shadow_offset_lookup(shadow_pos, shadow_offset, vec2(x, y) * pixelOffset);
+	//for(float y = -1.5; y <=1.5; y+=1.0)
+		//for(float x = -1.5; x <= 1.5; x+=1.0)
+			shadow += shadow_offset_lookup(shadow_pos, shadow_offset, vec2(0, 0) * pixelOffset);
     
-	shadow /=16.0;
+	//shadow /=16.0;
 	out_color = vec4(shadow);
 }
