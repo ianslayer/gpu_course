@@ -56,6 +56,7 @@ namespace jade
         
 		RefCountedPtr<TextureSamplerState> defaultSamplerState;
 		RefCountedPtr<TextureSamplerState> shadowSamplerState;
+		RefCountedPtr<TextureSamplerState> pcfSamplerState;
 
 		RefCountedPtr<HWVertexBuffer> fullScreenQuadVB;
 		RefCountedPtr<HWIndexBuffer> fullScreenQuadIB;
@@ -104,6 +105,15 @@ namespace jade
 		shadowSamplerStateDesc.wAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
 		device->CreateSamplerState(&shadowSamplerStateDesc, &samplerState);
 		shadowSamplerState = samplerState;
+		
+		TextureSamplerState::Desc pcfSamplerStateDesc;
+		pcfSamplerStateDesc.filter = TextureSamplerState::TEX_FILTER_PCF;
+		pcfSamplerStateDesc.comparisonFunc = TextureSamplerState::TEX_COMPARE_GREATER;
+		pcfSamplerStateDesc.uAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
+		pcfSamplerStateDesc.vAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
+		pcfSamplerStateDesc.wAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
+		device->CreateSamplerState(&pcfSamplerStateDesc, &samplerState);
+		pcfSamplerState = samplerState;
 
         //create shadow map
 		{
@@ -492,7 +502,7 @@ namespace jade
 		SetTextureUnit(shadowMapLoc, 1, shadowMap->GetTexture() );
 		SetTextureUnit(depthMapLoc, 2, sceneDepthMap->GetTexture() );
 		glBindSampler(0, shadowSamplerState->GetImpl()->sampler);
-		glBindSampler(1, shadowSamplerState->GetImpl()->sampler);
+		glBindSampler(1, pcfSamplerState->GetImpl()->sampler);
           glBindSampler(2, shadowSamplerState->GetImpl()->sampler);
 		
 		glBindBuffer(GL_ARRAY_BUFFER, this->fullScreenQuadVB->GetImpl()->vboID);

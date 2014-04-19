@@ -160,13 +160,23 @@ namespace jade
 			TEX_FILTER_MIN_MAG_MIP_POINT,
 			TEX_FILTER_MIN_MAG_MIP_LINEAR,
 			TEX_FILTER_ANISOTROPIC,
+			TEX_FILTER_PCF,
 		};
-
+		
 		enum TEX_ADDRESS_MODE
 		{
 			TEX_ADDRESS_WRAP,
 			TEX_ADDRESS_MIRROR,
 			TEX_ADDRESS_CLAMP
+		};
+		
+		enum TEX_COMPARE_FUNC
+		{
+			TEX_COMPARE_LESS,
+			TEX_COMPARE_LEQUAL,
+			TEX_COMPARE_EQUAL,
+			TEX_COMPARE_GEQUAL,
+			TEX_COMPARE_GREATER,
 		};
 
 		class Desc
@@ -177,6 +187,7 @@ namespace jade
 			TEX_ADDRESS_MODE uAddressMode;
 			TEX_ADDRESS_MODE vAddressMode;
 			TEX_ADDRESS_MODE wAddressMode;
+			TEX_COMPARE_FUNC comparisonFunc;
 			unsigned int     maxAnisotropy;
 		};
 

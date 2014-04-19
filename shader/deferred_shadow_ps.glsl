@@ -4,7 +4,7 @@ in vec2 vs_fs_texcoord;
 
 uniform sampler2D gbuffer0;
 uniform sampler2D sceneDepthMap;
-uniform sampler2D shadowMap;
+uniform sampler2DShadow shadowMap;
 
 uniform mat4 shadowMapMatrix;
 uniform mat4 invViewProjMatrix;
@@ -24,10 +24,12 @@ float shadow_offset_lookup(vec4 shadowCoord, vec2 shadowOffset, vec2 offset)
 {
 
 	shadowCoord /= shadowCoord.w;
-	float shadowBias = shadowOffset.y * 0.0001;
+	float shadowBias = shadowOffset.y * 0.00001;
 	
-	if(shadowCoord.x <= 1.01 && shadowCoord.x >=  -0.01 && shadowCoord.y <= 1.01 && shadowCoord.y >=  -0.01  && shadowCoord.z >=  0 && shadowCoord.z <=  1.0 && texture(shadowMap, shadowCoord.xy + offset ) .r + shadowBias <  min(shadowCoord.z, 1.f)  )
-		return 1.0f;
+	if(shadowCoord.x <= 1.01 && shadowCoord.x >=  -0.01 && shadowCoord.y <= 1.01 && shadowCoord.y >=  -0.01  && shadowCoord.z >=  0 && shadowCoord.z <=  1.0 )
+	{
+		return texture(shadowMap, vec3(shadowCoord.xy + offset, shadowCoord.z - shadowBias) ) ;
+	}
 	return 0.0f;
 }
 
@@ -40,22 +42,22 @@ void main(void)
 	world_pos/=world_pos.w;
 	vec3 world_pos_dx = normalize(dFdx(world_pos.xyz));
 	vec3 world_pos_dy = normalize(dFdy(world_pos.xyz));
-	world_normal.xyz = cross(world_pos_dx, world_pos_dy);
+	world_normal.xyz = normalize(cross(world_pos_dx, world_pos_dy));
 	
 	vec3 lightDir = normalize(lightPosDir.xyz - world_pos.xyz * lightPosDir.w);
 	
 	vec2 shadow_offset = GetShadowOffsets(world_normal.xyz, lightDir);
 	
-	vec3 normalOffset = world_normal.xyz * shadow_offset.x * 0.2;
+	vec3 normalOffset = world_normal.xyz * shadow_offset.x * 0.5;
     vec4 shadow_pos = (shadowMapMatrix * vec4(world_pos.xyz +  normalOffset, 1.0));
 	
     float shadow = 0.0;
 	
 	 ivec2 shadowMapSize = textureSize(shadowMap, 0);
-	vec2 pixelOffset = vec2(1.f) / shadowMapSize;
+	vec2 pixelOffset = vec2(1.f) / vec2(shadowMapSize);
 	
 	//for(float y = -1.5; y <=1.5; y+=1.0)
-		//for(float x = -1.5; x <= 1.5; x+=1.0)
+	//	for(float x = -1.5; x <= 1.5; x+=1.0)
 			shadow += shadow_offset_lookup(shadow_pos, shadow_offset, vec2(0, 0) * pixelOffset);
     
 	//shadow /=16.0;

@@ -246,19 +246,42 @@ namespace jade
 		switch(addressMode)
 		{
 		case TextureSamplerState::TEX_ADDRESS_WRAP:
-				return GL_REPEAT;
+			return GL_REPEAT;
 			break;
 		case TextureSamplerState::TEX_ADDRESS_CLAMP:
-				return GL_CLAMP_TO_EDGE;
+			return GL_CLAMP_TO_EDGE;
 			break;
 		case TextureSamplerState::TEX_ADDRESS_MIRROR:
-				return GL_MIRRORED_REPEAT;
+			return GL_MIRRORED_REPEAT;
 			break;
 		}
 
 		return GL_REPEAT;
 	}
 
+	static GLint GetGLCompareFunc(int comparisonFunc)
+	{
+		switch (comparisonFunc)
+		{
+			case TextureSamplerState::TEX_COMPARE_LESS:
+				return GL_LEQUAL;
+				break;
+			case TextureSamplerState::TEX_COMPARE_LEQUAL:
+				return GL_LEQUAL;
+				break;
+			case TextureSamplerState::TEX_COMPARE_EQUAL:
+				return GL_EQUAL;
+				break;
+			case TextureSamplerState::TEX_COMPARE_GEQUAL:
+				return GL_GEQUAL;
+				break;
+			case TextureSamplerState::TEX_COMPARE_GREATER:
+				return GL_GREATER;
+				break;
+		}
+		
+		return GL_LEQUAL;
+	}
 
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT      0x84FF //core don't support anisotropic, define myself
 
@@ -280,6 +303,10 @@ namespace jade
 		case TextureSamplerState::TEX_FILTER_ANISOTROPIC:
 			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			break;
+		case TextureSamplerState::TEX_FILTER_PCF:
+			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_COMPARE_FUNC, GetGLCompareFunc(desc->comparisonFunc));
 			break;
 		}
 
