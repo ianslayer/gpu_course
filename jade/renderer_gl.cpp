@@ -26,7 +26,7 @@ namespace jade
 		void RenderShadowMap(const PointLight* light, const Scene* scene, const Camera* cam);
 		void RenderShadowMap(const DirectionLight* light, const AABB& bound,  const Scene* scene, const Camera* cam);
 		void ClearDeferredShadow();
-		void AccumDeferredShadow(const Matrix4x4& shadowMapMatrix, const Camera* cam);
+		void AccumDeferredShadow(const Matrix4x4& shadowMapMatrix, const Matrix4x4& shadowViewMatrix, const Camera* cam);
         
 		virtual void SetRendererOption(void*);
 
@@ -55,6 +55,8 @@ namespace jade
 		GLuint cubeIbo;
         
 		RefCountedPtr<TextureSamplerState> defaultSamplerState;
+		RefCountedPtr<TextureSamplerState> mipMapClampSamplerState;
+		RefCountedPtr<TextureSamplerState> pointSamplerState;
 		RefCountedPtr<TextureSamplerState> shadowSamplerState;
 		RefCountedPtr<TextureSamplerState> pcfSamplerState;
 
@@ -70,6 +72,7 @@ namespace jade
 
 		GLuint shadowMapFbo;
 		RefCountedPtr<HWDepthStencilSurface> shadowMap;
+		RefCountedPtr<HWRenderTexture2D> varianceShadowMap;
         
 		GLRendererOptions options;
 	};
@@ -88,32 +91,62 @@ namespace jade
 		glEnable(GL_TEXTURE_2D);
 
 		TextureSamplerState* samplerState = NULL;
-		TextureSamplerState::Desc defaultSamplerStateDesc;
-		defaultSamplerStateDesc.filter = TextureSamplerState::TEX_FILTER_ANISOTROPIC;
-		defaultSamplerStateDesc.maxAnisotropy = 8;
-		defaultSamplerStateDesc.uAddressMode = TextureSamplerState::TEX_ADDRESS_WRAP;
-		defaultSamplerStateDesc.vAddressMode = TextureSamplerState::TEX_ADDRESS_WRAP;
-		defaultSamplerStateDesc.wAddressMode = TextureSamplerState::TEX_ADDRESS_WRAP;
-		device->CreateSamplerState(&defaultSamplerStateDesc, &samplerState);
-		defaultSamplerState = samplerState;
 
-		TextureSamplerState::Desc shadowSamplerStateDesc;
-		shadowSamplerStateDesc.filter = TextureSamplerState::TEX_FILTER_MIN_MAG_MIP_POINT;
-		shadowSamplerStateDesc.maxAnisotropy = 0;
-		shadowSamplerStateDesc.uAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
-		shadowSamplerStateDesc.vAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
-		shadowSamplerStateDesc.wAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
-		device->CreateSamplerState(&shadowSamplerStateDesc, &samplerState);
-		shadowSamplerState = samplerState;
-		
-		TextureSamplerState::Desc pcfSamplerStateDesc;
-		pcfSamplerStateDesc.filter = TextureSamplerState::TEX_FILTER_PCF;
-		pcfSamplerStateDesc.comparisonFunc = TextureSamplerState::TEX_COMPARE_GREATER;
-		pcfSamplerStateDesc.uAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
-		pcfSamplerStateDesc.vAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
-		pcfSamplerStateDesc.wAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
-		device->CreateSamplerState(&pcfSamplerStateDesc, &samplerState);
-		pcfSamplerState = samplerState;
+		{
+			TextureSamplerState::Desc defaultSamplerStateDesc;
+			defaultSamplerStateDesc.filter = TextureSamplerState::TEX_FILTER_ANISOTROPIC;
+			defaultSamplerStateDesc.maxAnisotropy = 8;
+			defaultSamplerStateDesc.uAddressMode = TextureSamplerState::TEX_ADDRESS_WRAP;
+			defaultSamplerStateDesc.vAddressMode = TextureSamplerState::TEX_ADDRESS_WRAP;
+			defaultSamplerStateDesc.wAddressMode = TextureSamplerState::TEX_ADDRESS_WRAP;
+			device->CreateSamplerState(&defaultSamplerStateDesc, &samplerState);
+			defaultSamplerState = samplerState;
+		}
+
+		{
+			TextureSamplerState::Desc mipMapClampSamplerStateDesc;
+			mipMapClampSamplerStateDesc.filter = TextureSamplerState::TEX_FILTER_MIN_MAG_MIP_LINEAR;
+			mipMapClampSamplerStateDesc.maxAnisotropy = 0;
+			mipMapClampSamplerStateDesc.uAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
+			mipMapClampSamplerStateDesc.vAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
+			mipMapClampSamplerStateDesc.wAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
+			device->CreateSamplerState(&mipMapClampSamplerStateDesc, &samplerState);
+			mipMapClampSamplerState = samplerState;
+				
+		}
+
+		{
+			TextureSamplerState::Desc pointSamplerStateDesc;
+			pointSamplerStateDesc.filter = TextureSamplerState::TEX_FILTER_MIN_MAG_MIP_POINT;
+			pointSamplerStateDesc.maxAnisotropy = 0;
+			pointSamplerStateDesc.uAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
+			pointSamplerStateDesc.vAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
+			pointSamplerStateDesc.wAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
+			device->CreateSamplerState(&pointSamplerStateDesc, &samplerState);
+			pointSamplerState = samplerState;
+		}
+
+		{
+			TextureSamplerState::Desc pcfSamplerStateDesc;
+			pcfSamplerStateDesc.filter = TextureSamplerState::TEX_FILTER_PCF_SHADOW_MAP;
+			pcfSamplerStateDesc.comparisonFunc = TextureSamplerState::TEX_COMPARE_GREATER;
+			pcfSamplerStateDesc.uAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
+			pcfSamplerStateDesc.vAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
+			pcfSamplerStateDesc.wAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
+			device->CreateSamplerState(&pcfSamplerStateDesc, &samplerState);
+			pcfSamplerState = samplerState;
+		}
+
+		{
+			TextureSamplerState::Desc shadowSamplerStateDesc;
+			shadowSamplerStateDesc.filter = TextureSamplerState::TEX_FILTER_SHADOW_MAP;
+			shadowSamplerStateDesc.comparisonFunc = TextureSamplerState::TEX_COMPARE_GREATER;
+			shadowSamplerStateDesc.uAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
+			shadowSamplerStateDesc.vAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
+			shadowSamplerStateDesc.wAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
+			device->CreateSamplerState(&shadowSamplerStateDesc, &samplerState);
+			shadowSamplerState = samplerState;
+		}
 
         //create shadow map
 		{
@@ -125,6 +158,9 @@ namespace jade
 			texDesc.mipLevels = 1;
 			texDesc.generateMipmap =false;
 		
+			HWRenderTexture2D::Desc rtDesc;
+			rtDesc.format = TEX_FORMAT_DEPTH32F;
+			rtDesc.mipLevel = 0;
 
 			HWDepthStencilSurface* dsSurface = NULL;
 			HWDepthStencilSurface::Desc desc;
@@ -132,12 +168,23 @@ namespace jade
 			desc.mipLevel = 0;
 			device->CreateDepthStencilSurface(&texDesc, &desc, &dsSurface);
 			shadowMap = dsSurface;
+
+
+			texDesc.format = TEX_FORMAT_R32F;
+			texDesc.mipLevels = TotalMipLevels(texDesc.width, texDesc.height);
+			//create variance shadow map
+			HWRenderTexture2D* rtVarianceShadowMap = NULL;
+			//HWTexture2D* rtShadowMap = NULL;
+			device->CreateRenderTexture2D(&texDesc, &rtDesc, &rtVarianceShadowMap);
+			varianceShadowMap = rtVarianceShadowMap;
+			
 		}
 
 		glGenFramebuffers(1, &shadowMapFbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFbo);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMap->GetTexture()->GetImpl()->id, shadowMap->GetDesc()->mipLevel);
-			
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, varianceShadowMap->GetTexture()->GetImpl()->id, varianceShadowMap->GetDesc()->mipLevel);
+		
 		GLenum fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 
 		if(fbStatus != GL_FRAMEBUFFER_COMPLETE)
@@ -366,6 +413,7 @@ namespace jade
 
 
 		GLint modelMatLoc = glGetUniformLocation(shadowCasterShader, "modelMatrix");
+		GLint shadowViewMatLoc = glGetUniformLocation(shadowCasterShader, "shadowViewMatrix");
 		GLint shadowMapMatrixLoc = glGetUniformLocation(shadowCasterShader, "shadowMapMatrix");
 		
 		for(int i = 0; i < 6; i++)
@@ -374,8 +422,9 @@ namespace jade
 			glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFbo);
 			glUseProgram(shadowCasterShader);
 			glViewport(0, 0, shadowMap->GetTexture()->GetDesc()->width, shadowMap->GetTexture()->GetDesc()->height);
+			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 			glClearDepth(1.0f);
-			glClear(GL_DEPTH_BUFFER_BIT);
+			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 			//Matrix4x4 shadowViewMatrix = cam->ViewMatrix();//light->ShadowViewMatrix(i);
 			//Matrix4x4 shadowProjMatrix = cam->PerspectiveMatrix();//light->ShadowProjMatrix();
@@ -390,6 +439,7 @@ namespace jade
 				{
 					const Primitive* prim = scene->primList[primIdx].Get();
 					glUniformMatrix4fv(modelMatLoc, 1, GL_TRUE, prim->ModelMatrix().FloatPtr());
+					glUniformMatrix4fv(shadowViewMatLoc, 1, GL_TRUE, shadowViewMatrix.FloatPtr());
 					glUniformMatrix4fv(shadowMapMatrixLoc, 1, GL_TRUE, shadowMapMatrix.FloatPtr() );
 
 					glBindBuffer(GL_ARRAY_BUFFER, prim->mesh->vertexBuffer->GetImpl()->vboID);
@@ -408,7 +458,7 @@ namespace jade
 				0, 0, 0.5, 0.5,
 				0, 0, 0, 1) * shadowMapMatrix;
 
-			AccumDeferredShadow(shadowMat, cam);
+			AccumDeferredShadow(shadowMat, shadowViewMatrix, cam);
 		}
 
 
@@ -420,8 +470,9 @@ namespace jade
 
 		glViewport(0, 0, shadowMap->GetTexture()->GetDesc()->width, shadowMap->GetTexture()->GetDesc()->height);
 
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClearDepth(1.0f);
-		glClear(GL_DEPTH_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 		glDisable(GL_BLEND);
 		glDepthFunc(GL_LESS);
@@ -431,6 +482,7 @@ namespace jade
 		GLint modelMatLoc = glGetUniformLocation(shadowCasterShader, "modelMatrix");
 		GLint shadowMapMatrixLoc = glGetUniformLocation(shadowCasterShader, "shadowMapMatrix");
 
+		Matrix4x4 shadowViewMatrix = light->ShadowViewMatrix();
 		Matrix4x4 shadowMapMatrix = light->ShadowProjMatrix(bound) * light->ShadowViewMatrix();
 		for(size_t primIdx = 0; primIdx < scene->primList.size(); primIdx++)
 		{
@@ -456,7 +508,7 @@ namespace jade
                                           0, 0, 0.5, 0.5,
                                           0, 0, 0, 1) * shadowMapMatrix;
         
-        AccumDeferredShadow(shadowMat, cam);
+        AccumDeferredShadow(shadowMat, shadowViewMatrix, cam);
 		
 	}
 
@@ -470,8 +522,11 @@ namespace jade
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-    void RendererGL::AccumDeferredShadow(const Matrix4x4& shadowMapMat, const Camera* cam)
+    void RendererGL::AccumDeferredShadow(const Matrix4x4& shadowMapMat, const Matrix4x4& shadowViewMatrix, const Camera* cam)
     {
+		glBindTexture(GL_TEXTURE_2D, varianceShadowMap->GetTexture()->GetImpl()->id);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowAccumFbo);
 		glViewport(0, 0, sceneShadowAccumMap->GetTexture()->GetDesc()->width, sceneShadowAccumMap->GetTexture()->GetDesc()->height);
 
@@ -484,10 +539,13 @@ namespace jade
 		GLint depthMapLoc = glGetUniformLocation(deferredShadowShader, "sceneDepthMap");
 		GLint invViewProjMatLoc = glGetUniformLocation(deferredShadowShader, "invViewProjMatrix");
 		GLint shadowMapLoc = glGetUniformLocation(deferredShadowShader, "shadowMap");
+		GLint varianceShadowMapLoc = glGetUniformLocation(deferredShadowShader, "varianceShadowMap");
+		GLint shadowViewMatrixLoc = glGetUniformLocation(deferredShadowShader, "shadowViewMatrix");
 		GLint shadowMatLoc = glGetUniformLocation(deferredShadowShader, "shadowMapMatrix");
 		
 		glUniformMatrix4fv(shadowMatLoc, 1, GL_TRUE, shadowMapMat.FloatPtr());
-		
+		glUniformMatrix4fv(shadowViewMatrixLoc, 1, GL_TRUE,  shadowViewMatrix.FloatPtr());
+
 		Matrix4x4 invProjMatrix = cam->InvPerspectiveMatrix();
 		Matrix4x4 test = invProjMatrix * cam->PerspectiveMatrix();
 		
@@ -500,10 +558,14 @@ namespace jade
 		
 		SetTextureUnit(gbuffer0Loc, 0, gbuffer0->GetTexture() );
 		SetTextureUnit(shadowMapLoc, 1, shadowMap->GetTexture() );
-		SetTextureUnit(depthMapLoc, 2, sceneDepthMap->GetTexture() );
-		glBindSampler(0, shadowSamplerState->GetImpl()->sampler);
+		//SetTextureUnit(shadowMapLoc, 1, varianceShadowMap->GetTexture() );
+		SetTextureUnit(varianceShadowMapLoc, 2, varianceShadowMap->GetTexture());
+		SetTextureUnit(depthMapLoc, 3, sceneDepthMap->GetTexture() );
+		glBindSampler(0, pointSamplerState->GetImpl()->sampler);
 		glBindSampler(1, pcfSamplerState->GetImpl()->sampler);
-          glBindSampler(2, shadowSamplerState->GetImpl()->sampler);
+		glBindSampler(2, mipMapClampSamplerState->GetImpl()->sampler);
+		//glBindSampler(2, pcfSamplerState->GetImpl()->sampler);
+        glBindSampler(3, pointSamplerState->GetImpl()->sampler);
 		
 		glBindBuffer(GL_ARRAY_BUFFER, this->fullScreenQuadVB->GetImpl()->vboID);
 		glEnableVertexAttribArray(0);
@@ -715,7 +777,7 @@ namespace jade
 				
 				{
 					glUniform1i(useDeferredShadowLoc, 1);
-					glBindSampler(4, shadowSamplerState->GetImpl()->sampler);
+					glBindSampler(4, pointSamplerState->GetImpl()->sampler);
 					SetTextureUnit(shadowMapLoc, 4, this->sceneShadowAccumMap->GetTexture());
 				}
 
@@ -732,7 +794,7 @@ namespace jade
         
 		if(options.dbgDraw == GLRendererOptions::DBG_DRAW_SHADOW_MAP)
 		{
-			DrawTexture(0, 0, 256, 256, this->shadowMap->GetTexture());
+			DrawTexture(0, 0, 256, 256, this->varianceShadowMap->GetTexture());
 			DrawTexture(0, 256, 256, 256, this->sceneShadowAccumMap->GetTexture());
 			DrawLightBounding(camera, scene);
 		}

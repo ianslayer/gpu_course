@@ -16,6 +16,10 @@ namespace jade
 			return GL_RGBA16F;
         case TEX_FORMAT_RGBA32F:
             return GL_RGBA32F;
+		case TEX_FORMAT_R32F:
+			return GL_R32F;
+		case TEX_FORMAT_RG32F:
+			return GL_RG32F;
 		case TEX_FORMAT_SRGB8_ALPHA8:
 			return GL_SRGB8_ALPHA8;
 		case TEX_FORMAT_DEPTH32F:
@@ -37,6 +41,10 @@ namespace jade
 			return GL_RGBA;
         case TEX_FORMAT_RGBA32F:
             return GL_RGBA;
+		case TEX_FORMAT_R32F:
+			return GL_RED;
+		case TEX_FORMAT_RG32F:
+			return GL_RG;
 		case TEX_FORMAT_SRGB8_ALPHA8:
 			return GL_RGBA;
 		case TEX_FORMAT_DEPTH32F:
@@ -57,6 +65,10 @@ namespace jade
 			return GL_HALF_FLOAT;
         case TEX_FORMAT_RGBA32F:
             return GL_FLOAT;
+		case TEX_FORMAT_R32F:
+			return GL_FLOAT;
+		case TEX_FORMAT_RG32F:
+			return GL_FLOAT;
 		case TEX_FORMAT_SRGB8_ALPHA8:
 			return GL_UNSIGNED_BYTE;
 		case TEX_FORMAT_DEPTH32F:
@@ -304,9 +316,19 @@ namespace jade
 			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			break;
-		case TextureSamplerState::TEX_FILTER_PCF:
+		case TextureSamplerState::TEX_FILTER_SHADOW_MAP:
 			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_COMPARE_FUNC, GetGLCompareFunc(desc->comparisonFunc));
+
+			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			break;
+		case TextureSamplerState::TEX_FILTER_PCF_SHADOW_MAP:
+			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_COMPARE_FUNC, GetGLCompareFunc(desc->comparisonFunc));
+
+			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glSamplerParameteri((*state)->impl.sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			break;
 		}
 
