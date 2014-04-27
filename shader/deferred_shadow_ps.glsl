@@ -55,7 +55,7 @@ float SampleVarianceShadowMap(vec3 shadowPos, vec3 shadowPosDx, vec3 shadowPosDy
 	if(shadowPos.x <= 1.01 && shadowPos.x >=  -0.01 && shadowPos.y <= 1.01 && shadowPos.y >=  -0.01  && shadowPos.z >=  0 && shadowPos.z <=  1.0 )
 	{
 		vec2 occluder = textureGrad(varianceShadowMap, shadowPos.xy, shadowPosDx.xy, shadowPosDy.xy).xy;
-			return  1 - ChebyshevUpperBound(occluder, shadowPos.z, 0.0001f, 0.1);
+			return  1 - ChebyshevUpperBound(occluder, shadowPos.z, 0.0001f, 0);
 	}	
 	
 	return 0;
@@ -144,7 +144,7 @@ float OptimizedPCFShadow(vec3 shadowPos, vec2 shadowOffset)
 
 void main(void)
 {
-    vec4 worldNormal ;//= texture(gbuffer0, vs_fs_texcoord);
+    vec3 worldNormal;// = normalize(texture(gbuffer0, vs_fs_texcoord).xyz );
 	float depth = texture(sceneDepthMap, vs_fs_texcoord).r;
 	
 	vec4 worldPos = invViewProjMatrix * vec4(2.0 * vs_fs_texcoord - vec2(1.0),  2.0 * depth -1.0, 1.0);
@@ -152,13 +152,13 @@ void main(void)
 	worldPos/=worldPos.w;
 	vec3 worldPosDx = normalize(dFdx(worldPos.xyz));
 	vec3 worldPosDy = normalize(dFdy(worldPos.xyz));
-	worldNormal.xyz = normalize(cross(worldPosDx, worldPosDy));
+	worldNormal = normalize(cross(worldPosDx, worldPosDy));
 	
 	vec3 lightDir = normalize(lightPosDir.xyz - worldPos.xyz * lightPosDir.w);
 	
 	vec2 shadowOffset = GetShadowOffsets(worldNormal.xyz, lightDir);
 	
-	vec3 normalOffset = worldNormal.xyz * shadowOffset.x * 0.5;
+	vec3 normalOffset = worldNormal.xyz * shadowOffset.x * 0.0;
     vec4 shadowPos = (shadowMapMatrix * vec4(worldPos.xyz +  normalOffset, 1.0));
 	//float linearZ = shadowPos.w;
 	shadowPos.xyz /= shadowPos.w;

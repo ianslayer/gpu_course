@@ -38,7 +38,8 @@ namespace jade
 		void DrawLightBounding(const Camera* camera, const Scene* scene);
 		
 		void DrawTexture(int x, int y, int width, int height, const HWTexture2D* tex);
-        
+        void GaussianBlur(HWRenderTexture2D* src, HWRenderTexture2D* temp);
+		
 		class RenderDevice* device;
 		GLuint wireframeShader;
 		GLuint matShader;
@@ -46,6 +47,7 @@ namespace jade
 		GLuint shadowCasterShader;
 		GLuint gbufferShader;
 		GLuint deferredShadowShader;
+		GLuint gaussianBlurShader;
         
 		GLuint whiteTexture;
 		GLuint blackTexture;
@@ -73,7 +75,10 @@ namespace jade
 		GLuint shadowMapFbo;
 		RefCountedPtr<HWDepthStencilSurface> shadowMap;
 		RefCountedPtr<HWRenderTexture2D> varianceShadowMap;
-        
+        RefCountedPtr<HWRenderTexture2D> bluredVarianceShadowMap;
+		
+		GLuint gaussianBlurFbo;
+		
 		GLRendererOptions options;
 	};
 
@@ -153,8 +158,8 @@ namespace jade
 			HWTexture2D::Desc texDesc;
 			texDesc.arraySize = 1;
 			texDesc.format = TEX_FORMAT_DEPTH32F;
-			texDesc.width = 1024;
-			texDesc.height = 1024;
+			texDesc.width = 512;
+			texDesc.height = 512;
 			texDesc.mipLevels = 1;
 			texDesc.generateMipmap =false;
 		
@@ -170,13 +175,20 @@ namespace jade
 			shadowMap = dsSurface;
 
 
-			texDesc.format = TEX_FORMAT_R32F;
-			texDesc.mipLevels = TotalMipLevels(texDesc.width, texDesc.height);
 			//create variance shadow map
+			texDesc.format = TEX_FORMAT_RG32F;
+			rtDesc.mipLevel = 0;
+			texDesc.mipLevels = TotalMipLevels(texDesc.width, texDesc.height);
 			HWRenderTexture2D* rtVarianceShadowMap = NULL;
 			//HWTexture2D* rtShadowMap = NULL;
 			device->CreateRenderTexture2D(&texDesc, &rtDesc, &rtVarianceShadowMap);
 			varianceShadowMap = rtVarianceShadowMap;
+			
+			
+			//create temp blured version
+			texDesc.mipLevels = 1;
+			device->CreateRenderTexture2D(&texDesc, &rtDesc, &rtVarianceShadowMap);
+			bluredVarianceShadowMap = rtVarianceShadowMap;
 			
 		}
 
@@ -192,7 +204,18 @@ namespace jade
 
 			printf("shadow map framebuffer incomplete\n");
 		}
-
+		
+		glGenFramebuffers(1, &gaussianBlurFbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, gaussianBlurFbo);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bluredVarianceShadowMap->GetTexture()->GetImpl()->id, bluredVarianceShadowMap->GetDesc()->mipLevel);
+		fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		
+		if(fbStatus != GL_FRAMEBUFFER_COMPLETE)
+		{
+			printf("blur variance framebuffer incomplete\n");
+		}
+		
+		
         //create g-buffer
 		{
 			HWTexture2D::Desc texDesc;
@@ -524,6 +547,8 @@ namespace jade
 
     void RendererGL::AccumDeferredShadow(const Matrix4x4& shadowMapMat, const Matrix4x4& shadowViewMatrix, const Camera* cam)
     {
+		GaussianBlur(varianceShadowMap, bluredVarianceShadowMap);
+		
 		glBindTexture(GL_TEXTURE_2D, varianceShadowMap->GetTexture()->GetImpl()->id);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -846,6 +871,11 @@ namespace jade
         
         if(_deferredShadowShader)
             deferredShadowShader = _deferredShadowShader;
+		
+		GLuint _gaussianBlurShader = CreateProgram("shader/full_Screen_vs.glsl", "shader/gaussian_blur.glsl");
+		
+		if(_gaussianBlurShader)
+			gaussianBlurShader = _gaussianBlurShader;
     }
     
     void RendererGL::DrawBoundingBox(const Camera* camera, const AABB& bound)
@@ -927,6 +957,41 @@ namespace jade
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
     
+	void RendererGL::GaussianBlur(jade::HWRenderTexture2D *src, jade::HWRenderTexture2D *tmp)
+	{
+        TurnOffAllAttributes();
+        glBindFramebuffer(GL_FRAMEBUFFER, gaussianBlurFbo);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tmp->GetTexture()->GetImpl()->id, 0);
+		glViewport(0, 0, src->GetTexture()->GetDesc()->width, src->GetTexture()->GetDesc()->height);
+		
+        glDisable(GL_BLEND);
+        glDepthFunc(GL_ALWAYS);
+		
+		glUseProgram(gaussianBlurShader);
+		
+		GLint blurDirLoc = glGetUniformLocation(gaussianBlurShader, "direction");
+		GLint sourceLoc = glGetUniformLocation(gaussianBlurShader, "source");
+		
+        glBindBuffer(GL_ARRAY_BUFFER, this->fullScreenQuadVB->GetImpl()->vboID);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexP3T2), 0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexP3T2), (GLvoid*)(sizeof(float) * 3));
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->fullScreenQuadIB->GetImpl()->iboID);
+		
+		glBindSampler(0, pointSamplerState->GetImpl()->sampler);
+		
+		SetTextureUnit(sourceLoc, 0, src->GetTexture()->GetImpl()->id);
+		glUniform1i(blurDirLoc, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		
+		SetTextureUnit(sourceLoc, 0, tmp->GetTexture()->GetImpl()->id);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, src->GetTexture()->GetImpl()->id, src->GetDesc()->mipLevel);
+		
+		glUniform1i(blurDirLoc, 1);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	}
+	
     void InitRendererGL(RenderDevice* device, Renderer** renderer)
     {
 		RendererGL* rendererGL = NULL;

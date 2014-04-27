@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B21343921908F92600692BAD /* gaussian_blur.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B21343911908F92600692BAD /* gaussian_blur.glsl */; };
 		B23C62CF188B94CB0071E698 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B23C62CE188B94CB0071E698 /* Cocoa.framework */; };
 		B23C62D9188B94CB0071E698 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B23C62D7188B94CB0071E698 /* InfoPlist.strings */; };
 		B23C62DB188B94CB0071E698 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B23C62DA188B94CB0071E698 /* main.m */; };
@@ -67,6 +68,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B21343911908F92600692BAD /* gaussian_blur.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = gaussian_blur.glsl; path = ../../../shader/gaussian_blur.glsl; sourceTree = "<group>"; };
 		B23C62CB188B94CB0071E698 /* jade_mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = jade_mac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B23C62CE188B94CB0071E698 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		B23C62D1188B94CB0071E698 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -357,6 +359,7 @@
 				B27F7A8618D4266C0023F9C1 /* wireVertexShader.glsl */,
 				B27F7A8F18D426F80023F9C1 /* gbuffer_vs.glsl */,
 				B27F7A9118D428D50023F9C1 /* gbuffer_ps.glsl */,
+				B21343911908F92600692BAD /* gaussian_blur.glsl */,
 			);
 			name = shader;
 			sourceTree = "<group>";
@@ -438,6 +441,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B27F7A8918D4266C0023F9C1 /* full_screen_blit_ps.glsl in Resources */,
+				B21343921908F92600692BAD /* gaussian_blur.glsl in Resources */,
 				B23C62D9188B94CB0071E698 /* InfoPlist.strings in Resources */,
 				B27F7A8818D4266C0023F9C1 /* blinn_phong_vs.glsl in Resources */,
 				B23C62E7188B94CB0071E698 /* Images.xcassets in Resources */,
