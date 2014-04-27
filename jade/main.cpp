@@ -268,13 +268,13 @@ void LoadResources()
 	*/
 
 	jade::Light* dirLight = new jade::DirectionLight(Normalize(Vector3(1, -1, 1)), Vector3(0.6, 0.6, 0.6) );
-	scene->AddLight(dirLight);
+	//scene->AddLight(dirLight);
 
 	jade::Light* pointLight = new jade::PointLight(Vector3(200, 0, 200), 500 * Vector3(0.9, 0.6, 0.6), 10 );
 	scene->AddLight(pointLight);
 
 	jade::Light* pointLight2 = new jade::PointLight(Vector3(-200, 0, 100), 500 * Vector3(0.5, 0.5, 0.8), 20 );
-	scene->AddLight(pointLight2);
+	//scene->AddLight(pointLight2);
 
 }
 

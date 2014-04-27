@@ -13,6 +13,6 @@ void main(void)
 {
 	vs_fs_texcoord = texcoord;
 	vec4 worldPos = modelMatrix * vec4( position, 1.0);
-	shadowPos = shadowMapMatrix * worldPos;
+	shadowPos = shadowViewMatrix * worldPos;
 	gl_Position = shadowMapMatrix * worldPos;
 }

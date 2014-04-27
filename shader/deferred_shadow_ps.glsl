@@ -12,6 +12,9 @@ uniform mat4 shadowMapMatrix;
 uniform mat4 invViewProjMatrix;
 uniform vec4 lightPosDir;
 
+uniform float minDepth;
+uniform float maxDepth;
+
 out vec4 out_color;
 
 vec2 GetShadowOffsets(vec3 N, vec3 L) {
@@ -52,10 +55,11 @@ float ChebyshevUpperBound(vec2 moments, float mean, float minVariance,
 
 float SampleVarianceShadowMap(vec3 shadowPos, vec3 shadowPosDx, vec3 shadowPosDy)
 {
-	if(shadowPos.x <= 1.01 && shadowPos.x >=  -0.01 && shadowPos.y <= 1.01 && shadowPos.y >=  -0.01  && shadowPos.z >=  0 && shadowPos.z <=  1.0 )
+	if(shadowPos.x <= 1.001 && shadowPos.x >=  -0.001 && shadowPos.y <= 1.001 && shadowPos.y >=  -0.001  && shadowPos.z >=  0 && shadowPos.z <=  1.0 )
 	{
 		vec2 occluder = textureGrad(varianceShadowMap, shadowPos.xy, shadowPosDx.xy, shadowPosDy.xy).xy;
-			return  1 - ChebyshevUpperBound(occluder, shadowPos.z, 0.0001f, 0);
+			return  ChebyshevUpperBound(occluder, shadowPos.z, 0.0001f, 0.1);
+			return  ChebyshevUpperBound(occluder, shadowPos.z, 0.0001f, 0.1);
 	}	
 	
 	return 0;
@@ -152,6 +156,7 @@ void main(void)
 	worldPos/=worldPos.w;
 	vec3 worldPosDx = normalize(dFdx(worldPos.xyz));
 	vec3 worldPosDy = normalize(dFdy(worldPos.xyz));
+
 	worldNormal = normalize(cross(worldPosDx, worldPosDy));
 	
 	vec3 lightDir = normalize(lightPosDir.xyz - worldPos.xyz * lightPosDir.w);
@@ -161,9 +166,11 @@ void main(void)
 	vec3 normalOffset = worldNormal.xyz * shadowOffset.x * 0.0;
     vec4 shadowPos = (shadowMapMatrix * vec4(worldPos.xyz +  normalOffset, 1.0));
 	//float linearZ = shadowPos.w;
-	shadowPos.xyz /= shadowPos.w;
-	//shadowPos.w /= 3000;
-    float shadow = OptimizedPCFShadow(shadowPos.xyz, shadowOffset);
+
+	shadowPos.xy /= shadowPos.w;
+	shadowPos.z = abs((shadowViewMatrix * vec4(worldPos.xyz +  normalOffset, 1.0)).z);
+	//shadowPos.z = (-shadowPos.z - minDepth) / (maxDepth - minDepth);
+    float shadow = shadowPos.z;//OptimizedPCFShadow(shadowPos.xyz, shadowOffset);
 	
 	
 	//float shadow = SampleVarianceShadowMap(shadowPos.xyz, dFdx(shadowPos.xyz), dFdy(shadowPos.xyz));

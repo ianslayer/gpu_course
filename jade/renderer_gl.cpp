@@ -26,7 +26,7 @@ namespace jade
 		void RenderShadowMap(const PointLight* light, const Scene* scene, const Camera* cam);
 		void RenderShadowMap(const DirectionLight* light, const AABB& bound,  const Scene* scene, const Camera* cam);
 		void ClearDeferredShadow();
-		void AccumDeferredShadow(const Matrix4x4& shadowMapMatrix, const Matrix4x4& shadowViewMatrix, const Camera* cam);
+		void AccumDeferredShadow(const Matrix4x4& shadowMapMatrix, float minDepth, float maxDepth, const Matrix4x4& shadowViewMatrix, const Camera* cam);
         
 		virtual void SetRendererOption(void*);
 
@@ -45,6 +45,7 @@ namespace jade
 		GLuint matShader;
 		GLuint blitShader;
 		GLuint shadowCasterShader;
+		GLuint shadowCasterPointLightShader;
 		GLuint gbufferShader;
 		GLuint deferredShadowShader;
 		GLuint gaussianBlurShader;
@@ -134,7 +135,7 @@ namespace jade
 		{
 			TextureSamplerState::Desc pcfSamplerStateDesc;
 			pcfSamplerStateDesc.filter = TextureSamplerState::TEX_FILTER_PCF_SHADOW_MAP;
-			pcfSamplerStateDesc.comparisonFunc = TextureSamplerState::TEX_COMPARE_GREATER;
+			pcfSamplerStateDesc.comparisonFunc = TextureSamplerState::TEX_COMPARE_LESS;
 			pcfSamplerStateDesc.uAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
 			pcfSamplerStateDesc.vAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
 			pcfSamplerStateDesc.wAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
@@ -145,7 +146,7 @@ namespace jade
 		{
 			TextureSamplerState::Desc shadowSamplerStateDesc;
 			shadowSamplerStateDesc.filter = TextureSamplerState::TEX_FILTER_SHADOW_MAP;
-			shadowSamplerStateDesc.comparisonFunc = TextureSamplerState::TEX_COMPARE_GREATER;
+			shadowSamplerStateDesc.comparisonFunc = TextureSamplerState::TEX_COMPARE_LESS;
 			shadowSamplerStateDesc.uAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
 			shadowSamplerStateDesc.vAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
 			shadowSamplerStateDesc.wAddressMode = TextureSamplerState::TEX_ADDRESS_CLAMP;
@@ -433,27 +434,33 @@ namespace jade
 		glDepthFunc(GL_LESS);
 		glDisable(GL_BLEND);
 
-
-
-		GLint modelMatLoc = glGetUniformLocation(shadowCasterShader, "modelMatrix");
-		GLint shadowViewMatLoc = glGetUniformLocation(shadowCasterShader, "shadowViewMatrix");
-		GLint shadowMapMatrixLoc = glGetUniformLocation(shadowCasterShader, "shadowMapMatrix");
 		
+		GLint modelMatLoc = glGetUniformLocation(shadowCasterPointLightShader, "modelMatrix");
+		GLint shadowViewMatLoc = glGetUniformLocation(shadowCasterPointLightShader, "shadowViewMatrix");
+		GLint shadowMapMatrixLoc = glGetUniformLocation(shadowCasterPointLightShader, "shadowMapMatrix");
+		GLint minDepthLoc = glGetUniformLocation(shadowCasterPointLightShader, "minDepth");
+		GLint maxDepthLoc = glGetUniformLocation(shadowCasterPointLightShader, "maxDepth");
+
 		for(int i = 0; i < 6; i++)
 		//int i = 0;
 		{
+			glUseProgram(shadowCasterPointLightShader);
 			glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFbo);
-			glUseProgram(shadowCasterShader);
+			
 			glViewport(0, 0, shadowMap->GetTexture()->GetDesc()->width, shadowMap->GetTexture()->GetDesc()->height);
 			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 			glClearDepth(1.0f);
 			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-			//Matrix4x4 shadowViewMatrix = cam->ViewMatrix();//light->ShadowViewMatrix(i);
-			//Matrix4x4 shadowProjMatrix = cam->PerspectiveMatrix();//light->ShadowProjMatrix();
 
 			Matrix4x4 shadowViewMatrix = light->ShadowViewMatrix(i);
 			Matrix4x4 shadowProjMatrix = light->ShadowProjMatrix();
+
+			float minDepth = 0.1f;
+			float maxDepth = 3000.f;
+
+			glUniform1f(minDepthLoc, minDepth);
+			glUniform1f(maxDepthLoc, maxDepth);
 
 			Matrix4x4 shadowMapMatrix = shadowProjMatrix * shadowViewMatrix;
 			for(size_t primIdx = 0; primIdx < scene->primList.size(); primIdx++)
@@ -481,7 +488,7 @@ namespace jade
 				0, 0, 0.5, 0.5,
 				0, 0, 0, 1) * shadowMapMatrix;
 
-			AccumDeferredShadow(shadowMat, shadowViewMatrix, cam);
+			AccumDeferredShadow(shadowMat, minDepth, maxDepth, shadowViewMatrix, cam);
 		}
 
 
@@ -531,7 +538,7 @@ namespace jade
                                           0, 0, 0.5, 0.5,
                                           0, 0, 0, 1) * shadowMapMatrix;
         
-        AccumDeferredShadow(shadowMat, shadowViewMatrix, cam);
+        AccumDeferredShadow(shadowMat, 0, 1, shadowMat, cam);
 		
 	}
 
@@ -540,12 +547,12 @@ namespace jade
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowAccumFbo);
 		glViewport(0, 0, sceneShadowAccumMap->GetTexture()->GetDesc()->width, sceneShadowAccumMap->GetTexture()->GetDesc()->height);
 
-		glClearColor(0, 0, 0, 0);
+		glClearColor(1.f, 1.f, 1.f, 1.f);
 
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-    void RendererGL::AccumDeferredShadow(const Matrix4x4& shadowMapMat, const Matrix4x4& shadowViewMatrix, const Camera* cam)
+    void RendererGL::AccumDeferredShadow(const Matrix4x4& shadowMapMat, float minDepth, float maxDepth, const Matrix4x4& shadowViewMatrix, const Camera* cam)
     {
 		GaussianBlur(varianceShadowMap, bluredVarianceShadowMap);
 		
@@ -556,7 +563,7 @@ namespace jade
 		glViewport(0, 0, sceneShadowAccumMap->GetTexture()->GetDesc()->width, sceneShadowAccumMap->GetTexture()->GetDesc()->height);
 
 		glEnable(GL_BLEND);
-		glBlendEquation(GL_MAX);
+		glBlendEquation(GL_MIN);
 		glBlendFunc(GL_ONE, GL_ONE);
         
 		glUseProgram(deferredShadowShader);
@@ -567,9 +574,15 @@ namespace jade
 		GLint varianceShadowMapLoc = glGetUniformLocation(deferredShadowShader, "varianceShadowMap");
 		GLint shadowViewMatrixLoc = glGetUniformLocation(deferredShadowShader, "shadowViewMatrix");
 		GLint shadowMatLoc = glGetUniformLocation(deferredShadowShader, "shadowMapMatrix");
-		
+		GLint minDepthLoc = glGetUniformLocation(deferredShadowShader, "minDepth");
+		GLint maxDepthLoc = glGetUniformLocation(deferredShadowShader, "maxDepth");
+
+
 		glUniformMatrix4fv(shadowMatLoc, 1, GL_TRUE, shadowMapMat.FloatPtr());
 		glUniformMatrix4fv(shadowViewMatrixLoc, 1, GL_TRUE,  shadowViewMatrix.FloatPtr());
+		glUniform1f(minDepthLoc, minDepth);
+		glUniform1f(maxDepthLoc, maxDepth);
+
 
 		Matrix4x4 invProjMatrix = cam->InvPerspectiveMatrix();
 		Matrix4x4 test = invProjMatrix * cam->PerspectiveMatrix();
@@ -862,6 +875,11 @@ namespace jade
 		if(_shadowCasterShader)
 			shadowCasterShader = _shadowCasterShader;
         
+		GLuint _shadowCasterPointShader = CreateProgram("shader/shadow_caster_vs.glsl", "shader/shadow_caster_point_light_ps.glsl");
+		
+		if(_shadowCasterPointShader)
+			shadowCasterPointLightShader = _shadowCasterPointShader;
+
         GLuint _gbufferShader = CreateProgram("shader/gbuffer_vs.glsl", "shader/gbuffer_ps.glsl");
         
         if(_gbufferShader)

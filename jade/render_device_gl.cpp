@@ -276,7 +276,7 @@ namespace jade
 		switch (comparisonFunc)
 		{
 			case TextureSamplerState::TEX_COMPARE_LESS:
-				return GL_LEQUAL;
+				return GL_LESS;
 				break;
 			case TextureSamplerState::TEX_COMPARE_LEQUAL:
 				return GL_LEQUAL;
