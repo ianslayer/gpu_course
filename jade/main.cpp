@@ -132,6 +132,16 @@ public:
 		{
 			options.dbgDraw =jade::GLRendererOptions::DBG_DRAW_SHADOW_MAP;
 		}
+
+		if(key == KEY_V && pressed == false)
+		{
+			options.shadowTech = jade::GLRendererOptions::SHADOW_VARIANCE_SHADOW_MAP;
+		}
+
+		if(key == KEY_P && pressed == false)
+		{
+			options.shadowTech = jade::GLRendererOptions::SHADOW_MAP_PCF;
+		}
     }
 
     void ClearState()
@@ -251,6 +261,7 @@ void LoadResources()
 	jade::LoadFromObjMesh(objMesh, device, texManager,  flipMatrix, texflipMatrix, primitiveList);
 	jade::LoadFromObjMesh(objMesh2, device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList2);
 
+	//SetCastShadow(primitiveList);
 	SetCastShadow(primitiveList2);
 
 	scene->AddPrimitives(primitiveList);
@@ -267,14 +278,14 @@ void LoadResources()
 	scene->AddLight(pointLight2);
 	*/
 
-	jade::Light* dirLight = new jade::DirectionLight(Normalize(Vector3(1, -1, 1)), Vector3(0.6, 0.6, 0.6) );
-	//scene->AddLight(dirLight);
+	jade::Light* dirLight = new jade::DirectionLight(Normalize(Vector3(1, 0.3, 0.5)), Vector3(0.6, 0.6, 0.6) );
+	scene->AddLight(dirLight);
 
 	jade::Light* pointLight = new jade::PointLight(Vector3(200, 0, 200), 500 * Vector3(0.9, 0.6, 0.6), 10 );
 	scene->AddLight(pointLight);
 
 	jade::Light* pointLight2 = new jade::PointLight(Vector3(-200, 0, 100), 500 * Vector3(0.5, 0.5, 0.8), 20 );
-	//scene->AddLight(pointLight2);
+	scene->AddLight(pointLight2);
 
 }
 

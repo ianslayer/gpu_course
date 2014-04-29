@@ -8,7 +8,7 @@ namespace jade
     {
     public:
         GLRendererOptions()
-        : dbgDraw(DBG_DRAW_NONE), reloadShaders(false)
+        : dbgDraw(DBG_DRAW_NONE), shadowTech(SHADOW_MAP_PCF), reloadShaders(false)
         {
             
         }
@@ -27,7 +27,14 @@ namespace jade
             DBG_DRAW_SHADOW_MAP = 9,
         };
         
+		enum ShadowMapTechnique
+		{
+			SHADOW_MAP_PCF = 0,
+			SHADOW_VARIANCE_SHADOW_MAP = 1,
+		};
+
         DebugDraw dbgDraw;
+		ShadowMapTechnique shadowTech;
         bool      reloadShaders;
     };
     

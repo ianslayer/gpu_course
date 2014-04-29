@@ -105,7 +105,7 @@ void main(void)
 			shadow = 0.3f;
 	}
 	
-	out_color =shadow * distanceAtt * vec4(lightIntensity, 1.0) * nDotL * ((vec4(1.0) - FSchlick) *texture(diffuseMap, vs_fs_texcoord) / 3.14 +  FSchlick * vec4(specular) ) ;
+	out_color =shadow* distanceAtt * vec4(lightIntensity, 1.0) * nDotL * ((vec4(1.0) - FSchlick) *texture(diffuseMap, vs_fs_texcoord) / 3.14 +  FSchlick * vec4(specular) ) ;
     
 	if(useMask)
 	{

@@ -39,7 +39,7 @@ namespace jade
 		
 		void DrawTexture(int x, int y, int width, int height, const HWTexture2D* tex);
         void GaussianBlur(HWRenderTexture2D* src, HWRenderTexture2D* temp);
-		
+
 		class RenderDevice* device;
 		GLuint wireframeShader;
 		GLuint matShader;
@@ -53,7 +53,8 @@ namespace jade
 		GLuint whiteTexture;
 		GLuint blackTexture;
 		GLuint uniZTexture; //unit z
-        
+        GLuint noiseTexture;
+
 		GLuint cubeVbo;
 		GLuint cubeIbo;
         
@@ -77,7 +78,7 @@ namespace jade
 		RefCountedPtr<HWDepthStencilSurface> shadowMap;
 		RefCountedPtr<HWRenderTexture2D> varianceShadowMap;
         RefCountedPtr<HWRenderTexture2D> bluredVarianceShadowMap;
-		
+
 		GLuint gaussianBlurFbo;
 		
 		GLRendererOptions options;
@@ -91,7 +92,7 @@ namespace jade
 		whiteTexture = GenerateColorTexture(1.f, 1.f, 1.f, 0.f);
 		blackTexture = GenerateColorTexture(0.f, 0.f, 0.f, 0.f);
 		uniZTexture = GenerateColorTexture(0.5f, 0.5f, 1.f, 0.f);
-
+		noiseTexture = GenerateNoiseTexture(64, 64);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		glEnable(GL_TEXTURE_2D);
@@ -177,7 +178,7 @@ namespace jade
 
 
 			//create variance shadow map
-			texDesc.format = TEX_FORMAT_RG32F;
+			texDesc.format = TEX_FORMAT_RG16F;
 			rtDesc.mipLevel = 0;
 			texDesc.mipLevels = TotalMipLevels(texDesc.width, texDesc.height);
 			HWRenderTexture2D* rtVarianceShadowMap = NULL;
@@ -271,7 +272,7 @@ namespace jade
         {
 			HWTexture2D::Desc texDesc;
 			texDesc.arraySize = 1;
-			texDesc.format = TEX_FORMAT_RGBA8;
+			texDesc.format = TEX_FORMAT_R8;
 			texDesc.width = device->window->width;
 			texDesc.height = device->window->height;
 			texDesc.mipLevels = 1;
@@ -429,14 +430,29 @@ namespace jade
     
     void RendererGL::RenderShadowMap(const jade::PointLight *light, const jade::Scene *scene, const Camera* cam)
     {
-
-		glDisable(GL_BLEND);
-		glDepthFunc(GL_LESS);
-		glDisable(GL_BLEND);
-
+		if(options.shadowTech == GLRendererOptions::SHADOW_MAP_PCF)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, this->shadowMapFbo);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
+		}
+		else if(options.shadowTech == GLRendererOptions::SHADOW_VARIANCE_SHADOW_MAP)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, this->shadowMapFbo);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->varianceShadowMap->GetTexture()->GetImpl()->id, this->varianceShadowMap->GetDesc()->mipLevel);
 		
+			GLenum fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+			if(fbStatus != GL_FRAMEBUFFER_COMPLETE)
+			{
+
+				printf("shadow map framebuffer incomplete\n");
+			}
+		}
+
+		glDisable(GL_BLEND);
+	
 		GLint modelMatLoc = glGetUniformLocation(shadowCasterPointLightShader, "modelMatrix");
-		GLint shadowViewMatLoc = glGetUniformLocation(shadowCasterPointLightShader, "shadowViewMatrix");
+		GLint shadowDepthMatLoc = glGetUniformLocation(shadowCasterPointLightShader, "shadowDepthMatrix");
 		GLint shadowMapMatrixLoc = glGetUniformLocation(shadowCasterPointLightShader, "shadowMapMatrix");
 		GLint minDepthLoc = glGetUniformLocation(shadowCasterPointLightShader, "minDepth");
 		GLint maxDepthLoc = glGetUniformLocation(shadowCasterPointLightShader, "maxDepth");
@@ -447,6 +463,7 @@ namespace jade
 			glUseProgram(shadowCasterPointLightShader);
 			glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFbo);
 			
+			glDepthFunc(GL_LESS);
 			glViewport(0, 0, shadowMap->GetTexture()->GetDesc()->width, shadowMap->GetTexture()->GetDesc()->height);
 			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 			glClearDepth(1.0f);
@@ -454,6 +471,14 @@ namespace jade
 
 
 			Matrix4x4 shadowViewMatrix = light->ShadowViewMatrix(i);
+			Matrix4x4 shadowDepthMatrix = Matrix4x4(1, 0, 0, 0,
+													0, 1, 0, 0,
+													0, 0, -1, 0,
+													0, 0, 0, 1) * 
+				shadowViewMatrix;
+
+
+
 			Matrix4x4 shadowProjMatrix = light->ShadowProjMatrix();
 
 			float minDepth = 0.1f;
@@ -469,7 +494,7 @@ namespace jade
 				{
 					const Primitive* prim = scene->primList[primIdx].Get();
 					glUniformMatrix4fv(modelMatLoc, 1, GL_TRUE, prim->ModelMatrix().FloatPtr());
-					glUniformMatrix4fv(shadowViewMatLoc, 1, GL_TRUE, shadowViewMatrix.FloatPtr());
+					glUniformMatrix4fv(shadowDepthMatLoc, 1, GL_TRUE, shadowDepthMatrix.FloatPtr());
 					glUniformMatrix4fv(shadowMapMatrixLoc, 1, GL_TRUE, shadowMapMatrix.FloatPtr() );
 
 					glBindBuffer(GL_ARRAY_BUFFER, prim->mesh->vertexBuffer->GetImpl()->vboID);
@@ -488,7 +513,7 @@ namespace jade
 				0, 0, 0.5, 0.5,
 				0, 0, 0, 1) * shadowMapMatrix;
 
-			AccumDeferredShadow(shadowMat, minDepth, maxDepth, shadowViewMatrix, cam);
+			AccumDeferredShadow(shadowMat, minDepth, maxDepth, shadowDepthMatrix, cam);
 		}
 
 
@@ -496,7 +521,26 @@ namespace jade
     
 	void RendererGL::RenderShadowMap(const DirectionLight* light, const AABB& bound,  const Scene* scene, const Camera* cam)
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFbo);
+		if(options.shadowTech == GLRendererOptions::SHADOW_MAP_PCF)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, this->shadowMapFbo);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
+		}
+		else if(options.shadowTech == GLRendererOptions::SHADOW_VARIANCE_SHADOW_MAP)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, this->shadowMapFbo);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->varianceShadowMap->GetTexture()->GetImpl()->id, this->varianceShadowMap->GetDesc()->mipLevel);
+		
+			GLenum fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+			if(fbStatus != GL_FRAMEBUFFER_COMPLETE)
+			{
+
+				printf("shadow map framebuffer incomplete\n");
+			}
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, this->shadowMapFbo);
 
 		glViewport(0, 0, shadowMap->GetTexture()->GetDesc()->width, shadowMap->GetTexture()->GetDesc()->height);
 
@@ -511,16 +555,27 @@ namespace jade
 
 		GLint modelMatLoc = glGetUniformLocation(shadowCasterShader, "modelMatrix");
 		GLint shadowMapMatrixLoc = glGetUniformLocation(shadowCasterShader, "shadowMapMatrix");
+		GLint shadowDepthMatLoc = glGetUniformLocation(shadowCasterPointLightShader, "shadowDepthMatrix");
+		GLint minDepthLoc = glGetUniformLocation(shadowCasterPointLightShader, "minDepth");
+		GLint maxDepthLoc = glGetUniformLocation(shadowCasterPointLightShader, "maxDepth");
+
 
 		Matrix4x4 shadowViewMatrix = light->ShadowViewMatrix();
 		Matrix4x4 shadowMapMatrix = light->ShadowProjMatrix(bound) * light->ShadowViewMatrix();
+
+		glUniformMatrix4fv(shadowMapMatrixLoc, 1, GL_TRUE, shadowMapMatrix.FloatPtr() );
+		glUniformMatrix4fv(shadowDepthMatLoc, 1, GL_TRUE, shadowMapMatrix.FloatPtr() );
+
+		glUniform1f(minDepthLoc, 0);
+		glUniform1f(maxDepthLoc, 1);
+
 		for(size_t primIdx = 0; primIdx < scene->primList.size(); primIdx++)
 		{
 			if(scene->primList[primIdx]->castShadow )
 			{
 				const Primitive* prim = scene->primList[primIdx].Get();
 				glUniformMatrix4fv(modelMatLoc, 1, GL_TRUE, prim->ModelMatrix().FloatPtr());
-				glUniformMatrix4fv(shadowMapMatrixLoc, 1, GL_TRUE, shadowMapMatrix.FloatPtr() );
+
 
 				glBindBuffer(GL_ARRAY_BUFFER, prim->mesh->vertexBuffer->GetImpl()->vboID);
 				glEnableVertexAttribArray(0);
@@ -552,34 +607,48 @@ namespace jade
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-    void RendererGL::AccumDeferredShadow(const Matrix4x4& shadowMapMat, float minDepth, float maxDepth, const Matrix4x4& shadowViewMatrix, const Camera* cam)
+    void RendererGL::AccumDeferredShadow(const Matrix4x4& shadowMapMat, float minDepth, float maxDepth, const Matrix4x4& shadowDepthMatrix, const Camera* cam)
     {
-		GaussianBlur(varianceShadowMap, bluredVarianceShadowMap);
-		
-		glBindTexture(GL_TEXTURE_2D, varianceShadowMap->GetTexture()->GetImpl()->id);
-		glGenerateMipmap(GL_TEXTURE_2D);
 
+		
+		if(options.shadowTech == GLRendererOptions::SHADOW_MAP_PCF)
+		{
+			
+		}
+		else if(options.shadowTech == GLRendererOptions::SHADOW_VARIANCE_SHADOW_MAP)
+		{
+			GaussianBlur(varianceShadowMap, bluredVarianceShadowMap);
+
+			glBindTexture(GL_TEXTURE_2D, varianceShadowMap->GetTexture()->GetImpl()->id);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowAccumFbo);
 		glViewport(0, 0, sceneShadowAccumMap->GetTexture()->GetDesc()->width, sceneShadowAccumMap->GetTexture()->GetDesc()->height);
 
 		glEnable(GL_BLEND);
 		glBlendEquation(GL_MIN);
 		glBlendFunc(GL_ONE, GL_ONE);
-        
+        glDepthFunc(GL_ALWAYS);
+
 		glUseProgram(deferredShadowShader);
+		GLint shadowTechLoc = glGetUniformLocation(deferredShadowShader, "shadowTech");
+		glUniform1i(shadowTechLoc, options.shadowTech);
+
 		GLint gbuffer0Loc = glGetUniformLocation(deferredShadowShader, "gbuffer0");
 		GLint depthMapLoc = glGetUniformLocation(deferredShadowShader, "sceneDepthMap");
+		GLint noiseMapLoc = glGetUniformLocation(deferredShadowShader, "noiseMap");
 		GLint invViewProjMatLoc = glGetUniformLocation(deferredShadowShader, "invViewProjMatrix");
 		GLint shadowMapLoc = glGetUniformLocation(deferredShadowShader, "shadowMap");
+		GLint singleSampleShadowMapLoc = glGetUniformLocation(deferredShadowShader, "singleSampleShadowMap");
 		GLint varianceShadowMapLoc = glGetUniformLocation(deferredShadowShader, "varianceShadowMap");
-		GLint shadowViewMatrixLoc = glGetUniformLocation(deferredShadowShader, "shadowViewMatrix");
+		GLint shadowDepthMatrixLoc = glGetUniformLocation(deferredShadowShader, "shadowDepthMatrix");
 		GLint shadowMatLoc = glGetUniformLocation(deferredShadowShader, "shadowMapMatrix");
 		GLint minDepthLoc = glGetUniformLocation(deferredShadowShader, "minDepth");
 		GLint maxDepthLoc = glGetUniformLocation(deferredShadowShader, "maxDepth");
 
 
 		glUniformMatrix4fv(shadowMatLoc, 1, GL_TRUE, shadowMapMat.FloatPtr());
-		glUniformMatrix4fv(shadowViewMatrixLoc, 1, GL_TRUE,  shadowViewMatrix.FloatPtr());
+		glUniformMatrix4fv(shadowDepthMatrixLoc, 1, GL_TRUE,  shadowDepthMatrix.FloatPtr());
 		glUniform1f(minDepthLoc, minDepth);
 		glUniform1f(maxDepthLoc, maxDepth);
 
@@ -596,15 +665,22 @@ namespace jade
 		
 		SetTextureUnit(gbuffer0Loc, 0, gbuffer0->GetTexture() );
 		SetTextureUnit(shadowMapLoc, 1, shadowMap->GetTexture() );
+
 		//SetTextureUnit(shadowMapLoc, 1, varianceShadowMap->GetTexture() );
 		SetTextureUnit(varianceShadowMapLoc, 2, varianceShadowMap->GetTexture());
 		SetTextureUnit(depthMapLoc, 3, sceneDepthMap->GetTexture() );
+		SetTextureUnit(noiseMapLoc, 4, noiseTexture);
+
+		SetTextureUnit(singleSampleShadowMapLoc, 5, shadowMap->GetTexture());
+
 		glBindSampler(0, pointSamplerState->GetImpl()->sampler);
 		glBindSampler(1, pcfSamplerState->GetImpl()->sampler);
 		glBindSampler(2, mipMapClampSamplerState->GetImpl()->sampler);
 		//glBindSampler(2, pcfSamplerState->GetImpl()->sampler);
         glBindSampler(3, pointSamplerState->GetImpl()->sampler);
-		
+
+		glBindSampler(5, shadowSamplerState->GetImpl()->sampler);
+
 		glBindBuffer(GL_ARRAY_BUFFER, this->fullScreenQuadVB->GetImpl()->vboID);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexP3T2), 0);
@@ -981,11 +1057,14 @@ namespace jade
         glBindFramebuffer(GL_FRAMEBUFFER, gaussianBlurFbo);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tmp->GetTexture()->GetImpl()->id, 0);
 		glViewport(0, 0, src->GetTexture()->GetDesc()->width, src->GetTexture()->GetDesc()->height);
-		
+		glClearColor(0, 0, 0, 0);
+		glClear(GL_COLOR_BUFFER_BIT);
+
         glDisable(GL_BLEND);
         glDepthFunc(GL_ALWAYS);
 		
 		glUseProgram(gaussianBlurShader);
+		
 		
 		GLint blurDirLoc = glGetUniformLocation(gaussianBlurShader, "direction");
 		GLint sourceLoc = glGetUniformLocation(gaussianBlurShader, "source");
@@ -1008,6 +1087,7 @@ namespace jade
 		
 		glUniform1i(blurDirLoc, 1);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		
 	}
 	
     void InitRendererGL(RenderDevice* device, Renderer** renderer)

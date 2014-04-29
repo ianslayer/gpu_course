@@ -11,8 +11,7 @@ void main(void)
 {
 	//out_color = texture(diffuseMap, vs_fs_texcoord);
 
-	float linearZ = (-shadowPos.z - minDepth)/ (maxDepth - minDepth);
-
+	float linearZ = (shadowPos.z - minDepth)/ (maxDepth - minDepth);
 	out_color = vec2(linearZ, linearZ * linearZ);
-	//gl_FragDepth = linearZ / 3000;
+	gl_FragDepth = linearZ;
 }

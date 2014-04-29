@@ -10,5 +10,5 @@ void main(void)
 {
 	//out_color = texture(diffuseMap, vs_fs_texcoord);
 	
-	out_color = vec2(gl_FragCoord.z, gl_FragCoord.z);
+	out_color = vec2(gl_FragCoord.z, gl_FragCoord.z * gl_FragCoord.z);
 }

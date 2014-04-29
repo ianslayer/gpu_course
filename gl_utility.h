@@ -45,4 +45,10 @@ struct SolidVertex
 GLuint CreateSolidCubeVertexBuffer();
 GLuint CreateSolidCubeIndexBuffer();
 
+GLuint GenerateWhiteTexture();
+GLuint GenerateColorTexture(float r, float g, float b, float a); //generate a single color, single pixel texture;
+GLuint CreateGLImage(const unsigned char* imgBuffer, int width, int height);
+GLuint CreateMipmapGLImage(const unsigned char* imgBuffer, int width, int height);
+GLuint GenerateNoiseTexture(int width, int height);
+
 #endif
