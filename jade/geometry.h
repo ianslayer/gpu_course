@@ -198,6 +198,26 @@ inline float TriangleArea(Vector3 v0, Vector3 v1, Vector3 v2)
     return 0.5f * ::sqrt(cross(v, w).SquaredLength() ); //don't use jog::sqrt because of the degenerate triangle
 }
 
+inline AABB ComputeBound(const Vector3* vertices, int numVert)
+{
+	Vector3 minBound = Vector3(FLT_MAX);
+	Vector3 maxBound = Vector3(-FLT_MAX);
+	Vector3 temp;
+	AABB bound;
+
+	for(int i = 0; i < numVert; i++)
+	{
+		temp = Min(minBound, vertices[i]);
+		minBound = temp;
+		temp = Max(maxBound, vertices[i]);
+		maxBound = temp;
+	}
+
+	bound.center = (minBound + maxBound) / 2.f;
+	bound.radius = (maxBound - minBound) / 2.f;
+
+	return bound;
+}
 
 inline int IntersectRayAABB(const Ray& ray, const AABB& bound, Range& range, float epsilon)
 {

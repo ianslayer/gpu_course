@@ -170,5 +170,20 @@
     <ClInclude Include="renderer_hw1.h">
       <Filter>jade\Header</Filter>
     </ClInclude>
+    <ClInclude Include="rng.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jade_math.h">
+      <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="sample_visualizer.h">
+      <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="brdf.h">
+      <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer_path_tracing.h">
+      <Filter>jade\Header</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

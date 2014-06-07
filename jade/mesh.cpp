@@ -22,20 +22,7 @@ Mesh::~Mesh()
 
 AABB ComputeBound(const Mesh& _mesh)
 {
-	Vector3 minBound = Vector3(FLT_MAX);
-	Vector3 maxBound = Vector3(-FLT_MAX);
-	AABB bound;
-
-	for(int i = 0; i < _mesh.numVertices; i++)
-	{
-		minBound = Min(minBound, _mesh.positionList[i]);
-		maxBound = Max(maxBound, _mesh.positionList[i]);
-	}
-
-	bound.center = (minBound + maxBound) / 2.f;
-	bound.radius = (maxBound - minBound) / 2.f;
-
-	return bound;
+	return ComputeBound(_mesh.positionList, _mesh.numVertices);
 }
 
 bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* device, const Matrix4x4& transform, const Matrix2x2 texMatrix, Mesh** outMesh )

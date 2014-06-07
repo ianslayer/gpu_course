@@ -11,6 +11,8 @@
 #include "../matrix.h"
 #include "../image.h"
 
+//#include "monte_carlo.h"
+
 namespace jade
 {
 	class RendererGL : public Renderer
@@ -40,6 +42,16 @@ namespace jade
 		
 		void DrawTexture(int x, int y, int width, int height, const HWTexture2D* tex);
         void GaussianBlur(HWRenderTexture2D* src, HWRenderTexture2D* temp);
+
+		//hacking to draw samples
+		GLuint sampleCubeVbo;
+		GLuint sampleCubeIbo;
+
+		void DrawTestSamples3D(const Camera* camera);
+		void DrawTestSamples2D(const Camera* camera);
+		void DrawSamples(const Camera* camera, const Vector3& origin, const Vector3* samples, int numSamples);
+		void DrawSamples(const Camera* camera, const Vector3& origin, const Vector2* samples, int numSamples);
+		void DrawTriangleSamples(const Camera* camera, const Vector3& origin, const Vector2* samples, int numSamples);
 
 		class RenderDevice* device;
 		GLuint wireframeShader;
@@ -318,6 +330,9 @@ namespace jade
         
         cubeVbo = CreateCubeVertexBuffer();
         cubeIbo = CreateWireCubeIndexBuffer();
+
+		sampleCubeVbo = CreateCubeVertexBuffer();
+		sampleCubeIbo = CreateSolidCubeIndexBuffer();
 	}
 
     RendererGL::~RendererGL()
@@ -910,6 +925,10 @@ namespace jade
 
 		}
 
+
+	//	DrawTestSamples3D(camera);
+	
+	//  DrawTestSamples2D(camera);
         
         //AABB bound;
        // ShadowBound(scene, bound);
@@ -1134,10 +1153,146 @@ namespace jade
 		delete [] imgBuffer;
 	}
 	
+/*
+	const static int numTestSamples = 16 * 16; 
+	Vector3 samples3D[numTestSamples];
+	Vector2 samples2D[numTestSamples];
+	Vector2 sampleTriangle[numTestSamples];
+
+	void TestUniformSampleHemisphere()
+	{
+		RNG rng;
+		for(int i = 0; i < numTestSamples; i++)
+		{
+			samples3D[i] = UniformSampleHemisphere(rng.RandomFloat(), rng.RandomFloat());
+		}
+	}
+
+	void TestSampleCosineHemiSphere()
+	{
+		RNG rng;
+		for(int i = 0; i < numTestSamples; i++)
+		{
+			samples3D[i] = CosineSampleHemisphere(rng.RandomFloat(), rng.RandomFloat());
+		}
+	}
+
+	void TestUniformSampleSphere()
+	{
+		RNG rng;
+		for(int i = 0; i < numTestSamples; i++)
+		{
+			samples3D[i] = UniformSampleSphere(rng.RandomFloat(), rng.RandomFloat());
+		}
+	}
+
+	void TestUniformSampleSquare()
+	{
+		RNG rng;
+		for(int i = 0; i < numTestSamples; i++)
+		{
+			samples2D[i] = Vector2(rng.RandomFloat(), rng.RandomFloat());
+		}
+	}
+
+	void TestSampleStratifiedSqure()
+	{
+		RNG rng;
+		StratifiedSample2D(samples2D, 16, 16, rng);
+	}
+
+	void TestSampleDisk()
+	{
+		RNG rng;
+		for(int i = 0; i < numTestSamples; i++)
+		{
+			samples2D[i] = UniformSampleDisk(rng.RandomFloat(), rng.RandomFloat());
+		}
+	}
+
+	void TestSampleConcentricDisk()
+	{
+		RNG rng;
+		for(int i = 0; i < numTestSamples; i++)
+		{
+			samples2D[i] = ConcentricSampleDisk(rng.RandomFloat(), rng.RandomFloat());
+		}
+	}
+
+	void TestSampleTriangle()
+	{
+		RNG rng;
+		for(int i = 0; i < numTestSamples; i++)
+		{
+			samples2D[i] = UniformSampleTriangle(rng.RandomFloat(), rng.RandomFloat());
+		}
+	}
+
+	void RendererGL::DrawTestSamples3D(const Camera* camera)
+	{
+		
+		Vector3 origin = Vector3(0.f);
+		DrawSamples(camera, origin , samples3D, numTestSamples);
+	}
+
+	void RendererGL::DrawTestSamples2D(const Camera* camera)
+	{
+		Vector3 origin = Vector3(0.f);
+		DrawSamples(camera, origin, samples2D, numTestSamples);
+	}
+	
+	void RendererGL::DrawSamples(const Camera* camera, const Vector3& origin, const Vector3* samples, int numSamples)
+	{
+
+		glViewport(0, 0, (GLsizei) camera->width * device->setting.screenScaleFactor, (GLsizei) camera->height * device->setting.screenScaleFactor);
+		
+
+		 for(int i = 0; i < numSamples; i++)
+		 {
+			 AABB bound;
+			 bound.center = samples[i];
+			 bound.radius = Vector3(0.01f);
+
+			// Matrix4x4 modelMatrix = Translate(Vector3(0.0)) * Scale(Vector3(1.0));
+			 //glUniformMatrix4fv(modelMatLocation, 1, GL_TRUE, modelMatrix.FloatPtr());
+			 DrawBoundingBox(camera, bound);
+			//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		 }
+		 
+	}
+	*/
+	void RendererGL::DrawSamples(const Camera* camera, const Vector3& origin, const Vector2* samples, int numSamples)
+	{
+		glViewport(0, 0, (GLsizei) camera->width * device->setting.screenScaleFactor, (GLsizei) camera->height * device->setting.screenScaleFactor);
+		
+
+		 for(int i = 0; i < numSamples; i++)
+		 {
+			 AABB bound;
+			 bound.center = Vector3(samples[i].x, samples[i].y, 0);
+			 bound.radius = Vector3(0.01f);
+			
+			 DrawBoundingBox(camera, bound);
+			
+		 }
+	}
+
     void InitRendererGL(RenderDevice* device, Renderer** renderer)
     {
 		RendererGL* rendererGL = NULL;
 		*renderer = rendererGL = new RendererGL(device);
+
+		/*
+		TestUniformSampleHemisphere();
+		TestSampleCosineHemiSphere();
+		TestUniformSampleSphere();
+		TestSampleCosineHemiSphere();
+
+		TestUniformSampleSquare();
+		TestSampleStratifiedSqure();
+		TestSampleDisk();
+		TestSampleConcentricDisk();
+		*/
     }
 
     void ShutdownRendererGL(Renderer* renderer)

@@ -22,8 +22,8 @@ jade::Scene* scene;
 jade::Renderer* renderer;
 jade::Camera camera;
 
-float cameraMoveSpeed = 100.f;
-float cameraTurnSpeed = 1.f;
+float cameraMoveSpeed = 3.f;
+float cameraTurnSpeed = 0.5f;
 
 class MyInputListener : public InputListener
 {
