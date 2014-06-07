@@ -6,7 +6,7 @@
 class Vector2
 {
 public:
-	explicit Vector2()
+	Vector2()
 	{}
 
 	explicit Vector2(float _x, float _y)
@@ -425,6 +425,11 @@ inline Vector3 cross(const Vector3& a, const Vector3& b)
 inline float dot(const Vector3& a, const Vector3& b)
 {
 	return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+inline float ScalarTriple(const Vector3& a, const Vector3& b, const Vector3& c)
+{
+	return dot(cross(a, b), c);
 }
 
 inline Vector3 Max(const Vector3& a, const Vector3& b)

@@ -151,6 +151,21 @@ public:
 		{
 			options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_SHADOW_MAP;
 		}
+		if(key == KEY_V && pressed == false)
+		{
+			options.shadowTech = jade::GLRendererOptions::SHADOW_VARIANCE_SHADOW_MAP;
+		}
+		
+		if(key == KEY_P && pressed == false)
+		{
+			options.shadowTech = jade::GLRendererOptions::SHADOW_MAP_PCF;
+		}
+		
+		if(key == KEY_M && pressed == false)
+		{
+			options.screenShot = true;
+		}
+			
         
     }
     
@@ -160,7 +175,8 @@ public:
         ry = 0;
         
         options.reloadShaders = false;
-        
+        options.screenShot = false;
+		
         frameCount++;
     }
     

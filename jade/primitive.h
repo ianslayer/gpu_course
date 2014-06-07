@@ -3,7 +3,7 @@
 #include "refcount.h"
 #include "../matrix.h"
 #include "../vector.h"
-#include "../geometry.h"
+#include "geometry.h"
 #include <vector>
 
 class ObjMesh;
@@ -14,6 +14,24 @@ namespace jade
     class Material;
 	class TextureManager;
 	class RenderDevice;
+	class Primitive;
+	
+	class TransformCache
+	{
+	public:
+		TransformCache(): worldPosCache(0)
+		{
+			
+		}
+		
+		void BuildCache(const Primitive& prim)
+		{
+			
+		}
+		
+		Vector3* worldPosCache;
+	};
+	
 
     class Primitive : public RefCounted
     {
@@ -24,13 +42,15 @@ namespace jade
         Matrix4x4 ModelMatrix() const;
         Matrix4x4 InvModelMatrix() const;
         AABB	  WorldBound() const;
-
+		
         RefCountedPtr<Mesh>			mesh;
         RefCountedPtr<Material>		material;
 
         Matrix3x3					orientation;
         Vector3						translation;
         
+		TransformCache				transformCache;
+		
         bool                        castShadow;
         bool                        receiveShadow;
     };

@@ -8,7 +8,7 @@ namespace jade
     {
     public:
         GLRendererOptions()
-        : dbgDraw(DBG_DRAW_NONE), shadowTech(SHADOW_MAP_PCF), reloadShaders(false)
+        : dbgDraw(DBG_DRAW_NONE), shadowTech(SHADOW_MAP_PCF), reloadShaders(false), screenShot(false)
         {
             
         }
@@ -36,6 +36,7 @@ namespace jade
         DebugDraw dbgDraw;
 		ShadowMapTechnique shadowTech;
         bool      reloadShaders;
+		bool      screenShot;
     };
     
     void InitRendererGL(class RenderDevice* device, Renderer** renderer);

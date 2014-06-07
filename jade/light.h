@@ -3,7 +3,7 @@
 #include "refcount.h"
 #include "../vector.h"
 #include "../matrix.h"
-#include "../geometry.h"
+#include "geometry.h"
 
 namespace jade
 {

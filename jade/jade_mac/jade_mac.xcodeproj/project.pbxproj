@@ -35,6 +35,9 @@
 		B23C63441896316E0071E698 /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633B1896316E0071E698 /* scene.cpp */; };
 		B23C63451896316E0071E698 /* texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B23C633C1896316E0071E698 /* texture.cpp */; };
 		B24E144018B35CAE0004BE63 /* light.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B24E143F18B35CAE0004BE63 /* light.cpp */; };
+		B2701B60193B01E700D70A6C /* rng.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2701B5E193B01E700D70A6C /* rng.cpp */; };
+		B2701B66193B6B0E00D70A6C /* monte_carlo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2701B65193B6B0E00D70A6C /* monte_carlo.cpp */; };
+		B2701B6B193E15A000D70A6C /* renderer_ray_tracing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2701B6A193E15A000D70A6C /* renderer_ray_tracing.cpp */; };
 		B27F7A8718D4266C0023F9C1 /* blinn_phong_ps.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A7F18D4266C0023F9C1 /* blinn_phong_ps.glsl */; };
 		B27F7A8818D4266C0023F9C1 /* blinn_phong_vs.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A8018D4266C0023F9C1 /* blinn_phong_vs.glsl */; };
 		B27F7A8918D4266C0023F9C1 /* full_screen_blit_ps.glsl in Resources */ = {isa = PBXBuildFile; fileRef = B27F7A8118D4266C0023F9C1 /* full_screen_blit_ps.glsl */; };
@@ -92,7 +95,6 @@
 		B23C6306188B962F0071E698 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera.h; path = ../../../camera.h; sourceTree = "<group>"; };
 		B23C6307188B962F0071E698 /* file_utility.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = file_utility.cpp; path = ../../../file_utility.cpp; sourceTree = "<group>"; };
 		B23C6308188B962F0071E698 /* file_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = file_utility.h; path = ../../../file_utility.h; sourceTree = "<group>"; };
-		B23C6309188B962F0071E698 /* geometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geometry.h; path = ../../../geometry.h; sourceTree = "<group>"; };
 		B23C630A188B962F0071E698 /* gl_utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_utility.cpp; path = ../../../gl_utility.cpp; sourceTree = "<group>"; };
 		B23C630B188B962F0071E698 /* gl_utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gl_utility.h; path = ../../../gl_utility.h; sourceTree = "<group>"; };
 		B23C630E188B962F0071E698 /* image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = image.cpp; path = ../../../image.cpp; sourceTree = "<group>"; };
@@ -131,6 +133,14 @@
 		B23C633C1896316E0071E698 /* texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = texture.cpp; path = ../../texture.cpp; sourceTree = "<group>"; };
 		B23C6346189637670071E698 /* jade.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = jade.h; path = ../../jade.h; sourceTree = "<group>"; };
 		B24E143F18B35CAE0004BE63 /* light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = light.cpp; path = ../../light.cpp; sourceTree = "<group>"; };
+		B2701B5D193B00FF00D70A6C /* rng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = rng.h; path = ../../rng.h; sourceTree = "<group>"; };
+		B2701B5E193B01E700D70A6C /* rng.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rng.cpp; path = ../../rng.cpp; sourceTree = "<group>"; };
+		B2701B61193B067E00D70A6C /* monte_carlo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = monte_carlo.h; path = ../../monte_carlo.h; sourceTree = "<group>"; };
+		B2701B65193B6B0E00D70A6C /* monte_carlo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = monte_carlo.cpp; path = ../../monte_carlo.cpp; sourceTree = "<group>"; };
+		B2701B67193B6BDB00D70A6C /* jade_math.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = jade_math.h; path = ../../jade_math.h; sourceTree = "<group>"; };
+		B2701B68193CC3AB00D70A6C /* geometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geometry.h; path = ../../geometry.h; sourceTree = "<group>"; };
+		B2701B69193E109800D70A6C /* renderer_ray_tracing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = renderer_ray_tracing.h; path = ../../renderer_ray_tracing.h; sourceTree = "<group>"; };
+		B2701B6A193E15A000D70A6C /* renderer_ray_tracing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = renderer_ray_tracing.cpp; path = ../../renderer_ray_tracing.cpp; sourceTree = "<group>"; };
 		B27F7A7F18D4266C0023F9C1 /* blinn_phong_ps.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = blinn_phong_ps.glsl; path = ../../../shader/blinn_phong_ps.glsl; sourceTree = "<group>"; };
 		B27F7A8018D4266C0023F9C1 /* blinn_phong_vs.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = blinn_phong_vs.glsl; path = ../../../shader/blinn_phong_vs.glsl; sourceTree = "<group>"; };
 		B27F7A8118D4266C0023F9C1 /* full_screen_blit_ps.glsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = full_screen_blit_ps.glsl; path = ../../../shader/full_screen_blit_ps.glsl; sourceTree = "<group>"; };
@@ -285,7 +295,6 @@
 				B23C6306188B962F0071E698 /* camera.h */,
 				B23C6308188B962F0071E698 /* file_utility.h */,
 				B23C6307188B962F0071E698 /* file_utility.cpp */,
-				B23C6309188B962F0071E698 /* geometry.h */,
 				B23C630A188B962F0071E698 /* gl_utility.cpp */,
 				B23C630B188B962F0071E698 /* gl_utility.h */,
 				B23C630E188B962F0071E698 /* image.cpp */,
@@ -301,6 +310,7 @@
 				B23C6320188B97040071E698 /* platform.h */,
 				B2D7A4F31898D47100EE1E9E /* input.cpp */,
 				B2D7A4F41898D47100EE1E9E /* input.h */,
+				B2701B5E193B01E700D70A6C /* rng.cpp */,
 			);
 			name = utility;
 			sourceTree = "<group>";
@@ -308,6 +318,7 @@
 		B23C6303188B95B90071E698 /* header */ = {
 			isa = PBXGroup;
 			children = (
+				B2701B68193CC3AB00D70A6C /* geometry.h */,
 				B2D7A4FA18A8B2E300EE1E9E /* render_device_hw1.h */,
 				B23C6328189631480071E698 /* camera.h */,
 				B23C6329189631480071E698 /* light.h */,
@@ -323,6 +334,10 @@
 				B23C6333189631480071E698 /* texture.h */,
 				B23C6346189637670071E698 /* jade.h */,
 				B2D7A4FD18A8BE6200EE1E9E /* renderer_hw1.h */,
+				B2701B5D193B00FF00D70A6C /* rng.h */,
+				B2701B61193B067E00D70A6C /* monte_carlo.h */,
+				B2701B67193B6BDB00D70A6C /* jade_math.h */,
+				B2701B69193E109800D70A6C /* renderer_ray_tracing.h */,
 			);
 			name = header;
 			sourceTree = "<group>";
@@ -341,6 +356,8 @@
 				B2D7A4FC18A8BE6200EE1E9E /* renderer_hw1.cpp */,
 				B23C633B1896316E0071E698 /* scene.cpp */,
 				B23C633C1896316E0071E698 /* texture.cpp */,
+				B2701B65193B6B0E00D70A6C /* monte_carlo.cpp */,
+				B2701B6A193E15A000D70A6C /* renderer_ray_tracing.cpp */,
 			);
 			name = source;
 			sourceTree = "<group>";
@@ -478,7 +495,9 @@
 				B23C63421896316E0071E698 /* render_device.cpp in Sources */,
 				B2D7A4F81899EAF800EE1E9E /* JadeWindowController.mm in Sources */,
 				B24E144018B35CAE0004BE63 /* light.cpp in Sources */,
+				B2701B60193B01E700D70A6C /* rng.cpp in Sources */,
 				B23C631D188B962F0071E698 /* image.cpp in Sources */,
+				B2701B6B193E15A000D70A6C /* renderer_ray_tracing.cpp in Sources */,
 				B2D7A4F51898D47100EE1E9E /* input.cpp in Sources */,
 				B23C6319188B962F0071E698 /* file_utility.cpp in Sources */,
 				B23C63411896316E0071E698 /* render_device_gl.cpp in Sources */,
@@ -486,6 +505,7 @@
 				B2D7A4F01897A6C700EE1E9E /* window.cpp in Sources */,
 				B23C62E2188B94CB0071E698 /* AppDelegate.m in Sources */,
 				B2D7A4FE18A8BE6200EE1E9E /* renderer_hw1.cpp in Sources */,
+				B2701B66193B6B0E00D70A6C /* monte_carlo.cpp in Sources */,
 				B23C63451896316E0071E698 /* texture.cpp in Sources */,
 				B23C631E188B962F0071E698 /* obj_mesh.cpp in Sources */,
 				B23C63441896316E0071E698 /* scene.cpp in Sources */,

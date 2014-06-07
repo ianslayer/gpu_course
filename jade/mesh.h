@@ -3,7 +3,7 @@
 
 #include "../matrix.h"
 #include "../vector.h"
-#include "../geometry.h"
+#include "geometry.h"
 #include "render_device.h"
 #include "refcount.h"
 #include <string>
@@ -12,27 +12,6 @@ class ObjMesh;
 
 namespace jade
 {
-	struct VertexP3T2
-	{
-		Vector3 position;
-		Vector2 texcoord;
-	};
-
-    struct VertexP3N3T2
-    {
-        Vector3 position;
-        Vector3 normal;
-        Vector2 texcoord;
-    };
-    
-    struct VertexP3N3T4T2
-    {
-        Vector3 position;
-        Vector3 normal;
-        Vector4 tangent;
-        Vector2 texcoord;
-    };
-
     class Mesh : public RefCounted
     {
     public:

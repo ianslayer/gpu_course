@@ -1,4 +1,3 @@
-#include "gl_utility.h"
 #include <stdio.h>
 #include "file_utility.h"
 
@@ -336,6 +335,34 @@ bool LoadTGA(const char* path, unsigned char** imgBuffer, int* width, int* heigh
     return false;
 }
 
+static bool SaveTGA(FILE* fp, const unsigned char* imgBuffer, int width, int height)
+{
+	TgaHeader header;
+	memset(&header, 0, sizeof(header));
+	header.image_type = 2; //uncompressed type
+	//FIXME, endian related
+	header.width = width;
+	header.height = height;
+	header.pixel_size = 32;
+	
+	size_t writeCount = fwrite(&header, sizeof(header), 1, fp);
+	if(writeCount != 1)
+		return false;
+	
+	writeCount = fwrite(imgBuffer, width * height * 4, 1, fp);
+	if(writeCount != 1)
+		return false;
+	
+	return true;
+}
+
+bool SaveTGA(const char* path, const unsigned char* imgBuffer, int width, int height)
+{
+	FILE* fp = fopen(path, "w+b");
+	bool saveSuccess = SaveTGA(fp, imgBuffer, width, height);
+	fclose(fp);
+	return saveSuccess;
+}
 
 struct BMPHeader
 {
@@ -514,39 +541,3 @@ void FreeImageBuffer(const unsigned char* imgBuffer)
     delete [] imgBuffer;
 }
 
-GLuint CreateGLImage(const unsigned char* imgBuffer, int width, int height)
-{
-    GLuint texID;
-    glGenTextures(1, &texID);
-    glBindTexture(GL_TEXTURE_2D, texID);
-    
-    /*
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); //IMPORTANT
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST); //IMPORTANT
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    */
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgBuffer);
-
-    return texID;
-}
-
-GLuint CreateMipmapGLImage(const unsigned char* imgBuffer, int width, int height)
-{
-    GLuint texID;
-    glGenTextures(1, &texID);
-    glBindTexture(GL_TEXTURE_2D, texID);
-
-    /*
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    */
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgBuffer);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    return texID;
-}

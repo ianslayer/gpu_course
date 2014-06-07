@@ -222,7 +222,6 @@ float OptimizedPCFShadow(vec3 shadowPos, vec2 shadowOffset)
 	baseUV *= shadowMapInvSize;
 	
 	
-/*
 	float uw0 = (3 - 2 * s);
 	float uw1 = (1 + 2 * s);
 
@@ -240,8 +239,8 @@ float OptimizedPCFShadow(vec3 shadowPos, vec2 shadowOffset)
 	shadow += uw0 * vw1 * shadow_offset_lookup(vec3(baseUV, shadowPos.z), shadowOffset, vec2(u0, v1) * shadowMapInvSize );
 	shadow += uw1 * vw1 * shadow_offset_lookup(vec3(baseUV, shadowPos.z), shadowOffset, vec2(u1, v1) * shadowMapInvSize );
 	shadow/=16;
-*/	
-	
+
+	/*
 	float uw0 = (4 - 3 * s);
 	float uw1 = 7;
 	float uw2 = (1 + 3 * s);
@@ -271,7 +270,7 @@ float OptimizedPCFShadow(vec3 shadowPos, vec2 shadowOffset)
 	shadow += uw2 * vw2 * shadow_offset_lookup(vec3(baseUV, shadowPos.z), shadowOffset, vec2(u2, v2) * shadowMapInvSize);
 
 	shadow /= 144;	
-
+*/
 	return shadow;
 }
 

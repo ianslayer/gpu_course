@@ -18,7 +18,7 @@ namespace jade
         std::vector<RefCountedPtr<Primitive> > primList;
 		std::vector<RefCountedPtr<Light> > lightList;
     };
-
+	
 }
 
 #endif

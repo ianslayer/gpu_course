@@ -1,10 +1,13 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
-#include "vector.h"
-#include "matrix.h"
+#include "../vector.h"
+#include "../matrix.h"
+#include "jade_math.h"
 #include <algorithm>
 #include <float.h>
 
+namespace jade
+{
 struct AABB
 {
 	AABB() : center(0, 0, 0), radius(-FLT_MAX, -FLT_MAX, -FLT_MAX) {};
@@ -13,6 +16,16 @@ struct AABB
     Vector3 radius; //half width
 };
 
+inline Vector3 Min(const AABB& bound)
+{
+	return bound.center - bound.radius;
+}
+	
+inline Vector3 Max(const AABB& bound)
+{
+	return bound.center + bound.radius;
+}
+	
 struct Sphere
 {
 	Sphere() : center(0, 0, 0), radius(-FLT_MAX) {};
@@ -30,6 +43,18 @@ struct Ray
     Vector3 direction;
 };
 
+inline Vector3 GetPoint(const Ray& r, float t)
+{
+	return r.origin + t * r.direction;
+}
+
+struct Range
+{
+	Range() : tmin(0.f), tmax(FLT_MAX){}
+	float tmin;
+	float tmax;
+};
+	
 struct Plane
 {
     Vector3 normal; //plane normal. Points x on the plane satisfy Dot(n, x) = d
@@ -171,6 +196,111 @@ inline float TriangleArea(Vector3 v0, Vector3 v1, Vector3 v2)
     Vector3 w = v2 - v0;
 
     return 0.5f * ::sqrt(cross(v, w).SquaredLength() ); //don't use jog::sqrt because of the degenerate triangle
+}
+
+
+inline int IntersectRayAABB(const Ray& ray, const AABB& bound, Range& range, float epsilon)
+{
+	float tmin = 0.f;
+	float tmax = FLT_MAX;
+	
+	Vector3 minBound = Min(bound);
+	Vector3 maxBound = Max(bound);
+	for(int i = 0; i < 3; i++)
+	{
+		if(abs(ray.direction[i]) < epsilon)
+		{
+			if(ray.origin[i] < minBound[i] || ray.origin[i] > maxBound[i])
+				return 0;
+		}
+		else
+		{
+			float ood = 1.0f / ray.direction[i];
+			float t1 = (minBound[i] - ray.origin[i]) * ood;
+			float t2 = (maxBound[i] - ray.origin[i]) * ood;
+			
+			if(t1 > t2)
+				std::swap(t1, t2);
+			
+			tmin = Max(tmin, t1);
+			tmax = Min(tmax, t2);
+			
+			if(tmin > tmax) return 0;
+		}
+	}
+	
+	range.tmin = tmin;
+	range.tmax = tmax;
+	
+	return 1;
+}
+
+struct Vertex
+{
+	Vector3 position;
+};
+	
+struct VertexP3T2
+{
+	Vector3 position;
+	Vector2 texcoord;
+};
+	
+struct VertexP3N3T2
+{
+    Vector3 position;
+    Vector3 normal;
+    Vector2 texcoord;
+};
+    
+struct VertexP3N3T4T2
+{
+    Vector3 position;
+    Vector3 normal;
+    Vector4 tangent;
+    Vector2 texcoord;
+};
+	
+template <typename VertexType>
+inline int IntersectSegmentTriangle(const Ray& ray, const Range& range, const VertexType* vertices, const int* indices, float& u, float& v, float& w, float& t)
+{
+	const Vector3& a = vertices[indices[0]].position;
+	const Vector3& b = vertices[indices[1]].position;
+	const Vector3& c = vertices[indices[2]].position;
+	
+	const Vector3 p = GetPoint(ray, range.tmin);
+	const Vector3 q = GetPoint(ray, range.tmax);
+	
+	Vector3 ab = b - a;
+	Vector3 ac = c - a;
+	Vector3 qp = p - q;
+	
+	Vector3 n = cross(ab, ac);
+	
+	float d = dot(qp, n);
+	
+	if(d <= 0.f) return 0;
+	
+	Vector3 ap = p - a;
+	t = dot(ap, n);
+	if(t < 0.f) return 0;
+	if(t > d) return 0;
+	
+	Vector3 e = cross(qp, ap);
+	v = dot(ac, e);
+	if(v < 0.f || v > d) return 0;
+	w = -dot(ab, e);
+	if(w < 0.f || v + w > d) return 0;
+	
+	float ood = 1.f / d;
+	t*=ood;
+	v*=ood;
+	w*=ood;
+	u = 1.f - v- w;
+	
+	return 1;
+}
+	
 }
 
 #endif

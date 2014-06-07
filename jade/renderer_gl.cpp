@@ -20,7 +20,8 @@ namespace jade
 		virtual ~RendererGL();
 
 		virtual void Render(const Camera* camera, const Scene* scene);
-
+		virtual void ScreenShot(const char* path, const Camera* camera, const Scene* scene);
+		
 		void RenderGBuffer(const Camera* camera, const Scene* scene);
 		//void RenderShadowMap(const Camera* camera, const Scene* scene);
 		void RenderShadowMap(const PointLight* light, const Scene* scene, const Camera* cam);
@@ -701,6 +702,14 @@ namespace jade
     
     void RendererGL::Render(const Camera* camera, const Scene* scene)
     {
+		if(options.screenShot)
+		{
+			options.screenShot = false;
+			//beware, recursive call...
+			ScreenShot("jade.tga", camera, scene);
+			return;
+		}
+		
 		RenderGBuffer(camera, scene);
         
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -914,6 +923,7 @@ namespace jade
 		}
 		
 
+		glDisable(GL_FRAMEBUFFER_SRGB);
         
     }
 
@@ -1088,6 +1098,40 @@ namespace jade
 		glUniform1i(blurDirLoc, 1);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		
+	}
+	
+	void GammaCorrect(unsigned char* imgBuffer, int width, int height)
+	{
+		for(int i = 0; i < height; i++)
+		{
+			for(int j = 0; j < width * 4; j++)
+			{
+				float fval = ((float)imgBuffer[i * width * 4 + j] / 255.f);
+				
+				fval = powf(fval, 1.f / 2.2f);
+				
+				imgBuffer[i * width * 4 + j] = (unsigned char) (fval * 255.f);
+			}
+		}
+	}
+	
+	void RendererGL::ScreenShot(const char *path, const jade::Camera *camera, const jade::Scene *scene)
+	{
+		Render(camera, scene);
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+		size_t imgSize = device->window->width * device->window->height * 4 * device->setting.screenScaleFactor * device->setting.screenScaleFactor;
+		unsigned char* imgBuffer = new unsigned char[imgSize];
+		
+		glPixelStorei(GL_PACK_ALIGNMENT,1); //or glPixelStorei(GL_PACK_ALIGNMENT,4);
+		glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+		glPixelStorei(GL_PACK_SKIP_ROWS, 0);
+		glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
+		
+		glReadPixels(0, 0,  device->window->width * device->setting.screenScaleFactor, device->window->height * device->setting.screenScaleFactor, GL_RGBA, GL_UNSIGNED_BYTE, imgBuffer);
+		
+	//	GammaCorrect(imgBuffer, device->window->width * 2, device->window->height * 2);
+		SaveTGA(path, imgBuffer, device->window->width * device->setting.screenScaleFactor, device->window->height * device->setting.screenScaleFactor);
+		delete [] imgBuffer;
 	}
 	
     void InitRendererGL(RenderDevice* device, Renderer** renderer)
