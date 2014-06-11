@@ -13,7 +13,8 @@ namespace jade
 		enum TYPE
 		{
 			LT_POINT,
-			LT_DIRECTION
+			LT_DIRECTION,
+			LT_GEOMETRY_AREA,
 		};
 
 		Light(TYPE _type) : type(_type)
@@ -62,6 +63,16 @@ namespace jade
 		Vector3 dir;
 		Vector3 intensity;
 	};
+
+	class GeomAreaLight : public Light
+	{
+	public:
+		GeomAreaLight() : emitRadiance(0.f), Light(LT_GEOMETRY_AREA) {}
+
+		Vector3 emitRadiance;
+	};
+
+
 }
 
 #endif

@@ -43,6 +43,9 @@ namespace jade
 	void TransformMeshVertices(Mesh& mesh, const Matrix4x4& transform);
     
     void CalculateTangentSpace(const Vector3* posList, const Vector3* normalList, const Vector2* texcoord, int numVertices, const int* indices, int numIndices, Vector4* tangentList);
+	
+	Mesh* CreateMeshCube(RenderDevice* device);
+	Mesh* CreateMeshSphere(RenderDevice* device);
 }
 
 #endif

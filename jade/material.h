@@ -9,7 +9,7 @@ namespace jade
 	{
 	public:
 
-		Material() : ambient(0.f), diffuse(1.f), specular(1.f), roughness(0.f) {}
+		Material() : ambient(0.f), diffuse(0.5f), specular(0.5f), roughness(0.5f) {}
 
 		Vector3 ambient;
 		Vector3 diffuse;

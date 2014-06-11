@@ -5,6 +5,7 @@ namespace jade
 {
     class Scene;
     class Camera;
+	class Texture;
 
     class Renderer
     {
@@ -12,6 +13,7 @@ namespace jade
         virtual ~Renderer() {}
         virtual void Render(const Camera* camera, const Scene* scene) = 0;
 		virtual void ScreenShot(const char* path, const Camera* camera, const Scene* scene) {};
+		virtual void ScreenShot(const char* path, const Camera* camera, const Scene* scene, Texture* tex) {};
         virtual void SetRendererOption(void* options) {}
     };
 

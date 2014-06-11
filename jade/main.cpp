@@ -13,6 +13,7 @@
 #include "scene.h"
 #include "renderer_gl.h"
 #include "renderer_hw1.h"
+#include "renderer_ray_tracing.h"
 #include "camera.h"
 
 Window window;
@@ -20,6 +21,7 @@ jade::RenderDevice* device;
 jade::TextureManager* texManager;
 jade::Scene* scene;
 jade::Renderer* renderer;
+jade::Renderer* rendererRT;
 jade::Camera camera;
 
 float cameraMoveSpeed = 3.f;
@@ -142,6 +144,12 @@ public:
 		{
 			options.shadowTech = jade::GLRendererOptions::SHADOW_MAP_PCF;
 		}
+
+		if(key == KEY_M && pressed == false)
+		{
+			options.screenShot = true;
+			rendererRT->ScreenShot("rt.tga", &camera, scene);
+		}
     }
 
     void ClearState()
@@ -150,6 +158,7 @@ public:
         ry = 0;
 
 		options.reloadShaders = false;
+		options.screenShot = false;
     }
 
     bool forward;
@@ -213,10 +222,12 @@ void Init()
     if(!InitWindow(1024, 768, window))
         return;
 	camera.SetAspectRatio(1024, 768);
+
     jade::RenderDeviceSetting deviceSetting;
 	deviceSetting.msaaCount = 4;
     jade::InitRenderDevice(&window, &deviceSetting, &device);
     jade::InitRendererGL(device, &renderer);    
+	jade::InitRendererRT(device, &rendererRT);
 	//jade::InitRendererHW(device, &renderer);
 	texManager = new jade::TextureManager(device);
 	scene = new jade::Scene();
@@ -229,6 +240,7 @@ void Shutdown()
 	delete texManager;
     
 	jade::ShutdownRendererGL(renderer);
+	jade::ShutdownRendererRT(rendererRT);
 //  jade::ShutdownRendererHW(renderer);
 	jade::ShutdownRenderDevice(device);
 }
@@ -256,9 +268,9 @@ void LoadResources()
 
 	std::vector<jade::Primitive* > primitiveList, primitiveList2;
 	ObjMesh objMesh, objMesh2;
-	objMesh.Load("data/sponza/sponza.obj");
+	//objMesh.Load("data/sponza/sponza.obj");
 	objMesh2.Load("data/db5/db5.obj");
-	jade::LoadFromObjMesh(objMesh, device, texManager,  flipMatrix, texflipMatrix, primitiveList);
+	//jade::LoadFromObjMesh(objMesh, device, texManager,  flipMatrix, texflipMatrix, primitiveList);
 	jade::LoadFromObjMesh(objMesh2, device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList2);
 
 	//SetCastShadow(primitiveList);
@@ -266,6 +278,11 @@ void LoadResources()
 
 	scene->AddPrimitives(primitiveList);
 	scene->AddPrimitives(primitiveList2);
+
+	jade::Mesh* cubeMesh = CreateMeshCube(device);
+	jade::Primitive* cubePrim = CreateCube(Vector3(0.f, 0.f, -200.f), Vector3(200.f), cubeMesh);
+
+	scene->AddPrimitive(cubePrim);
 
 	/*
 	jade::Light* dirLight = new jade::DirectionLight(Normalize(Vector3(1, -1, 1)), Vector3(0.6, 0.6, 0.6) );
@@ -282,10 +299,10 @@ void LoadResources()
 	scene->AddLight(dirLight);
 
 	jade::Light* pointLight = new jade::PointLight(Vector3(200, 0, 200), 500 * Vector3(0.9, 0.6, 0.6), 10 );
-	scene->AddLight(pointLight);
+	//scene->AddLight(pointLight);
 
 	jade::Light* pointLight2 = new jade::PointLight(Vector3(-200, 0, 100), 500 * Vector3(0.5, 0.5, 0.8), 20 );
-	scene->AddLight(pointLight2);
+	//scene->AddLight(pointLight2);
 
 }
 

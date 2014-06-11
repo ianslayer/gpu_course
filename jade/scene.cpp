@@ -12,6 +12,11 @@ namespace jade
 		}
 	}
 
+	void Scene::AddPrimitive(Primitive* prim)
+	{
+		primList.push_back(prim);
+	}
+
 	void Scene::AddLight(Light* light)
 	{
 		lightList.push_back(light);

@@ -1127,7 +1127,7 @@ namespace jade
 			{
 				float fval = ((float)imgBuffer[i * width * 4 + j] / 255.f);
 				
-				fval = powf(fval, 1.f / 2.2f);
+				fval = powf(fval, 1 / 2.2f);
 				
 				imgBuffer[i * width * 4 + j] = (unsigned char) (fval * 255.f);
 			}
@@ -1146,9 +1146,9 @@ namespace jade
 		glPixelStorei(GL_PACK_SKIP_ROWS, 0);
 		glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
 		
-		glReadPixels(0, 0,  device->window->width * device->setting.screenScaleFactor, device->window->height * device->setting.screenScaleFactor, GL_RGBA, GL_UNSIGNED_BYTE, imgBuffer);
+		glReadPixels(0, 0,  device->window->width * device->setting.screenScaleFactor, device->window->height * device->setting.screenScaleFactor, GL_BGRA, GL_UNSIGNED_BYTE, imgBuffer);
 		
-	//	GammaCorrect(imgBuffer, device->window->width * 2, device->window->height * 2);
+		//GammaCorrect(imgBuffer, device->window->width * device->setting.screenScaleFactor, device->window->height * device->setting.screenScaleFactor);
 		SaveTGA(path, imgBuffer, device->window->width * device->setting.screenScaleFactor, device->window->height * device->setting.screenScaleFactor);
 		delete [] imgBuffer;
 	}

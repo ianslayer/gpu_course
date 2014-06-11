@@ -82,4 +82,23 @@ namespace jade
 											   0, 0, -(f-n)/(2*f*n), (f+n)/(2*f*n));
 		return invertProjMatrix;
 	}
+
+	Matrix4x4 Camera::ScreenToRasterMatrix() const
+	{
+		float window[4] = {-1, 1, -1, 1};
+		return	Scale(Vector3(width, height, 1.f) )
+				* Scale(Vector3(1.f / (window[1] - window[0]), 1.f / (window[3] - window[2]), 1.f ) ) 
+				* Translate(Vector3(-window[0], -window[2], 0.f));
+	}
+
+	Matrix4x4 Camera::RasterToScreenMatrix() const
+	{
+		return Inverse(ScreenToRasterMatrix());
+	}
+
+	Matrix4x4 Camera::RasterToCameraMatrix() const
+	{
+		return InvPerspectiveMatrix() * RasterToScreenMatrix();
+	}
+
 }

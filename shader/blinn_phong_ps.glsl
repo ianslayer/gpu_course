@@ -128,7 +128,7 @@ void main(void)
     }
     else if(dbgShowMode == DBG_DRAW_NORMAL)
     {
-        out_color = texture(normalMap, vs_fs_texcoord);
+        out_color = texture(normalMap, vs_fs_texcoord);//vec4(2 * world_normal - 1, 0);
     }
     else if(dbgShowMode == DBG_DRAW_SPECULAR)
     {

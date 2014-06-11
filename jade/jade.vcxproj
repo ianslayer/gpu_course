@@ -148,6 +148,7 @@
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="primitive.cpp" />
     <ClCompile Include="renderer_hw1.cpp" />
+    <ClCompile Include="renderer_ray_tracing.cpp" />
     <ClCompile Include="render_device.cpp" />
     <ClCompile Include="render_device_gl.cpp" />
     <ClCompile Include="renderer_gl.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="refcount.h" />
     <ClInclude Include="renderer_hw1.h" />
     <ClInclude Include="renderer_path_tracing.h" />
+    <ClInclude Include="renderer_ray_tracing.h" />
     <ClInclude Include="render_device.h" />
     <ClInclude Include="render_device_gl.h" />
     <ClInclude Include="renderer.h" />

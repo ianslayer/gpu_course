@@ -2,6 +2,7 @@
 #include "material.h"
 #include "primitive.h"
 #include "texture.h"
+#include "camera.h"
 #include "../obj_mesh.h"
 #include "../file_utility.h"
 
@@ -9,7 +10,7 @@ namespace jade
 {
 
 Primitive::Primitive()
-    : mesh(0), translation(0.f), castShadow(false), receiveShadow(false)
+    : mesh(0), translation(0.f), castShadow(false), receiveShadow(false), areaLight(0)
 {
     orientation.MakeIdentity();
 }
@@ -40,7 +41,6 @@ AABB Primitive::WorldBound() const
     Matrix4x4 modelMatrix = ModelMatrix();
 	return Transform(modelMatrix, mesh->bound);
 }
-
 
 void LoadFromObjMesh(const ObjMesh& objMesh, RenderDevice* device, TextureManager* texManater, std::vector<Primitive*>& primList)
 {
@@ -98,6 +98,20 @@ bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* dev
 
 
 	return true;
+}
+
+Primitive* CreateCube(const Vector3& pos, const Vector3 radius, Mesh* cubeMesh)
+{
+	Primitive* prim = new Primitive();
+	prim->mesh = cubeMesh;
+	prim->translation = pos;
+	prim->orientation = Matrix3x3(radius.x, 0, 0,
+									0, radius.y, 0,
+									0, 0, radius.z);
+
+	prim->material = new Material();
+
+	return prim;
 }
 
 }

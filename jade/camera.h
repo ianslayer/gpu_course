@@ -3,6 +3,7 @@
 
 #include "../vector.h"
 #include "../matrix.h"
+#include "geometry.h"
 
 namespace jade
 {
@@ -16,11 +17,16 @@ namespace jade
 		Matrix4x4 InvViewMatrix() const;
         Matrix4x4 PerspectiveMatrix() const;
 		Matrix4x4 InvPerspectiveMatrix() const;
+
+		Matrix4x4 ScreenToRasterMatrix() const;
+		Matrix4x4 RasterToScreenMatrix() const;
+		Matrix4x4 RasterToCameraMatrix() const;
+
         void      SetAspectRatio(float width, float height);
         void      SetXFov(float angleRad);
         
         void      DeriveProjectionParamter();
-        
+
         // view transform
         Vector3 position;
 

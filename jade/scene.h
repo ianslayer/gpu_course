@@ -13,6 +13,7 @@ namespace jade
     public:
 
         void AddPrimitives(const std::vector<Primitive*>& primList);
+		void AddPrimitive(Primitive* prim);
 		void AddLight(Light* light);
 
         std::vector<RefCountedPtr<Primitive> > primList;

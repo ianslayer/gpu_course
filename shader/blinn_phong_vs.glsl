@@ -29,7 +29,7 @@ void main(void)
 	vs_fs_texcoord = texcoord;
     vs_fs_tangent = tangent;
 	world_pos = (modelMatrix * vec4(position, 1.0)).xyz;
-	world_normal = (modelMatrix * vec4(normal, 0.0)).xyz;
+	world_normal = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
     shadow_pos = (shadowMapMatrix * vec4(world_pos, 1.0));
 	
     vec3 bitangent = cross(normal, vs_fs_tangent.xyz) * tangent.w;

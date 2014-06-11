@@ -43,6 +43,14 @@ struct Ray
     Vector3 direction;
 };
 
+inline Ray Transform(const Matrix4x4& m, const Ray& ray)
+{
+	Ray r;
+	r.origin = DiscardW(m * Vector4(ray.origin, 1.f));
+	r.direction = DiscardW(m * Vector4(ray.direction, 0.f));
+	return r;
+}
+
 inline Vector3 GetPoint(const Ray& r, float t)
 {
 	return r.origin + t * r.direction;
@@ -318,6 +326,8 @@ inline int IntersectSegmentTriangle(const Ray& ray, const Range& range, const Ve
 	w*=ood;
 	u = 1.f - v- w;
 	
+	t = lerp(range.tmin, range.tmax, t);
+
 	return 1;
 }
 	
