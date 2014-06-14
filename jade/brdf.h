@@ -22,9 +22,10 @@ namespace jade
 		return std::max(dot(n, wo), dot(n, wi));
 	}
 
-	inline Vector3 BlinnBRDF(const Vector3& wo, const Vector3& wi, const Vector3& n, const Vector3& l, const Vector3& f0, float roughness)
+	inline Vector3 BlinnBRDF(const Vector3& wo, const Vector3& wi, const Vector3& n, const Vector3& f0, float roughness)
 	{
 		Vector3 h = Normalize(wo + wi);
+		const Vector3& l = wi;
 		float nDotH = std::max(dot(n, h), 0.f );
 		float lDotH = std::max( dot(l, h), 0.f );
 		
@@ -37,6 +38,7 @@ namespace jade
 		return ( fresnel * ndf ) / (4 * M_PI * hDotWi * geom + 0.0001);
 	}
 
+	//inline Vector3 CosineSampleBRDF(const Vector3& wo, const Vector3& n, );
 	inline Vector3 SampleBlinnNDF(const Vector3& wo, const Vector3& n, float u1, float u2, float& pdf);
 
 }

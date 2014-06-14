@@ -338,7 +338,8 @@ Mesh* CreateMeshCube(RenderDevice* device)
 
 	mesh->bound = ComputeBound(*mesh);
 	//give ray tracer a little nudge
-	mesh->bound = Transform(Scale(Vector3(1.01f) ), mesh->bound);
+	Matrix4x4 transform =Scale(Vector3(1.01f) );
+	mesh->bound = Transform(transform, mesh->bound);
 
 	return mesh;
 

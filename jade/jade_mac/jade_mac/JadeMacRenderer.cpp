@@ -20,6 +20,7 @@ jade::RenderDevice* device;
 jade::TextureManager* texManager;
 jade::Scene* scene;
 jade::Renderer* rendererGL;
+jade::Renderer* rendererRT;
 jade::Camera camera;
 Window window;
 
@@ -83,7 +84,7 @@ void InitRenderer(float width, float height, float scaleFactor)
     jade::InitRenderDevice(&window, &deviceSetting, &device);
     jade::InitRendererGL(device, &rendererGL);
     
-    //jade::InitRendererHW(device, &rendererGL);
+    jade::InitRendererRT(device, &rendererRT);
     
 	texManager = new jade::TextureManager(device);
 	scene = new jade::Scene();
@@ -102,6 +103,7 @@ void ShutdownRenderer()
 {
 	delete texManager;
     jade::ShutdownRendererGL(rendererGL);
+	jade::ShutdownRendererRT(rendererRT);
     jade::ShutdownRenderDevice(device);
 }
 
@@ -130,21 +132,31 @@ void InitScene()
 	ObjMesh objMesh, objMesh2;
 	objMesh.Load("data/sponza/sponza.obj");
 	objMesh2.Load("data/db5/db5.obj");
-	jade::LoadFromObjMesh(objMesh, device, texManager,  flipMatrix, texflipMatrix, primitiveList);
+	//jade::LoadFromObjMesh(objMesh, device, texManager,  flipMatrix, texflipMatrix, primitiveList);
 	jade::LoadFromObjMesh(objMesh2, device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList2);
     //SetCastShadow(primitiveList);
 	SetCastShadow(primitiveList2);
     
-	scene->AddPrimitives(primitiveList);
+	//scene->AddPrimitives(primitiveList);
 	scene->AddPrimitives(primitiveList2);
-	jade::Light* dirLight = new jade::DirectionLight(Normalize(Vector3(1, -1, 1)), Vector3(0.6, 0.6, 0.6) );
+	jade::Light* dirLight = new jade::DirectionLight(Normalize(Vector3(1, -1, 1)), Vector3(600, 600, 600) );
 	scene->AddLight(dirLight);
     
-	jade::Light* pointLight = new jade::PointLight(Vector3(200, 0, 200), 500 * Vector3(0.9, 0.6, 0.6), 10 );
+	jade::Light* pointLight = new jade::PointLight(Vector3(200, 0, 200), 500 * Vector3(900, 600, 600), 10 );
 	scene->AddLight(pointLight);
 	
 	jade::Light* pointLight2 = new jade::PointLight(Vector3(-200, 0, 100), 500 * Vector3(0.5, 0.5, 0.8), 20 );
-	scene->AddLight(pointLight2);
+	//scene->AddLight(pointLight2);
+	
+	jade::Mesh* cubeMesh = CreateMeshCube(device);
+	jade::Primitive* cubePrim = CreateCube(Vector3(0.f, 0.f, -200.f), Vector3(200.f), cubeMesh);
+	
+	scene->AddPrimitive(cubePrim);
+}
+
+void RayTraceScreenShot()
+{
+	rendererRT->ScreenShot("rt.tga", &camera, scene);
 }
 
 void RenderFrame()

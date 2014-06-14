@@ -17,7 +17,9 @@ namespace jade
 	{
 		Vector3 p;
 		Vector3 n;
+		Vector4 tangent;
 		Vector2 uv;
+		float minT;
 		const Primitive* prim;
 	};
 
@@ -33,22 +35,21 @@ namespace jade
 		AABB		worldBound;
 		const		Primitive* prim;
 	};
-
+	
 	TransformCache::~TransformCache()
 	{
 		delete[] worldPosCache;
 		delete[] worldNormalCache;
 	}
-	void BuildCache(const Camera* cam, const Primitive* prim, TransformCache& cache)
+	void BuildCache(const Primitive* prim, TransformCache& cache)
 	{
 		cache.prim = prim;
 		delete [] cache.worldPosCache;
 		delete [] cache.worldNormalCache;
-
+		
 		cache.worldPosCache = new Vertex[prim->mesh->numIndices];
 		cache.worldNormalCache = new Vector3[prim->mesh->numIndices];
-
-		Matrix4x4 viewMat = cam->ViewMatrix();
+		
 		Matrix4x4 transform = prim->ModelMatrix();
 		
 		for(int i = 0; i < prim->mesh->numIndices; i++)
@@ -58,29 +59,28 @@ namespace jade
 		
 		for(int i = 0; i < prim->mesh->numIndices; i++)
 		{
-			//cache.worldPosCache[i].position = DiscardW(transform * Vector4(prim->mesh->positionList[i], 1.f));
 			cache.worldNormalCache[i] = DiscardW(transform * Vector4(prim->mesh->normalList[prim->mesh->indices[i]], 0.f));
 		}
 		cache.worldBound = prim->WorldBound();
 	}
-
-	int IntersectPrimitiveTriangle(const Ray& ray, const Range& range, const TransformCache* cache, float& outtmin, Vector3& normal, Intersection& isect)
+	
+	int IntersectPrimitiveTriangle(const Ray& ray, const Range& range, const TransformCache& cache, float& outtmin, Vector3& normal)
 	{
 		float tmin = range.tmax;
 		int intersect = 0;
-		int minTriIndex = -1;
+		int minTriIndex = 0;
 		float minU, minV, minW;
-		for(size_t i = 0; i < cache->prim->mesh->numIndices / 3; i++)
+		for(int i = 0; i < cache.prim->mesh->numIndices / 3; i++)
 		{
 			float u, v, w;
 			float t;
-			 
+			
 			int index[3];
-			index[0] = i * 3;
+			index[0] = i * 3 ;
 			index[1] = i * 3 + 1;
 			index[2] = i * 3 + 2;
-
-			if(IntersectSegmentTriangle(ray, range, cache->worldPosCache, index, u, v, w, t) == 1)
+			
+			if(IntersectSegmentTriangle(ray, range, cache.worldPosCache, index, u, v, w, t) == 1)
 			{
 				if(t < tmin)
 				{
@@ -93,27 +93,105 @@ namespace jade
 				}
 			}
 		}
-
+		
 		if(intersect == 1)
 		{
 			Vector3 n0, n1, n2;
-
-			n0 = cache->worldNormalCache[minTriIndex * 3];
-			n1 = cache->worldNormalCache[minTriIndex * 3 + 1];
-			n2 = cache->worldNormalCache[minTriIndex * 3 + 2];
-
+			
+			n0 = cache.worldNormalCache[minTriIndex * 3];
+			n1 = cache.worldNormalCache[minTriIndex * 3 + 1];
+			n2 = cache.worldNormalCache[minTriIndex * 3 + 2];
+			
 			normal = Normalize(n0 * minU + n1 * minV + n2 * minW);
-		}
 
+		}
+		
 		return intersect;
 	}
-
-	int Intersect(const Ray& ray, const Scene* scene, const TransformCache* cache, Intersection& isect)
+	
+	float SampleVisiblity(const Ray& ray, const Range& range, const TransformCache& cache)
+	{
+		for(int i = 0; i < cache.prim->mesh->numIndices / 3; i++)
+		{
+			float u, v, w;
+			float t;
+			
+			int index[3];
+			index[0] = i * 3;
+			index[1] = i * 3 + 1;
+			index[2] = i * 3 + 2;
+			
+			if(IntersectSegmentTriangle(ray, range, cache.worldPosCache, index, u, v, w, t) == 1 )
+			{
+				return 0.f;
+			}
+		}
+		
+		return 1.f;
+	}
+	
+	class RayPacketIntersectJob
+	{
+		
+	};
+	
+	class RayPacketIntersectResult
+	{
+		
+	};
+	
+	class SceneAccelerator
+	{
+	public:
+		virtual void Build(const Scene*) = 0;
+		virtual void Intersect(const RayPacketIntersectJob& job, RayPacketIntersectResult& result) const{};
+		
+		virtual int Intersect(const Ray& ray, Intersection& isect) const = 0;
+		virtual float Visibility(const Ray& ray, const Range& rayRange) const = 0;
+	};
+	
+	class EmptySceneAcclerator : public SceneAccelerator
+	{
+	public:
+		EmptySceneAcclerator();
+		~EmptySceneAcclerator();
+		
+		virtual void Build(const Scene* scene);
+		virtual int Intersect(const Ray& ray, Intersection& isect) const;
+		virtual float Visibility(const Ray& ray, const Range& rayRange) const;
+		
+		TransformCache* cache;
+		const Scene* scene;
+	};
+	
+	EmptySceneAcclerator::EmptySceneAcclerator()
+	: cache(0), scene(0)
+	{
+		
+	}
+	
+	EmptySceneAcclerator::~EmptySceneAcclerator()
+	{
+		delete [] cache;
+	}
+	
+	void EmptySceneAcclerator::Build(const jade::Scene *scene)
+	{
+		this->scene = scene;
+		cache = new TransformCache[scene->primList.size()];
+		for(size_t i = 0; i < scene->primList.size(); i++)
+		{
+			BuildCache(scene->primList[i], cache[i]);
+		}
+		
+	}
+	
+	int EmptySceneAcclerator::Intersect(const jade::Ray &ray, jade::Intersection &isect) const
 	{
 		float epsilon = 0.00001f;
-		float tmin = FLT_MAX;		
+		float tmin = FLT_MAX;
 		int intersect = 0;
-
+		
 		for(size_t i = 0 ; i < scene->primList.size(); i++)
 		{
 			const AABB& worldBound = cache[i].worldBound;
@@ -122,12 +200,12 @@ namespace jade
 			{
 				float triTmin = FLT_MAX ;
 				Vector3 normal;
-				if(IntersectPrimitiveTriangle(ray, newRange, &cache[i], triTmin, normal, isect) == 1 && triTmin < tmin)
+				if(IntersectPrimitiveTriangle(ray, newRange, cache[i], triTmin, normal) == 1 && triTmin < tmin)
 				{
 					tmin = triTmin;
 					isect.prim = cache->prim;
 					isect.p = GetPoint(ray, tmin);
-					isect.n = normal;	
+					isect.n = normal;
 					intersect = 1;
 				}
 			}
@@ -135,6 +213,105 @@ namespace jade
 		
 		return intersect;
 	}
+	
+	float EmptySceneAcclerator::Visibility(const jade::Ray &ray, const jade::Range &rayRange) const
+	{
+		float epsilon = 0.00001f;
+		
+		for(size_t i = 0 ; i < scene->primList.size(); i++)
+		{
+			const AABB& worldBound = cache[i].worldBound;
+			Range newRange;
+			if(IntersectRayAABB(ray, worldBound, newRange, epsilon) == 1 ) //fixme, should changed to segment to aabb test
+			{
+				if(SampleVisiblity(ray,  rayRange, cache[i]) == 0.f)
+					return 0.f;
+			}
+		}
+		
+		return 1.f;
+	}
+
+	RGB32F Sample(const PointLight& light, const Vector3& p, Vector3& wi, float& pdf)
+	{
+		Vector3 l = light.pos - p;
+		wi = Normalize(l);
+		pdf = 1.f;
+		return light.intensity / l.SquaredLength();
+	}
+	
+	float SampleVisibility(const Vector3& p, const PointLight& light, float epsilon, const SceneAccelerator* accelerator)
+	{
+		Ray r;
+		r.origin = p;
+		Vector3 dir = light.pos - p;
+		r.direction = Normalize(dir);
+		
+		Range range;
+		range.tmin = epsilon;
+		range.tmax = dir.Length();
+		
+		return accelerator->Visibility(r, range);
+	}
+	
+	RGB32F Sample(const DirectionLight& light, const Vector3& p, Vector3& wi, float& pdf)
+	{
+		wi = light.dir;
+		pdf = 1.f;
+		return light.radiance;
+	}
+	
+	int Intersect(const Ray& ray, const SceneAccelerator* accelerator, Intersection& isect)
+	{
+		return accelerator->Intersect(ray, isect);
+	}
+	
+	float SampleVisibility(const Vector3& p, const DirectionLight& light, float epsilon, const SceneAccelerator* accelerator)
+	{
+		Ray r;
+		r.origin = p;
+		Vector3 dir = light.dir;
+		r.direction = Normalize(dir);
+		
+		
+		Range range;
+		range.tmin = epsilon;
+		range.tmax = 10000.f; //fixme, should be scene bound
+		
+		
+		return accelerator->Visibility(r, range);
+	}
+	
+	RGB32F Sample(const Light& light, const Vector3& p, Vector3& wi, float& pdf)
+	{
+		switch(light.type)
+		{
+			case Light::LT_POINT:
+				return Sample((const PointLight&) light, p, wi, pdf);
+			case Light::LT_DIRECTION:
+				return Sample((const DirectionLight&) light, p, wi, pdf);
+			case Light::LT_GEOMETRY_AREA:
+				return RGB32F(0.f);
+		}
+		
+		return RGB32F(0.f);
+	}
+	
+	float SampleVisibility(const Vector3& p, const Light& light, float epsilon, const SceneAccelerator* accelerator)
+	{
+		switch(light.type)
+		{
+			case Light::LT_POINT:
+				return SampleVisibility(p, (const PointLight&) light, epsilon, accelerator);
+			case Light::LT_DIRECTION:
+				return SampleVisibility(p, (const DirectionLight&) light, epsilon, accelerator);
+			case Light::LT_GEOMETRY_AREA:
+				return 1.f;
+		}
+		
+		return 1.f;
+	}
+
 
 	class RendererRT : public Renderer
 	{
@@ -165,40 +342,24 @@ namespace jade
 		imgBuf[y * width * 4 + x  * 4 + 3] = 0;
 	}
 
-	Vector3 Shade(const Scene* scene, const Ray& ray, const Intersection& isect)
+	Vector3 Shade(const Scene* scene, const SceneAccelerator* accelerator, const Ray& ray, const Intersection& isect)
 	{
 		Vector3 color = Vector3(0.f);
 		for(int i = 0; i < scene->lightList.size(); i++)
 		{
 			Light* light = scene->lightList[i];
-
-			switch(light->type)
-			{
-			case(Light::LT_POINT):
-				{
-					PointLight* ptLight = (PointLight*) (light);
-					Vector3 l = ptLight->pos - isect.p;
-					float distSquared = l.SquaredLength();
-					l.Normalize();
-					Vector3 wo = Normalize(-ray.direction);
-					float nDotL = std::max(dot(isect.n, l), 0.f);
-					color += ptLight->intensity * nDotL * ( BlinnBRDF(wo, l, isect.n, l, Vector3(0.04), 0.5) ) / distSquared;
-					//color = isect.n ;
-				}
-				break;
-			case(Light::LT_DIRECTION):
-				{
-					DirectionLight* dirLight = (DirectionLight*) (light);
-					Vector3 l = dirLight->dir;
-					l.Normalize();
-					Vector3 wo = Normalize(-ray.direction);
-					float nDotL = std::max(dot(isect.n, l), 0.f);
-					color += dirLight->intensity * nDotL * ( BlinnBRDF(wo, l, isect.n, l, Vector3(0.04), 0.5) );
-					//color = isect.n ;
-				}
-				break;
-			}
-
+			
+			Vector3 wi;
+			float pdf;
+			RGB32F lightRadiance = Sample(*light, isect.p, wi, pdf);
+			
+			float visibility = SampleVisibility(isect.p, *light, 0.01f, accelerator);
+			
+			float nDotL = std::max(dot(isect.n, wi), 0.f);
+			Vector3 wo = Normalize(-ray.direction);
+			
+			color += lightRadiance * nDotL * visibility * BlinnBRDF(wo, wi, isect.n,  Vector3(0.04), 0.5) / pdf;
+			
 		}
 
 		return color;
@@ -207,11 +368,10 @@ namespace jade
 	void RendererRT::ScreenShot(const char* path, const Camera* camera, const Scene* scene)
 	{
 		unsigned char* imgBuf = new unsigned char[options.width * options.height * 4];
-		TransformCache* transformCache = new TransformCache[scene->primList.size()];
-		for(size_t i = 0; i < scene->primList.size(); i++)
-		{
-			BuildCache(camera, scene->primList[i], transformCache[i]);
-		}
+		
+		SceneAccelerator* accelerator = new EmptySceneAcclerator();
+		accelerator->Build(scene);
+		
 
 		Matrix4x4 rasterToCamMat = camera->RasterToCameraMatrix();
 		Matrix4x4 invViewMatrix = camera->InvViewMatrix();
@@ -229,9 +389,9 @@ namespace jade
 
 				Intersection isect;
 
-				if(Intersect(ray, scene, transformCache, isect))
+				if(Intersect(ray, accelerator, isect))
 				{
-					Vector3 color = Shade(scene, ray, isect);
+					Vector3 color = Shade(scene, accelerator, ray, isect);
 					SetColor(imgBuf, options.width, options.height, j, i, color);
 				}
 				else
@@ -243,9 +403,10 @@ namespace jade
 		}
 
 		SaveTGA(path, imgBuf,  options.width, options.height);
-
+		
+		delete accelerator;
 		delete [] imgBuf;
-		delete [] transformCache;
+
 	}
 
 	void RendererRT::SetRendererOption(void* options)

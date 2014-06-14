@@ -815,7 +815,7 @@ namespace jade
 					Vector4 lightDir(dirLight->dir.x, dirLight->dir.y, dirLight->dir.z, 0.f);
 
 					glUniform4fv(lightPosDirLoc, 1, reinterpret_cast<const float*> (&lightDir) );
-					glUniform3fv(lightIntensityLoc, 1, reinterpret_cast<const float*> (&dirLight->intensity) );	
+					glUniform3fv(lightIntensityLoc, 1, reinterpret_cast<const float*> (&dirLight->radiance) );
 
                     
 					Matrix4x4 shadowVpMat = Matrix4x4(0.5, 0, 0, 0.5,

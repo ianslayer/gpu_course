@@ -16,6 +16,7 @@ extern "C" {
     void InputControl(float frameTime);
     void InitRenderer(float width, float height, float scaleFactor);
     void InitScene();
+	void RayTraceScreenShot();
     void RenderFrame();
     
 #ifdef __cplusplus
@@ -26,6 +27,7 @@ extern "C" {
 #ifdef __cplusplus
 #include "../../../window.h"
 #include "../../../jade/renderer_gl.h"
+#include "../../../jade/renderer_ray_tracing.h"
 #include "../../../jade/renderer_hw1.h"
 #include <algorithm>
 
@@ -164,6 +166,8 @@ public:
 		if(key == KEY_M && pressed == false)
 		{
 			options.screenShot = true;
+			
+			RayTraceScreenShot();
 		}
 			
         

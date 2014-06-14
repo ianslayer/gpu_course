@@ -198,7 +198,7 @@ inline void Barycentric(Vector3 a, Vector3 b, Vector3 c, Vector3 p, float* u, fl
     *u = 1.f - *v - *w;
 }
 
-inline float TriangleArea(Vector3 v0, Vector3 v1, Vector3 v2)
+inline float TriangleArea(const Vector3& v0, const Vector3& v1, const Vector3 &v2)
 {
     Vector3 v = v1 - v0;
     Vector3 w = v2 - v0;
@@ -289,6 +289,7 @@ struct VertexP3N3T4T2
     Vector2 texcoord;
 };
 	
+	/*
 template <typename VertexType>
 inline int IntersectSegmentTriangle(const Ray& ray, const Range& range, const VertexType* vertices, const int* indices, float& u, float& v, float& w, float& t)
 {
@@ -330,6 +331,48 @@ inline int IntersectSegmentTriangle(const Ray& ray, const Range& range, const Ve
 
 	return 1;
 }
+	*/
+	
+template <typename VertexType>
+inline int IntersectSegmentTriangle(const Ray& ray, const Range& range, const VertexType* vertices, const int* indices, float& u, float& v, float& w, float& t)
+{
+	const Vector3& p1 = vertices[indices[0]].position;
+	const Vector3& p2 = vertices[indices[1]].position;
+	const Vector3& p3 = vertices[indices[2]].position;
+
+	Vector3 e1 = p2 - p1;
+	Vector3 e2 = p3 - p1;
+	Vector3 s1 = cross(ray.direction, e2);
+	float divisor = dot(s1, e1);
+	
+	if (divisor == 0.)
+		return 0;
+	float invDivisor = 1.f / divisor;
+
+	// Compute first barycentric coordinate
+	Vector3 s = ray.origin - p1;
+	float b1 = dot(s, s1) * invDivisor;
+	if (b1 < 0. || b1 > 1.)
+		return 0;
+	
+	// Compute second barycentric coordinate
+	Vector3 s2 = cross(s, e1);
+	float b2 = dot(ray.direction, s2) * invDivisor;
+	if (b2 < 0. || b1 + b2 > 1.)
+		return 0;
+	
+	// Compute _t_ to intersection point
+	t = dot(e2, s2) * invDivisor;
+	if (t < range.tmin || t > range.tmax)
+		return 0;
+	
+	v = b1;
+	w = b2;
+	u = 1 - (b1 + b2);
+	
+	return 1;
+}
+	
 	
 }
 

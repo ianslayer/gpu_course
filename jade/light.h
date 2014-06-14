@@ -2,6 +2,7 @@
 #define LIGHT_H
 #include "refcount.h"
 #include "../vector.h"
+#include "color.h"
 #include "../matrix.h"
 #include "geometry.h"
 
@@ -15,6 +16,7 @@ namespace jade
 			LT_POINT,
 			LT_DIRECTION,
 			LT_GEOMETRY_AREA,
+			LT_SPHERE_AREA,
 		};
 
 		Light(TYPE _type) : type(_type)
@@ -54,24 +56,35 @@ namespace jade
 	{
 	public:
 
-		DirectionLight() : dir(0, 0, 1), intensity(1.f), Light(LT_DIRECTION) {}
-		DirectionLight(const Vector3& _dir, const Vector3 _intensity) : dir(_dir), intensity(_intensity), Light(LT_DIRECTION) {}
+		DirectionLight() : dir(0, 0, 1), radiance(1.f), Light(LT_DIRECTION) {}
+		DirectionLight(const Vector3& _dir, const Vector3 _radiance) : dir(_dir), radiance(_radiance), Light(LT_DIRECTION) {}
 		Matrix4x4 ShadowViewMatrix() const;
 		Matrix4x4 InvShadowViewMatrix() const;
 		Matrix4x4 ShadowProjMatrix(const AABB& worldBound) const;
 
 		Vector3 dir;
-		Vector3 intensity;
+		Vector3 radiance;
 	};
 
 	class GeomAreaLight : public Light
 	{
 	public:
-		GeomAreaLight() : emitRadiance(0.f), Light(LT_GEOMETRY_AREA) {}
+		GeomAreaLight() : radiance(0.f), Light(LT_GEOMETRY_AREA), prim(0) {}
 
-		Vector3 emitRadiance;
+		Vector3 radiance;
+		class Primitive* prim;
 	};
 
+	class SphereAreaLight : public Light
+	{
+	public:
+		SphereAreaLight() : radiance(0.f), Light(LT_SPHERE_AREA) {}
+		
+		Vector3 pos;
+		Vector3 radiance;
+		float   radius;
+	};
+	
 
 }
 
