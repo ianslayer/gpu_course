@@ -1,7 +1,7 @@
 #ifndef MONTE_CARLO_H
 #define MONTE_CARLO_H
 
-#include "vector.h"
+#include "../vector.h"
 #include <vector>
 
 namespace jade
@@ -19,6 +19,15 @@ namespace jade
 	Vector2 UniformSampleDisk(float u1, float u2);
 	Vector2 ConcentricSampleDisk(float u1, float u2);
 	
+	inline Vector3 CosineSampleHemisphere(float u1, float u2) {
+		Vector3 ret;
+		Vector2 xy = ConcentricSampleDisk(u1, u2);
+		ret.x = xy.x;
+		ret.y = xy.y;
+		ret.z = sqrtf(std::max(0.f, 1.f - ret.x*ret.x - ret.y*ret.y));
+		return ret;
+	}
+
 	Vector2 UniformSampleTriangle(float u1, float u2);
 	
 	struct Distribution1D {

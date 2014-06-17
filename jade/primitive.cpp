@@ -100,7 +100,7 @@ bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* dev
 	return true;
 }
 
-Primitive* CreateCube(const Vector3& pos, const Vector3 radius, Mesh* cubeMesh)
+Primitive* CreateCube(TextureManager* texManater, const Vector3& pos, const Vector3 radius, Mesh* cubeMesh)
 {
 	Primitive* prim = new Primitive();
 	prim->mesh = cubeMesh;
@@ -110,6 +110,8 @@ Primitive* CreateCube(const Vector3& pos, const Vector3 radius, Mesh* cubeMesh)
 									0, 0, radius.z);
 
 	prim->material = new Material();
+
+	prim->material->diffuseMap = texManater->Load("sys:white");
 
 	return prim;
 }

@@ -74,7 +74,7 @@ namespace jade
 
 		whiteTexture->hwTexture = hwTexture;
 
-		texTable["sys:white"] = whiteTexture;
+		texTable[NormalizePath("sys:white")] = whiteTexture;
 	}
 
 	Texture* TextureManager::Load(const std::string& path, bool srgbTexture)

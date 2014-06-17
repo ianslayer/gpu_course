@@ -15,6 +15,9 @@
 #include "renderer_hw1.h"
 #include "renderer_ray_tracing.h"
 #include "camera.h"
+#include "rng.h"
+#include "monte_carlo.h"
+#include "brdf.h"
 
 Window window;
 jade::RenderDevice* device;
@@ -245,6 +248,125 @@ void Shutdown()
 	jade::ShutdownRenderDevice(device);
 }
 
+
+const static int numTestSamples = 16 * 16; 
+Vector3 samples3D[numTestSamples];
+Vector2 samples2D[numTestSamples];
+Vector2 sampleTriangle[numTestSamples];
+
+void TestUniformSampleHemisphere()
+{
+	jade::RNG rng;
+	for(int i = 0; i < numTestSamples; i++)
+	{
+		samples3D[i] = jade::UniformSampleHemisphere(rng.RandomFloat(), rng.RandomFloat());
+	}
+}
+
+void TestSampleCosineHemiSphere()
+{
+	jade::RNG rng;
+	for(int i = 0; i < numTestSamples; i++)
+	{
+		samples3D[i] = jade::CosineSampleHemisphere(rng.RandomFloat(), rng.RandomFloat());
+	}
+}
+
+void TestUniformSampleSphere()
+{
+	jade::RNG rng;
+	for(int i = 0; i < numTestSamples; i++)
+	{
+		samples3D[i] = jade::UniformSampleSphere(rng.RandomFloat(), rng.RandomFloat());
+	}
+}
+
+void TestUniformSampleSquare()
+{
+	jade::RNG rng;
+	for(int i = 0; i < numTestSamples; i++)
+	{
+		samples2D[i] = Vector2(rng.RandomFloat(), rng.RandomFloat());
+	}
+}
+
+/*
+void TestSampleStratifiedSqure()
+{
+	jade::RNG rng;
+	StratifiedSample2D(samples2D, 16, 16, rng);
+}
+*/
+
+void TestSampleDisk()
+{
+	jade::RNG rng;
+	for(int i = 0; i < numTestSamples; i++)
+	{
+		samples2D[i] = jade::UniformSampleDisk(rng.RandomFloat(), rng.RandomFloat());
+	}
+}
+
+void TestSampleConcentricDisk()
+{
+	jade::RNG rng;
+	for(int i = 0; i < numTestSamples; i++)
+	{
+		samples2D[i] = jade::ConcentricSampleDisk(rng.RandomFloat(), rng.RandomFloat());
+	}
+}
+
+void TestSampleTriangle()
+{
+	jade::RNG rng;
+	for(int i = 0; i < numTestSamples; i++)
+	{
+		samples2D[i] = jade::UniformSampleTriangle(rng.RandomFloat(), rng.RandomFloat());
+	}
+}
+
+void TestSampleBlinnNDF(Vector3 wo)
+{
+	jade::RNG rng;
+	for(int i = 0; i < numTestSamples; i++)
+	{
+		float pdf = 0.f;
+		while(pdf == 0.f)
+			jade::SampleBlinnNDF(wo, samples3D[i], 20, rng.RandomFloat(), rng.RandomFloat(), pdf);
+
+	}
+}
+
+void TestSamplePrim(jade::Primitive* prim)
+{
+	jade::RNG rng;
+	jade::PrimitiveSampler sampler(prim);
+
+	for(int i = 0; i < numTestSamples; i++)
+	{
+		Vector3 normal;
+		samples3D[i] = sampler.Sample(rng.RandomFloat(), rng.RandomFloat(), rng.RandomFloat(), normal);
+	}
+}
+
+void Draw3DSamples(jade::Renderer* renderer, const jade::Camera* camera, const Vector3& origin, const Vector3* samples, int numSamples)
+{
+	for(int i = 0; i < numSamples; i++)
+	{
+		jade::AABB bound;
+		bound.center = origin + samples[i];
+		bound.radius = Vector3(1.f);
+
+		renderer->DrawBoundingBox(camera, bound);
+
+	}
+}
+
+void TestSample()
+{
+	TestSampleCosineHemiSphere();
+}
+
 void SetCastShadow(std::vector<jade::Primitive* >& primitiveList)
 {
 	for(size_t i = 0; i < primitiveList.size(); i++)
@@ -255,9 +377,12 @@ void SetCastShadow(std::vector<jade::Primitive* >& primitiveList)
 
 void LoadResources()
 {
+	//TestSample();
+	//TestSampleBlinnNDF(Normalize(Vector3(0, 0, 1) ));
+
 	Matrix4x4 flipMatrix = Matrix4x4(		
 		1.f, 0, 0, 0,
-		0, 0, 1.f, 0,
+		0, 0, -1.f, 0,
 		0, 1.f, 0, 0,
 		0, 0, 0, 1.f);
 
@@ -266,23 +391,29 @@ void LoadResources()
 		0.f, -1.f
 		);
 
-	std::vector<jade::Primitive* > primitiveList, primitiveList2;
-	ObjMesh objMesh, objMesh2;
+	std::vector<jade::Primitive* > primitiveList, primitiveList2, primitiveList3;
+	ObjMesh objMesh, objMesh2, objMesh3;
 	//objMesh.Load("data/sponza/sponza.obj");
 	objMesh2.Load("data/db5/db5.obj");
+	objMesh3.Load("data/sphere.obj");
 	//jade::LoadFromObjMesh(objMesh, device, texManager,  flipMatrix, texflipMatrix, primitiveList);
 	jade::LoadFromObjMesh(objMesh2, device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList2);
+	jade::LoadFromObjMesh(objMesh3, device, texManager, Translate(Vector3(-200, 0, 400)) * Scale(Vector3(40, 40, 40)), texflipMatrix, primitiveList3);
 
 	//SetCastShadow(primitiveList);
 	SetCastShadow(primitiveList2);
-
-	scene->AddPrimitives(primitiveList);
-	scene->AddPrimitives(primitiveList2);
-
 	jade::Mesh* cubeMesh = CreateMeshCube(device);
-	jade::Primitive* cubePrim = CreateCube(Vector3(0.f, 0.f, -200.f), Vector3(200.f), cubeMesh);
+	jade::Primitive* cubePrim = CreateCube(texManager, Vector3(0.f, 0.f, -200.f), Vector3(200.f), cubeMesh);
 
+	TestSamplePrim(primitiveList3[0]);
+
+	//cubePrim->castShadow = true;
 	scene->AddPrimitive(cubePrim);
+
+	//scene->AddPrimitives(primitiveList);
+	scene->AddPrimitives(primitiveList2);
+	scene->AddPrimitives(primitiveList3);
+
 
 	/*
 	jade::Light* dirLight = new jade::DirectionLight(Normalize(Vector3(1, -1, 1)), Vector3(0.6, 0.6, 0.6) );
@@ -313,8 +444,11 @@ void UnloadResources()
 
 void Render(double frameTime)
 {
-
+	
 	renderer->Render(&camera, scene);
+
+	Vector3 offset = Vector3(0.f);
+	Draw3DSamples(renderer, &camera, offset, samples3D, numTestSamples);
 
     SwapBuffers(window.hdc);
 }

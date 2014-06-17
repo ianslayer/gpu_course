@@ -41,7 +41,7 @@ bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* dev
 	for(size_t i= 0 ; i < vertices.size(); i++)
 	{
 		vertices[i].position = DivideW(transform * Vector4(vertices[i].position, 1.f));
-		vertices[i].normal = DiscardW(transform * Vector4(vertices[i].normal, 0.f) );
+		vertices[i].normal = Normalize(DiscardW(transform * Vector4(vertices[i].normal, 0.f) ));
 		vertices[i].texcoord = texMatrix * vertices[i].texcoord;
 	}
 

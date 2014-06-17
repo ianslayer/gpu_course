@@ -6,6 +6,7 @@ namespace jade
     class Scene;
     class Camera;
 	class Texture;
+	class AABB;
 
     class Renderer
     {
@@ -15,6 +16,8 @@ namespace jade
 		virtual void ScreenShot(const char* path, const Camera* camera, const Scene* scene) {};
 		virtual void ScreenShot(const char* path, const Camera* camera, const Scene* scene, Texture* tex) {};
         virtual void SetRendererOption(void* options) {}
+
+		virtual void DrawBoundingBox(const Camera* camera, const AABB& bound) {}; //debug hack
     };
 
 }

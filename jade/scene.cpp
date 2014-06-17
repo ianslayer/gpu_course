@@ -10,15 +10,26 @@ namespace jade
 		{
 			primList.push_back(_primList[i]);
 		}
+
+		ComputeWorldBound();
 	}
 
 	void Scene::AddPrimitive(Primitive* prim)
 	{
 		primList.push_back(prim);
+		ComputeWorldBound();
 	}
 
 	void Scene::AddLight(Light* light)
 	{
 		lightList.push_back(light);
+	}
+
+	void Scene::ComputeWorldBound()
+	{
+		for(size_t i = 0; i < primList.size(); i++)
+		{
+			worldBound = Merge(worldBound, primList[i]->WorldBound());
+		}
 	}
 }

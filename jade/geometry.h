@@ -34,6 +34,11 @@ struct Sphere
     float   radius;
 };
 
+inline Sphere BoundSphere(const AABB& bound)
+{
+	return Sphere(bound.center, bound.radius.Length());
+}
+
 struct Ray
 {
 	Ray() : origin(0, 0, 0), direction(0, 0, 1) {}

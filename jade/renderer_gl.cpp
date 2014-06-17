@@ -47,8 +47,6 @@ namespace jade
 		GLuint sampleCubeVbo;
 		GLuint sampleCubeIbo;
 
-		void DrawTestSamples3D(const Camera* camera);
-		void DrawTestSamples2D(const Camera* camera);
 		void DrawSamples(const Camera* camera, const Vector3& origin, const Vector3* samples, int numSamples);
 		void DrawSamples(const Camera* camera, const Vector3& origin, const Vector2* samples, int numSamples);
 		void DrawTriangleSamples(const Camera* camera, const Vector3& origin, const Vector2* samples, int numSamples);
@@ -106,6 +104,9 @@ namespace jade
 		blackTexture = GenerateColorTexture(0.f, 0.f, 0.f, 0.f);
 		uniZTexture = GenerateColorTexture(0.5f, 0.5f, 1.f, 0.f);
 		noiseTexture = GenerateNoiseTexture(64, 64);
+
+		glEnable(GL_CULL_FACE);
+
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		glEnable(GL_TEXTURE_2D);
@@ -936,7 +937,7 @@ namespace jade
         
 		if(options.dbgDraw == GLRendererOptions::DBG_DRAW_SHADOW_MAP)
 		{
-			DrawTexture(0, 0, 256, 256, this->varianceShadowMap->GetTexture());
+			DrawTexture(0, 0, 256, 256, this->shadowMap->GetTexture());
 			DrawTexture(0, 256, 256, 256, this->sceneShadowAccumMap->GetTexture());
 			DrawLightBounding(camera, scene);
 		}
@@ -1153,94 +1154,7 @@ namespace jade
 		delete [] imgBuffer;
 	}
 	
-/*
-	const static int numTestSamples = 16 * 16; 
-	Vector3 samples3D[numTestSamples];
-	Vector2 samples2D[numTestSamples];
-	Vector2 sampleTriangle[numTestSamples];
 
-	void TestUniformSampleHemisphere()
-	{
-		RNG rng;
-		for(int i = 0; i < numTestSamples; i++)
-		{
-			samples3D[i] = UniformSampleHemisphere(rng.RandomFloat(), rng.RandomFloat());
-		}
-	}
-
-	void TestSampleCosineHemiSphere()
-	{
-		RNG rng;
-		for(int i = 0; i < numTestSamples; i++)
-		{
-			samples3D[i] = CosineSampleHemisphere(rng.RandomFloat(), rng.RandomFloat());
-		}
-	}
-
-	void TestUniformSampleSphere()
-	{
-		RNG rng;
-		for(int i = 0; i < numTestSamples; i++)
-		{
-			samples3D[i] = UniformSampleSphere(rng.RandomFloat(), rng.RandomFloat());
-		}
-	}
-
-	void TestUniformSampleSquare()
-	{
-		RNG rng;
-		for(int i = 0; i < numTestSamples; i++)
-		{
-			samples2D[i] = Vector2(rng.RandomFloat(), rng.RandomFloat());
-		}
-	}
-
-	void TestSampleStratifiedSqure()
-	{
-		RNG rng;
-		StratifiedSample2D(samples2D, 16, 16, rng);
-	}
-
-	void TestSampleDisk()
-	{
-		RNG rng;
-		for(int i = 0; i < numTestSamples; i++)
-		{
-			samples2D[i] = UniformSampleDisk(rng.RandomFloat(), rng.RandomFloat());
-		}
-	}
-
-	void TestSampleConcentricDisk()
-	{
-		RNG rng;
-		for(int i = 0; i < numTestSamples; i++)
-		{
-			samples2D[i] = ConcentricSampleDisk(rng.RandomFloat(), rng.RandomFloat());
-		}
-	}
-
-	void TestSampleTriangle()
-	{
-		RNG rng;
-		for(int i = 0; i < numTestSamples; i++)
-		{
-			samples2D[i] = UniformSampleTriangle(rng.RandomFloat(), rng.RandomFloat());
-		}
-	}
-
-	void RendererGL::DrawTestSamples3D(const Camera* camera)
-	{
-		
-		Vector3 origin = Vector3(0.f);
-		DrawSamples(camera, origin , samples3D, numTestSamples);
-	}
-
-	void RendererGL::DrawTestSamples2D(const Camera* camera)
-	{
-		Vector3 origin = Vector3(0.f);
-		DrawSamples(camera, origin, samples2D, numTestSamples);
-	}
-	
 	void RendererGL::DrawSamples(const Camera* camera, const Vector3& origin, const Vector3* samples, int numSamples)
 	{
 
@@ -1260,7 +1174,7 @@ namespace jade
 		 }
 		 
 	}
-	*/
+
 	void RendererGL::DrawSamples(const Camera* camera, const Vector3& origin, const Vector2* samples, int numSamples)
 	{
 		glViewport(0, 0, (GLsizei) camera->width * device->setting.screenScaleFactor, (GLsizei) camera->height * device->setting.screenScaleFactor);

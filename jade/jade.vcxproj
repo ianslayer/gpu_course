@@ -146,6 +146,7 @@
     <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="monte_carlo.cpp" />
     <ClCompile Include="primitive.cpp" />
     <ClCompile Include="renderer_hw1.cpp" />
     <ClCompile Include="renderer_ray_tracing.cpp" />
@@ -153,12 +154,12 @@
     <ClCompile Include="render_device_gl.cpp" />
     <ClCompile Include="renderer_gl.cpp" />
     <ClCompile Include="render_device_hw1.cpp" />
+    <ClCompile Include="rng.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\file_utility.h" />
-    <ClInclude Include="..\geometry.h" />
     <ClInclude Include="..\camera.h" />
     <ClInclude Include="..\GL\gl3w.h" />
     <ClInclude Include="..\GL\glcorearb.h" />
@@ -173,10 +174,12 @@
     <ClInclude Include="..\window.h" />
     <ClInclude Include="brdf.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="geometry.h" />
     <ClInclude Include="jade_math.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="monte_carlo.h" />
     <ClInclude Include="primitive.h" />
     <ClInclude Include="refcount.h" />
     <ClInclude Include="renderer_hw1.h" />

@@ -535,6 +535,16 @@ inline Matrix4x4 Scale(const Vector3& _scale)
                      0, 0, 0, 1);
 }
 
+inline Vector3 TransformVector(const Matrix4x4& m, const Vector3& v)
+{
+	return DiscardW(m * Vector4(v, 0.f) );
+}
+
+inline Vector3 TransformPoint(const Matrix4x4& m, const Vector3& v)
+{
+	return DiscardW(m * Vector4(v, 1.f));
+}
+
 inline Matrix4x4 RotateAxis(const Vector3& r, float rad)
 {
 

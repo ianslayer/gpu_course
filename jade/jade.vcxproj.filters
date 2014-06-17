@@ -87,6 +87,12 @@
     <ClCompile Include="renderer_ray_tracing.cpp">
       <Filter>jade\Source</Filter>
     </ClCompile>
+    <ClCompile Include="monte_carlo.cpp">
+      <Filter>jade\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="rng.cpp">
+      <Filter>jade\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\GL\gl3w.h">
@@ -118,9 +124,6 @@
     </ClInclude>
     <ClInclude Include="primitive.h">
       <Filter>jade\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\geometry.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="scene.h">
       <Filter>jade\Header</Filter>
@@ -190,6 +193,12 @@
     </ClInclude>
     <ClInclude Include="renderer_ray_tracing.h">
       <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="monte_carlo.h">
+      <Filter>jade\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

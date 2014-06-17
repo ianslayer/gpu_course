@@ -13,16 +13,6 @@
 
 namespace jade
 {
-	struct Intersection
-	{
-		Vector3 p;
-		Vector3 n;
-		Vector4 tangent;
-		Vector2 uv;
-		float minT;
-		const Primitive* prim;
-	};
-
 	class TransformCache
 	{
 	public:
@@ -64,51 +54,83 @@ namespace jade
 		cache.worldBound = prim->WorldBound();
 	}
 	
-	int IntersectPrimitiveTriangle(const Ray& ray, const Range& range, const TransformCache& cache, float& outtmin, Vector3& normal)
+	struct Intersection
 	{
-		float tmin = range.tmax;
-		int intersect = 0;
-		int minTriIndex = 0;
-		float minU, minV, minW;
+		Vector3 p;
+		Vector3 n;
+		Vector4 tangent;
+		Vector2 uv;
+		float minT;
+		const Primitive* prim;
+	};
+
+	struct IntersectInfo
+	{
+		float u, v; //barycentric coord of intersect
+		float minT;
+		int triIndex;
+		const class TransformCache* cache;
+		const Ray* ray;
+	};
+
+	void ResolveIntersection(const IntersectInfo& isectInfo, Intersection& isect)
+	{
+		isect.p = GetPoint(*isectInfo.ray, isectInfo.minT);
+
+		Vector3 n0, n1, n2;
+		Vector3 t0, t1, t2;
+
+		float u = isectInfo.u;
+		float v = isectInfo.v;
+		float w = 1- u - v;
+
+		n0 = isectInfo.cache->worldNormalCache[isectInfo.triIndex * 3];
+		n1 = isectInfo.cache->worldNormalCache[isectInfo.triIndex * 3 + 1];
+		n2 = isectInfo.cache->worldNormalCache[isectInfo.triIndex * 3 + 2];
+
+		int i0, i1, i2; //tangent and other properties must be indexed by index buffer
+		i0 = isectInfo.cache->prim->mesh->indices[isectInfo.triIndex * 3];
+		i1 = isectInfo.cache->prim->mesh->indices[isectInfo.triIndex * 3 + 1];
+		i2 = isectInfo.cache->prim->mesh->indices[isectInfo.triIndex * 3 + 2];
+
+		float tangentParity = isectInfo.cache->prim->mesh->tangentList[i0][3];
+		t0 = DiscardW(isectInfo.cache->prim->mesh->tangentList[i0]);
+		t1 = DiscardW(isectInfo.cache->prim->mesh->tangentList[i1]);
+		t2 = DiscardW(isectInfo.cache->prim->mesh->tangentList[i2]);
+
+		isect.n = Normalize(n0 *u + n1 * v + n2 * w);
+		isect.tangent = Vector4(Normalize(t0 *u + t1 * v + t2 * w),  tangentParity);
+	}
+
+	void IntersectPrimitiveTriangle(const Ray& ray, const Range& range, const TransformCache& cache, IntersectInfo& isectInfo)
+	{
+		float tmin = std::min(range.tmax, isectInfo.minT);
+
 		for(int i = 0; i < cache.prim->mesh->numIndices / 3; i++)
 		{
 			float u, v, w;
 			float t;
-			
+
 			int index[3];
 			index[0] = i * 3 ;
 			index[1] = i * 3 + 1;
 			index[2] = i * 3 + 2;
-			
+
 			if(IntersectSegmentTriangle(ray, range, cache.worldPosCache, index, u, v, w, t) == 1)
 			{
 				if(t < tmin)
 				{
-					outtmin =tmin = t;
-					intersect = 1;
-					minTriIndex = i;
-					minU = u;
-					minV = v;
-					minW = w;
+					isectInfo.minT =tmin = t;
+					isectInfo.triIndex = i;
+					isectInfo.u = u;
+					isectInfo.v = v;
+					isectInfo.cache =&cache;
+					isectInfo.ray = &ray;
 				}
 			}
 		}
-		
-		if(intersect == 1)
-		{
-			Vector3 n0, n1, n2;
-			
-			n0 = cache.worldNormalCache[minTriIndex * 3];
-			n1 = cache.worldNormalCache[minTriIndex * 3 + 1];
-			n2 = cache.worldNormalCache[minTriIndex * 3 + 2];
-			
-			normal = Normalize(n0 * minU + n1 * minV + n2 * minW);
-
-		}
-		
-		return intersect;
 	}
-	
+
 	float SampleVisiblity(const Ray& ray, const Range& range, const TransformCache& cache)
 	{
 		for(int i = 0; i < cache.prim->mesh->numIndices / 3; i++)
@@ -189,29 +211,26 @@ namespace jade
 	int EmptySceneAcclerator::Intersect(const jade::Ray &ray, jade::Intersection &isect) const
 	{
 		float epsilon = 0.00001f;
-		float tmin = FLT_MAX;
-		int intersect = 0;
-		
+		IntersectInfo isectInfo;
+		isectInfo.minT = FLT_MAX;
+		isectInfo.triIndex = -1;
 		for(size_t i = 0 ; i < scene->primList.size(); i++)
 		{
 			const AABB& worldBound = cache[i].worldBound;
 			Range newRange;
 			if(IntersectRayAABB(ray, worldBound, newRange, epsilon) == 1  )
 			{
-				float triTmin = FLT_MAX ;
-				Vector3 normal;
-				if(IntersectPrimitiveTriangle(ray, newRange, cache[i], triTmin, normal) == 1 && triTmin < tmin)
-				{
-					tmin = triTmin;
-					isect.prim = cache->prim;
-					isect.p = GetPoint(ray, tmin);
-					isect.n = normal;
-					intersect = 1;
-				}
+				IntersectPrimitiveTriangle(ray, newRange, cache[i], isectInfo);	
 			}
 		}
 		
-		return intersect;
+		if(isectInfo.triIndex != -1)
+		{
+			ResolveIntersection(isectInfo, isect);
+			return 1;
+		}
+
+		return 0;
 	}
 	
 	float EmptySceneAcclerator::Visibility(const jade::Ray &ray, const jade::Range &rayRange) const
@@ -360,6 +379,8 @@ namespace jade
 			
 			color += lightRadiance * nDotL * visibility * BlinnBRDF(wo, wi, isect.n,  Vector3(0.04), 0.5) / pdf;
 			
+			color = isect.n * 0.5 + Vector3(0.5);
+			//color = DivideW(isect.tangent) * 0.5 + Vector3(0.5);
 		}
 
 		return color;

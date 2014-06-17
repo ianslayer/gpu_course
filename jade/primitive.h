@@ -44,7 +44,7 @@ namespace jade
 	void LoadFromObjMesh(const ObjMesh& objMesh, RenderDevice* device, TextureManager* texManater, Matrix4x4 transform, Matrix2x2 texcoordMatrix, std::vector<Primitive* >& primList);
 	void LoadFromObjMesh(const ObjMesh& objMesh, RenderDevice* device, TextureManager* texManater, std::vector<Primitive*>& primList);
 
-	Primitive* CreateCube(const Vector3& pos, const Vector3 radius, Mesh* cubeMesh);
+	Primitive* CreateCube(TextureManager* texManater, const Vector3& pos, const Vector3 radius, Mesh* cubeMesh);
 }
 
 #endif
