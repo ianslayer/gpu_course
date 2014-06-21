@@ -135,6 +135,7 @@
 		B24E143F18B35CAE0004BE63 /* light.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = light.cpp; path = ../../light.cpp; sourceTree = "<group>"; };
 		B268F2FA1949515C005B4B75 /* brdf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = brdf.h; path = ../../brdf.h; sourceTree = "<group>"; };
 		B268F2FB19495BE3005B4B75 /* color.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = color.h; path = ../../color.h; sourceTree = "<group>"; };
+		B268F2FC1952CDB1005B4B75 /* tiled_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = tiled_image.h; path = ../../tiled_image.h; sourceTree = "<group>"; };
 		B2701B5D193B00FF00D70A6C /* rng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = rng.h; path = ../../rng.h; sourceTree = "<group>"; };
 		B2701B5E193B01E700D70A6C /* rng.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rng.cpp; path = ../../rng.cpp; sourceTree = "<group>"; };
 		B2701B61193B067E00D70A6C /* monte_carlo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = monte_carlo.h; path = ../../monte_carlo.h; sourceTree = "<group>"; };
@@ -342,6 +343,7 @@
 				B2701B67193B6BDB00D70A6C /* jade_math.h */,
 				B2701B69193E109800D70A6C /* renderer_ray_tracing.h */,
 				B268F2FB19495BE3005B4B75 /* color.h */,
+				B268F2FC1952CDB1005B4B75 /* tiled_image.h */,
 			);
 			name = header;
 			sourceTree = "<group>";

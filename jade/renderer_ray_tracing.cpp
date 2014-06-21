@@ -5,6 +5,7 @@
 #include "camera.h"
 #include "brdf.h"
 #include "light.h"
+#include "tiled_image.h"
 #include "renderer_ray_tracing.h"
 #include "renderer.h"
 #include "render_device.h"
@@ -154,12 +155,18 @@ namespace jade
 	
 	class RayPacketIntersectJob
 	{
-		
+	public:
+		int tileX;
+		int tileY;
+		Tile<Ray, 32>* rayPacket;
 	};
 	
 	class RayPacketIntersectResult
 	{
-		
+	public:
+		int tileX;
+		int tileY;
+		Tile<IntersectInfo, 32>* isectResult;
 	};
 	
 	class SceneAccelerator
@@ -363,7 +370,7 @@ namespace jade
 
 	Vector3 Shade(const Scene* scene, const SceneAccelerator* accelerator, const Ray& ray, const Intersection& isect)
 	{
-		Vector3 color = Vector3(0.f);
+		Vector3 color = Vector3(1.f);
 		for(int i = 0; i < scene->lightList.size(); i++)
 		{
 			Light* light = scene->lightList[i];
@@ -377,9 +384,9 @@ namespace jade
 			float nDotL = std::max(dot(isect.n, wi), 0.f);
 			Vector3 wo = Normalize(-ray.direction);
 			
-			color += lightRadiance * nDotL * visibility * BlinnBRDF(wo, wi, isect.n,  Vector3(0.04), 0.5) / pdf;
+			//color += lightRadiance * nDotL * visibility * BlinnBRDF(wo, wi, isect.n,  Vector3(0.04), 0.5) / pdf;
 			
-			color = isect.n * 0.5 + Vector3(0.5);
+			//color = isect.n * 0.5 + Vector3(0.5);
 			//color = DivideW(isect.tangent) * 0.5 + Vector3(0.5);
 		}
 
@@ -423,6 +430,10 @@ namespace jade
 			}
 		}
 
+		TiledImage<RGBA8, 8> tiledImg((RGBA8*) imgBuf, options.height, options.height);
+		tiledImg.Linearize((RGBA8*) imgBuf);
+		
+		
 		SaveTGA(path, imgBuf,  options.width, options.height);
 		
 		delete accelerator;
