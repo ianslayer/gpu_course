@@ -151,7 +151,7 @@ public:
 		if(key == KEY_M && pressed == false)
 		{
 			options.screenShot = true;
-			rendererRT->ScreenShot("rt.tga", &camera, scene);
+			//rendererRT->ScreenShot("rt.tga", &camera, scene);
 		}
     }
 
@@ -253,6 +253,8 @@ const static int numTestSamples = 16 * 16;
 Vector3 samples3D[numTestSamples];
 Vector2 samples2D[numTestSamples];
 Vector2 sampleTriangle[numTestSamples];
+bool drawSampleLine = false;
+float samplePointSize = 1.f;
 
 void TestUniformSampleHemisphere()
 {
@@ -261,6 +263,8 @@ void TestUniformSampleHemisphere()
 	{
 		samples3D[i] = jade::UniformSampleHemisphere(rng.RandomFloat(), rng.RandomFloat());
 	}
+	drawSampleLine= true;
+	samplePointSize = 0.01;
 }
 
 void TestSampleCosineHemiSphere()
@@ -270,6 +274,8 @@ void TestSampleCosineHemiSphere()
 	{
 		samples3D[i] = jade::CosineSampleHemisphere(rng.RandomFloat(), rng.RandomFloat());
 	}
+	drawSampleLine= true;
+	samplePointSize = 0.01;
 }
 
 void TestUniformSampleSphere()
@@ -279,6 +285,8 @@ void TestUniformSampleSphere()
 	{
 		samples3D[i] = jade::UniformSampleSphere(rng.RandomFloat(), rng.RandomFloat());
 	}
+	drawSampleLine= false;
+	samplePointSize = 0.01;
 }
 
 void TestUniformSampleSquare()
@@ -286,8 +294,10 @@ void TestUniformSampleSquare()
 	jade::RNG rng;
 	for(int i = 0; i < numTestSamples; i++)
 	{
-		samples2D[i] = Vector2(rng.RandomFloat(), rng.RandomFloat());
+		samples3D[i] = Vector3(rng.RandomFloat(), rng.RandomFloat(), 0.f);
 	}
+	drawSampleLine= false;
+	samplePointSize = 0.01;
 }
 
 /*
@@ -298,13 +308,29 @@ void TestSampleStratifiedSqure()
 }
 */
 
+void TestSampleWrongDisk()
+{
+	jade::RNG rng;
+	for(int i = 0; i < numTestSamples; i++)
+	{
+		float r = rng.RandomFloat();
+		float theta = 2 * M_PI * rng.RandomFloat();
+		samples3D[i] = Vector3( r * cos(theta), r* sin(theta), 0);
+	}
+	drawSampleLine= false;
+	samplePointSize = 0.01;
+}
+
 void TestSampleDisk()
 {
 	jade::RNG rng;
 	for(int i = 0; i < numTestSamples; i++)
 	{
-		samples2D[i] = jade::UniformSampleDisk(rng.RandomFloat(), rng.RandomFloat());
+		Vector2 sample = jade::UniformSampleDisk(rng.RandomFloat(), rng.RandomFloat());
+		samples3D[i] = Vector3(sample.x, sample.y, 0);
 	}
+	drawSampleLine= false;
+	samplePointSize = 0.01;
 }
 
 void TestSampleConcentricDisk()
@@ -314,6 +340,8 @@ void TestSampleConcentricDisk()
 	{
 		samples2D[i] = jade::ConcentricSampleDisk(rng.RandomFloat(), rng.RandomFloat());
 	}
+	drawSampleLine= false;
+	samplePointSize = 0.01;
 }
 
 void TestSampleTriangle()
@@ -323,6 +351,8 @@ void TestSampleTriangle()
 	{
 		samples2D[i] = jade::UniformSampleTriangle(rng.RandomFloat(), rng.RandomFloat());
 	}
+	drawSampleLine= false;
+	samplePointSize = 0.01;
 }
 
 void TestSampleBlinnNDF(Vector3 wo)
@@ -332,9 +362,11 @@ void TestSampleBlinnNDF(Vector3 wo)
 	{
 		float pdf = 0.f;
 		while(pdf == 0.f)
-			jade::SampleBlinnNDF(wo, samples3D[i], 20, rng.RandomFloat(), rng.RandomFloat(), pdf);
+			jade::SampleBlinnNDF(wo, samples3D[i], 50, rng.RandomFloat(), rng.RandomFloat(), pdf);
 
 	}
+	drawSampleLine= true;
+	samplePointSize = 0.01;
 }
 
 void TestSamplePrim(jade::Primitive* prim)
@@ -347,18 +379,37 @@ void TestSamplePrim(jade::Primitive* prim)
 		Vector3 normal;
 		samples3D[i] = sampler.Sample(rng.RandomFloat(), rng.RandomFloat(), rng.RandomFloat(), normal);
 	}
+	samplePointSize = 1.f;
+}
+
+void DrawCoordinate(const jade::Camera* camera, jade::Renderer* renderer)
+{
+	Vector3 origin(0, 0, 0);
+	
+	Vector3 red(1, 0, 0);
+	Vector3 x(1, 0, 0);
+	Vector3 green(0, 1, 0);
+	Vector3 y(0, 1, 0);
+	Vector3 blue(0, 0, 1);
+	Vector3 z(0, 0, 1);
+	renderer->DrawLine(camera, origin, x, red);
+	renderer->DrawLine(camera, origin, y, green);
+	renderer->DrawLine(camera, origin, z, blue);
 }
 
 void Draw3DSamples(jade::Renderer* renderer, const jade::Camera* camera, const Vector3& origin, const Vector3* samples, int numSamples)
 {
+	DrawCoordinate(camera, renderer);
 	for(int i = 0; i < numSamples; i++)
 	{
 		jade::AABB bound;
 		bound.center = origin + samples[i];
-		bound.radius = Vector3(1.f);
+		bound.radius = Vector3(samplePointSize);
 
 		renderer->DrawBoundingBox(camera, bound);
-
+		Vector3 red(0, 0, 1);
+		if(drawSampleLine)
+			renderer->DrawLine(camera, origin, samples[i], red);
 	}
 }
 
@@ -378,7 +429,10 @@ void SetCastShadow(std::vector<jade::Primitive* >& primitiveList)
 void LoadResources()
 {
 	//TestSample();
-	//TestSampleBlinnNDF(Normalize(Vector3(0, 0, 1) ));
+//	TestSampleBlinnNDF(Normalize(Vector3(0, 0, 1) ));
+//	TestSampleWrongDisk();
+	TestSampleDisk();
+
 
 	Matrix4x4 flipMatrix = Matrix4x4(		
 		1.f, 0, 0, 0,
@@ -405,7 +459,7 @@ void LoadResources()
 	jade::Mesh* cubeMesh = CreateMeshCube(device);
 	jade::Primitive* cubePrim = CreateCube(texManager, Vector3(0.f, 0.f, -200.f), Vector3(200.f), cubeMesh);
 
-	TestSamplePrim(primitiveList3[0]);
+	//TestSamplePrim(primitiveList3[0]);
 
 	//cubePrim->castShadow = true;
 	scene->AddPrimitive(cubePrim);

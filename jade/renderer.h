@@ -1,6 +1,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+class Vector3;
 namespace jade
 {
     class Scene;
@@ -17,7 +18,8 @@ namespace jade
 		virtual void ScreenShot(const char* path, const Camera* camera, const Scene* scene, Texture* tex) {};
         virtual void SetRendererOption(void* options) {}
 
-		virtual void DrawBoundingBox(const Camera* camera, const AABB& bound) {}; //debug hack
+		virtual void DrawBoundingBox(const Camera* camera, const AABB& bound) {} //debug hack
+		virtual void DrawLine(const Camera* camera, const Vector3& p0, const Vector3& p1, const Vector3& color) {} //debug hack
     };
 
 }

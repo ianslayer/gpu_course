@@ -273,6 +273,12 @@ struct Vertex
 	Vector3 position;
 };
 	
+struct VertexP3C3
+{
+	Vector3 position;
+	Vector3 color;
+};
+
 struct VertexP3T2
 {
 	Vector3 position;

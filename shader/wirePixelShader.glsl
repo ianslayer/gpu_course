@@ -5,5 +5,5 @@ in vec3 vs_fs_color;
 
 void main(void)
 {
-	out_color = vec4(1.0, 0.0, 0.0, 1.0);
+	out_color = vec4(vs_fs_color, 1.0);
 }

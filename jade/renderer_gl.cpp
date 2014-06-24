@@ -31,6 +31,8 @@ namespace jade
 		void ClearDeferredShadow();
 		void AccumDeferredShadow(const Matrix4x4& shadowMapMatrix, float minDepth, float maxDepth, const Matrix4x4& shadowViewMatrix, const Camera* cam);
         
+		void UpdateVertexBuffer(HWVertexBuffer* buffer, void* buf, size_t bufLen, size_t offset);
+
 		virtual void SetRendererOption(void*);
 
 		void ReloadShaders();
@@ -38,6 +40,7 @@ namespace jade
 		void RenderDebugInfo(const Camera* camera, const Scene* scene);
 
 		void DrawBoundingBox(const Camera* camera, const AABB& bound);
+		void DrawLine(const Camera* camera, const Vector3& p0, const Vector3& p1, const Vector3& color);
 		void DrawLightBounding(const Camera* camera, const Scene* scene);
 		
 		void DrawTexture(int x, int y, int width, int height, const HWTexture2D* tex);
@@ -49,7 +52,6 @@ namespace jade
 
 		void DrawSamples(const Camera* camera, const Vector3& origin, const Vector3* samples, int numSamples);
 		void DrawSamples(const Camera* camera, const Vector3& origin, const Vector2* samples, int numSamples);
-		void DrawTriangleSamples(const Camera* camera, const Vector3& origin, const Vector2* samples, int numSamples);
 
 		class RenderDevice* device;
 		GLuint wireframeShader;
@@ -77,6 +79,9 @@ namespace jade
 
 		RefCountedPtr<HWVertexBuffer> fullScreenQuadVB;
 		RefCountedPtr<HWIndexBuffer> fullScreenQuadIB;
+
+		RefCountedPtr<HWVertexBuffer> lineVB;
+		RefCountedPtr<HWIndexBuffer> lineIB;
 
 		GLuint gBufferFbo;
 		RefCountedPtr<HWRenderTexture2D> gbuffer0;
@@ -311,29 +316,48 @@ namespace jade
 			printf("shadow accum framebuffer incomplete\n");
 		}
 
-        
-		VertexP3T2 quad[4];
-		quad[0].position = Vector3(-1, -1, 0); quad[0].texcoord = Vector2(0, 0);
-		quad[1].position = Vector3(1, -1, 0); quad[1].texcoord = Vector2(1, 0);
-		quad[2].position = Vector3(-1, 1, 0); quad[2].texcoord = Vector2(0, 1);
-		quad[3].position = Vector3(1, 1, 0); quad[3].texcoord = Vector2(1, 1);
+		{
+			VertexP3T2 quad[4];
+			quad[0].position = Vector3(-1, -1, 0); quad[0].texcoord = Vector2(0, 0);
+			quad[1].position = Vector3(1, -1, 0); quad[1].texcoord = Vector2(1, 0);
+			quad[2].position = Vector3(-1, 1, 0); quad[2].texcoord = Vector2(0, 1);
+			quad[3].position = Vector3(1, 1, 0); quad[3].texcoord = Vector2(1, 1);
 
-		HWVertexBuffer* vb = NULL;
+			HWVertexBuffer* vb = NULL;
 
-		device->CreateVertexBuffer(sizeof(quad), quad, &vb);
-		fullScreenQuadVB = vb;
+			device->CreateVertexBuffer(sizeof(quad), quad, &vb);
+			fullScreenQuadVB = vb;
 		
 
-		int quadIndices[6] = {0, 1, 2, 2, 1, 3};
-		HWIndexBuffer* ib = NULL;
-		device->CreateIndexBuffer(sizeof(quadIndices), quadIndices, &ib);
-		fullScreenQuadIB = ib;
-        
+			int quadIndices[6] = {0, 1, 2, 2, 1, 3};
+			HWIndexBuffer* ib = NULL;
+			device->CreateIndexBuffer(sizeof(quadIndices), quadIndices, &ib);
+			fullScreenQuadIB = ib;
+		}
+
+		{
+			VertexP3C3 point[2];
+			point[0].position = Vector3(0, 0, 0); point[0].color = Vector3(1.f);
+			point[1].position = Vector3(1, 0, 0); point[1].color = Vector3(1.f);
+
+			HWVertexBuffer* vb = NULL;
+			device->CreateVertexBuffer(sizeof(point), point, &vb);
+			lineVB = vb;
+
+			int lineIndices[2] = {0, 1};
+			HWIndexBuffer* ib = NULL;
+			device->CreateIndexBuffer(sizeof(lineIndices), lineIndices, &ib);
+			lineIB = ib;
+		}
+
+
         cubeVbo = CreateCubeVertexBuffer();
         cubeIbo = CreateWireCubeIndexBuffer();
 
 		sampleCubeVbo = CreateCubeVertexBuffer();
 		sampleCubeIbo = CreateSolidCubeIndexBuffer();
+
+		
 	}
 
     RendererGL::~RendererGL()
@@ -1040,7 +1064,56 @@ namespace jade
         glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, 0);
         
     }
+
+	void RendererGL::DrawLine(const Camera* camera, const Vector3& p0, const Vector3& p1, const Vector3& color)
+	{
+		TurnOffAllAttributes();
+		glUseProgram(wireframeShader);
+
+		glDisable(GL_BLEND);
+		glDepthFunc(GL_LESS);		
+
+		GLint positionAttributeLocation = glGetAttribLocation(wireframeShader, "position");
+		GLint colorAttributeLocation = glGetAttribLocation(wireframeShader, "color");
+
+		VertexP3C3 point[2];
+		point[0].position = p0; point[0].color = color;
+		point[1].position = p1, point[1].color = color;
+		UpdateVertexBuffer(lineVB, point, sizeof(point), 0);
+
+		GLint modelMatLocation = glGetUniformLocation(wireframeShader, "modelMatrix");
+		GLint viewMatLocation = glGetUniformLocation(wireframeShader, "viewMatrix");
+		GLint projectionMatLocation = glGetUniformLocation(wireframeShader, "projectionMatrix");
+
+		Matrix4x4 viewMatrix = camera->ViewMatrix();
+		Matrix4x4 projectionMatrix = camera->PerspectiveMatrix();
+
+		glUniformMatrix4fv(viewMatLocation, 1, GL_TRUE, viewMatrix.FloatPtr());
+		glUniformMatrix4fv(projectionMatLocation, 1, GL_TRUE, projectionMatrix.FloatPtr() );
+
+		Matrix4x4 modelMatrix;
+		MakeIdentity(modelMatrix);
+		glUniformMatrix4fv(modelMatLocation, 1, GL_TRUE, modelMatrix.FloatPtr());
+
+		glBindBuffer(GL_ARRAY_BUFFER, lineVB->GetImpl()->vboID);
+		glEnableVertexAttribArray(positionAttributeLocation);
+		glVertexAttribPointer(positionAttributeLocation, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
+		glEnableVertexAttribArray(colorAttributeLocation);
+		glVertexAttribPointer(colorAttributeLocation, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (GLvoid*)(sizeof(float) * 3));
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lineIB->GetImpl()->iboID);
+
+
+		glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, 0);
+
+	}
 	
+	void RendererGL::UpdateVertexBuffer(HWVertexBuffer* buffer, void* buf, size_t bufLen, size_t offset)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, buffer->GetImpl()->vboID);
+		glBufferSubData(GL_ARRAY_BUFFER, offset, bufLen, buf);
+	}
+
 	void RendererGL::DrawLightBounding(const jade::Camera *camera, const jade::Scene *scene)
 	{
 		for(size_t i = 0; i < scene->lightList.size(); i++)
