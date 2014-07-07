@@ -17,7 +17,8 @@ namespace jade
 	class Primitive;
 	class Camera;
 	class GeomAreaLight;
-
+	class Ray;
+	
     class Primitive : public RefCounted
     {
     public:
@@ -40,6 +41,8 @@ namespace jade
 		GeomAreaLight*				areaLight;
     };
 
+	int Intersect(const Primitive& prim, const Ray& ray, float epsilon, float& t, Vector3& isectNormal);
+	
 	bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* device, TextureManager* texManater, Matrix4x4 transform, Matrix2x2 texcoordMatrix, Primitive** outPrim);
 	void LoadFromObjMesh(const ObjMesh& objMesh, RenderDevice* device, TextureManager* texManater, Matrix4x4 transform, Matrix2x2 texcoordMatrix, std::vector<Primitive* >& primList);
 	void LoadFromObjMesh(const ObjMesh& objMesh, RenderDevice* device, TextureManager* texManater, std::vector<Primitive*>& primList);

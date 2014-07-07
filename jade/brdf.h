@@ -35,9 +35,26 @@ namespace jade
 		float ndf = BlinnNDF(nDotH, roughness);
 		float geom = GeomTerm(wi, wo, n);
 
-		return ( fresnel * ndf ) / (4 * M_PI * hDotWi * geom + 0.0001);
+		return Vector3(0.3) / M_PI + ( fresnel * ndf ) / (4 * M_PI * hDotWi * geom );
 	}
 
+	inline Vector3 BlinnBRDF(const Vector3& wo, const Vector3& wi, const Vector3& f0, float roughness) //tangent ver
+	{
+		Vector3 h = Normalize(wo + wi);
+		Vector3 n = Vector3(0, 0, 1);
+		const Vector3& l = wi;
+		float nDotH = std::max(dot(n, h), 0.f );
+		float lDotH = std::max( dot(l, h), 0.f );
+		
+		float hDotWi = dot(h, wi);
+		
+		Vector3 fresnel = FSchlick(f0, lDotH);
+		float ndf = BlinnNDF(nDotH, roughness);
+		float geom = GeomTerm(wi, wo, n);
+		
+		return Vector3(0.3) / M_PI +( fresnel * ndf ) / (4 * M_PI * hDotWi * geom );
+	}
+	
 	inline Vector3 SphericalDirection(float sintheta,
 		float costheta, float phi) {
 			return Vector3(sintheta * cosf(phi),
@@ -73,6 +90,21 @@ namespace jade
 			blinn_pdf = 0.f;
 
 		pdf = blinn_pdf;
+		
+	}
+	
+	
+	inline float BlinnPdf(const Vector3& wo, const Vector3& wi, float roughness)
+	{
+		if(!SameHemisphere(wo, wi))
+		   return 0;
+		Vector3 wh = Normalize(wo + wi);
+		float costheta = fabs(wh.z);
+		float blinn_pdf = ((roughness + 1.f) * powf(costheta, roughness)) /
+		(2.f * M_PI * 4.f * dot(wo, wh));
+		if (dot(wo, wh) <= 0.f) blinn_pdf = 0.f;
+		
+		return blinn_pdf;
 	}
 
 }

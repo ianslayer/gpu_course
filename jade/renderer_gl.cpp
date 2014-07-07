@@ -888,7 +888,7 @@ namespace jade
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, prim->mesh->indexBuffer->GetImpl()->iboID);
 	
 				glUniform3fv(diffuseLoc, 1, reinterpret_cast<const float*> (&prim->material->diffuse) );
-				glUniform3fv(specularLoc, 1, reinterpret_cast<const float*> (&prim->material->specular) );
+				glUniform3fv(specularLoc, 1, reinterpret_cast<const float*> (&prim->material->specularF0) );
 				glUniform1f(roughnessLoc, prim->material->roughness);
 
 				glBindSampler(0, defaultSamplerState->GetImpl()->sampler);

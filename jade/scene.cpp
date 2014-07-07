@@ -23,6 +23,12 @@ namespace jade
 	void Scene::AddLight(Light* light)
 	{
 		lightList.push_back(light);
+		
+		if(light->type == Light::LT_GEOMETRY_AREA)
+		{
+			GeomAreaLight* geomLight = (GeomAreaLight*) light;
+			primList.push_back(geomLight->prim.Get());
+		}
 	}
 
 	void Scene::ComputeWorldBound()

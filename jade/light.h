@@ -16,10 +16,10 @@ namespace jade
 	public:
 		enum TYPE
 		{
-			LT_POINT,
-			LT_DIRECTION,
-			LT_GEOMETRY_AREA,
-			LT_SPHERE_AREA,
+			LT_POINT = 1,
+			LT_DIRECTION = 2,
+			LT_GEOMETRY_AREA = 4,
+			LT_SPHERE_AREA = 8,
 		};
 
 		Light(TYPE _type) : type(_type), power(0.f)
@@ -89,11 +89,15 @@ namespace jade
 	class PrimitiveSampler
 	{
 	public:
+		PrimitiveSampler() : prim(NULL), areaDistribution(NULL), sumArea(0.f)
+		{
+			
+		}
 		PrimitiveSampler(Primitive* _prim) : prim(_prim)
 		{
-			area = 0;
+			sumArea = 0;
 			Matrix4x4 worldMatrix = prim->ModelMatrix();
-			std::vector<float> areaList;
+
 				
 			for(int i = 0; i < prim->mesh->numIndices / 3; i++)
 			{
@@ -106,7 +110,7 @@ namespace jade
 				Vector3 p1 = TransformPoint(worldMatrix, prim->mesh->vertices[i1].position);
 				Vector3 p2 = TransformPoint(worldMatrix, prim->mesh->vertices[i2].position);
 				float triArea = TriangleArea(p0, p1, p2);
-				area += triArea;
+				sumArea += triArea;
 				areaList.push_back( triArea );
 			}
 
@@ -118,7 +122,7 @@ namespace jade
 			delete areaDistribution;
 		}
 
-		Vector3 Sample(float u1, float u2, float u3, Vector3& normal)
+		Vector3 Sample(float u1, float u2, float u3, Vector3& normal) const
 		{
 			int tri = areaDistribution->SampleDiscrete(u3, NULL);
 
@@ -136,64 +140,107 @@ namespace jade
 
 			Matrix4x4 worldMatrix = prim->ModelMatrix();
 
-			p1 = TransformPoint(worldMatrix, prim->mesh->positionList[i0]);
-			p2 = TransformPoint(worldMatrix, prim->mesh->positionList[i1]);
-			p3 = TransformPoint(worldMatrix, prim->mesh->positionList[i2]);
+			p1 = prim->mesh->positionList[i0];
+			p2 = prim->mesh->positionList[i1];
+			p3 = prim->mesh->positionList[i2];
 
-			n1 = TransformVector(worldMatrix, prim->mesh->normalList[i0]);
-			n2 = TransformVector(worldMatrix, prim->mesh->normalList[i1]);
-			n3 = TransformVector(worldMatrix, prim->mesh->normalList[i2]);
+			n1 = prim->mesh->normalList[i0];
+			n2 = prim->mesh->normalList[i1];
+			n3 = prim->mesh->normalList[i2];
 
-			normal = Normalize(b1 * n1 + b2 * n2 + b3 * n3);
+			normal = Normalize(TransformVector(worldMatrix, Normalize(b1 * n1 + b2 * n2 + b3 * n3)));
 
-			return (b1 * p1 + b2 * p2 + b3 * p3);
+			return TransformPoint(worldMatrix, b1 * p1 + b2 * p2 + b3 * p3);
 
 		}
+		
+		float Pdf(const Vector3& p, const Vector3& wi) const
+		{
+			Ray ray;
+			ray.origin = p;
+			ray.direction = wi;
 
-
+			Range rayRange; //first get ray bound
+			
+			float pdf = 0;//(p - isectPoint).SquaredLength() / (abs(dot(isectNormal, -wi)) * sumArea);
+		
+			Matrix4x4 invModelTransform = prim->InvModelMatrix();
+			Ray localRay = Transform(invModelTransform, ray);
+			
+			if(!IntersectRayAABB(localRay, prim->mesh->bound, rayRange, 0.0001))
+				return 0.f;
+			
+			
+			for(int i = 0; i < prim->mesh->numIndices / 3; i++)
+			{
+				float u, v, w, t;
+				if(IntersectSegmentTriangle(localRay, rayRange, prim->mesh->vertices, &prim->mesh->indices[i*3], u, v, w, t))
+				{
+					int i0 = prim->mesh->indices[i*3];
+					int i1 = prim->mesh->indices[i*3 + 1];
+					int i2 = prim->mesh->indices[i*3 + 2];
+					Vector3 localNormal = u * prim->mesh->normalList[i0] + v * prim->mesh->normalList[i1] + w * prim->mesh->normalList[i2] ;
+					
+					float triArea = areaList[i];
+					
+					Vector3 isectNormal = Normalize(TransformVector(prim->ModelMatrix(), Normalize(localNormal) ));
+					Vector3 isectPoint = TransformPoint(prim->ModelMatrix(), GetPoint(localRay, t));
+					
+					pdf += (p - isectPoint).SquaredLength() / (abs(dot(isectNormal, -wi)) );
+				}
+			}
+			
+			/*
+			if(!Intersect(*prim, ray, 1e-3f, mint, isectNormal) )
+				return 0;
+			*/
+			
+			
+			pdf /= sumArea;
+			
+			if (isinf(pdf)) pdf = 0.f;	
+			
+			return pdf;
+		}
+		
 		Primitive* prim;
+		std::vector<float> areaList;
 		Distribution1D* areaDistribution;
-		float area;
+		float sumArea;
 	};
 
 	class GeomAreaLight : public Light
 	{
 	public:
-		GeomAreaLight() : radiance(0.f), Light(LT_GEOMETRY_AREA), prim(0), area(0.f) {}
-		GeomAreaLight(const Vector3 _radiance, Primitive* _prim) : Light(LT_GEOMETRY_AREA), radiance(_radiance), prim(_prim)
+		GeomAreaLight() : radiance(0.f), Light(LT_GEOMETRY_AREA), prim(0), sampler()
 		{
-			ComputeArea();
+			power = Vector3(0.f);
+		}
+		GeomAreaLight(const Vector3 _radiance, Primitive* _prim) : Light(LT_GEOMETRY_AREA), radiance(_radiance), prim(_prim), sampler(_prim)
+		{
+			prim->areaLight = this;
+			ComputePower();
+		}
+		
+		float Area()
+		{
+			return sampler.sumArea;
 		}
 
-		void ComputeArea()
+		Vector3 L(const Vector3& n, const Vector3& w) const
 		{
-			area = 0;
-			if(prim)
-			{
-				Matrix4x4 worldMatrix = prim->ModelMatrix();
-				for(int i = 0; i < prim->mesh->numIndices / 3; i++)
-				{
-					int i0, i1, i2;
-					i0 = prim->mesh->indices[i * 3];
-					i1 = prim->mesh->indices[i * 3 + 1];
-					i2 = prim->mesh->indices[i * 3 + 2];
-					
-					Vector3 p0 = DiscardW(worldMatrix * Vector4(prim->mesh->vertices[i0].position, 1));
-					Vector3 p1 = DiscardW(worldMatrix * Vector4(prim->mesh->vertices[i1].position, 1));
-					Vector3 p2 = DiscardW(worldMatrix * Vector4(prim->mesh->vertices[i2].position, 1));
-					area += TriangleArea(p0, p1, p2);
-				}
-			}
+			return dot(n, w) > 0.f ? radiance : Vector3(0.f);
 		}
-
+		
 		void ComputePower()
 		{
-			power = radiance * area * M_PI;
+			power = radiance * Area() * M_PI;
 		}
 
 		Vector3 radiance;
-		class Primitive* prim;
-		float area;
+		PrimitiveSampler sampler;
+		RefCountedPtr<Primitive> prim;
+
 	};
 
 	class SphereAreaLight : public Light
@@ -207,6 +254,11 @@ namespace jade
 	};
 	
 
+	inline bool IsDeltaLight(const Light& light)
+	{
+		return ((light.type & Light::LT_POINT) | (light.type & Light::LT_DIRECTION) )!= 0;
+	}
+	
 }
 
 #endif

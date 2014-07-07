@@ -32,7 +32,7 @@ Matrix4x4 Primitive::ModelMatrix() const
 Matrix4x4 Primitive:: InvModelMatrix() const
 {
     Matrix4x4 modelMatrix = ModelMatrix();
-	return InverseAffine(modelMatrix);
+	return Inverse(modelMatrix);
 }
 
 
@@ -42,6 +42,52 @@ AABB Primitive::WorldBound() const
 	return Transform(modelMatrix, mesh->bound);
 }
 
+int Intersect(const Primitive& prim, const Ray& ray, float epsilon, float& tmin, Vector3& isectNormal)
+{
+	Ray localRay;
+	Range rayRange;
+	Matrix4x4 invModelTransform = prim.InvModelMatrix();
+	localRay = Transform(invModelTransform, ray);
+	
+	int testIntersect = IntersectRayAABB(ray, prim.WorldBound(), rayRange, epsilon);
+	
+	if( !IntersectRayAABB(localRay, prim.mesh->bound, rayRange, epsilon) )
+		return 0;
+	
+	tmin = FLT_MAX;
+	int isect = 0;
+	float isectU, isectV, isectW;
+	int isectTriIndex = -1;
+	for(int i = 0; i < prim.mesh->numIndices / 3; i++)
+	{
+		float u, v, w, t;
+		if(IntersectSegmentTriangle(localRay, rayRange, prim.mesh->vertices, &prim.mesh->indices[i*3], u, v, w, t))
+		{
+			if(t < tmin)
+			{
+				tmin = t;
+				isectTriIndex = i * 3;
+				isect = 1;
+				isectU = u;
+				isectV = v;
+				isectW = w;
+			}
+		}
+	}
+	
+	if(isect == 1)
+	{
+		int i0 = prim.mesh->indices[isectTriIndex];
+		int i1 = prim.mesh->indices[isectTriIndex + 1];
+		int i2 = prim.mesh->indices[isectTriIndex + 2];
+		Vector3 localNormal = isectU * prim.mesh->normalList[i0] + isectV * prim.mesh->normalList[i1] + isectW * prim.mesh->normalList[i2] ;
+		
+		isectNormal = Normalize(TransformVector(prim.ModelMatrix(), Normalize(localNormal) ));
+	}
+	
+	return isect;
+}
+	
 void LoadFromObjMesh(const ObjMesh& objMesh, RenderDevice* device, TextureManager* texManater, std::vector<Primitive*>& primList)
 {
 	Matrix4x4 identityMatrix = Identity4x4();
@@ -79,7 +125,7 @@ bool LoadFromObjMesh(const ObjMesh& objMesh, size_t geomIndex, RenderDevice* dev
 
 	material->ambient = mat.ka;
 	material->diffuse = mat.kd;
-	material->specular = mat.ks;
+	material->specularF0 = mat.ks;
 	material->roughness = mat.ns;
 
 	std::string folderPath = PathRemoveFileName(objMesh.path);
@@ -110,7 +156,10 @@ Primitive* CreateCube(TextureManager* texManater, const Vector3& pos, const Vect
 									0, 0, radius.z);
 
 	prim->material = new Material();
-
+	prim->material->diffuse = Vector3(0.3f);
+	prim->material->specularF0 = Vector3(1.00,0.71,0.29);
+	prim->material->roughness = 1024.f;
+	
 	prim->material->diffuseMap = texManater->Load("sys:white");
 
 	return prim;

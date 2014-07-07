@@ -9,11 +9,11 @@ namespace jade
 	{
 	public:
 
-		Material() : ambient(0.f), diffuse(0.5f), specular(0.5f), roughness(0.5f) {}
+		Material() : ambient(0.f), diffuse(0.5f), specularF0(0.04f), roughness(0.5f) {}
 
 		Vector3 ambient;
 		Vector3 diffuse;
-		Vector3 specular;
+		Vector3 specularF0;
 		float	roughness;
 
 		RefCountedPtr<Texture> lightMap;

@@ -44,7 +44,7 @@ public:
         ClearState();
         mouseControl =false;
         
-        cameraMoveSpeed = 10.f;
+        cameraMoveSpeed = 50.f;
         cameraTurnSpeed = 2.f;
         
         frameCount = 0;

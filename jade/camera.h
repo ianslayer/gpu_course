@@ -46,6 +46,9 @@ namespace jade
         float	 t;
         float    b;
     };
+	
+	void LoadCameraParameter(const char* path, Camera& cam);
+	void SaveCameraParameter(const char* path, const Camera& cam);
 }
 
 #endif

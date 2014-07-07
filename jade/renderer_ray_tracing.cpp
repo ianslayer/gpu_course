@@ -3,6 +3,7 @@
 #include "mesh.h"
 #include "primitive.h"
 #include "camera.h"
+#include "material.h"
 #include "brdf.h"
 #include "light.h"
 #include "tiled_image.h"
@@ -11,6 +12,7 @@
 #include "render_device.h"
 #include "../window.h"
 #include "../image.h"
+#include "rng.h"
 
 namespace jade
 {
@@ -61,7 +63,6 @@ namespace jade
 		Vector3 n;
 		Vector4 tangent;
 		Vector2 uv;
-		float minT;
 		const Primitive* prim;
 	};
 
@@ -74,10 +75,25 @@ namespace jade
 		const Ray* ray;
 	};
 
+	Vector3 TransformToTangentSpace(const Vector3& normal, const Vector4& tangent, const Vector3& worldVec)
+	{
+		Vector3 t = DiscardW(tangent);
+		Vector3 bitangent = cross(normal, t) * tangent[3];
+		return Vector3(dot(t, worldVec), dot(bitangent, worldVec), dot(normal, worldVec));
+	}
+	
+	Vector3 TransformToWorldSpace(const Vector3& normal, const Vector4& tangent, const Vector3& tangentVec)
+	{
+		Vector3 t = DiscardW(tangent);
+		Vector3 bitangent = cross(normal, t) * tangent[3];
+		return Vector3(t * tangentVec[0] + bitangent * tangentVec[1] + normal * tangentVec[2]);
+	}
+	
 	void ResolveIntersection(const IntersectInfo& isectInfo, Intersection& isect)
 	{
+		isect.prim = isectInfo.cache->prim;
 		isect.p = GetPoint(*isectInfo.ray, isectInfo.minT);
-
+		
 		Vector3 n0, n1, n2;
 		Vector3 t0, t1, t2;
 
@@ -176,7 +192,9 @@ namespace jade
 		virtual void Intersect(const RayPacketIntersectJob& job, RayPacketIntersectResult& result) const{};
 		
 		virtual int Intersect(const Ray& ray, Intersection& isect) const = 0;
-		virtual float Visibility(const Ray& ray, const Range& rayRange) const = 0;
+		virtual float Visibility(const Ray& ray, const Range& rayRange, float epsilon) const = 0;
+		
+//		SceneAccelerator* impl;
 	};
 	
 	class EmptySceneAcclerator : public SceneAccelerator
@@ -187,7 +205,7 @@ namespace jade
 		
 		virtual void Build(const Scene* scene);
 		virtual int Intersect(const Ray& ray, Intersection& isect) const;
-		virtual float Visibility(const Ray& ray, const Range& rayRange) const;
+		virtual float Visibility(const Ray& ray, const Range& rayRange, float epsilon) const;
 		
 		TransformCache* cache;
 		const Scene* scene;
@@ -240,10 +258,8 @@ namespace jade
 		return 0;
 	}
 	
-	float EmptySceneAcclerator::Visibility(const jade::Ray &ray, const jade::Range &rayRange) const
+	float EmptySceneAcclerator::Visibility(const jade::Ray &ray, const jade::Range &rayRange, float epsilon) const
 	{
-		float epsilon = 0.00001f;
-		
 		for(size_t i = 0 ; i < scene->primList.size(); i++)
 		{
 			const AABB& worldBound = cache[i].worldBound;
@@ -258,32 +274,45 @@ namespace jade
 		return 1.f;
 	}
 
-	RGB32F Sample(const PointLight& light, const Vector3& p, Vector3& wi, float& pdf)
+	class Voxel
+	{
+	public:
+		Voxel();
+		
+		TransformCache* cacheList;
+		int					numCaches;
+	};
+	
+	class GridAccelerator: public SceneAccelerator
+	{
+	public:
+		GridAccelerator(const Scene* scene);
+		
+		int		dim[3];
+		AABB	bound;
+	};
+
+	RGB32F Sample(const PointLight& light, const Vector3& p, Vector3& wi, Range& lightRange, float& pdf)
 	{
 		Vector3 l = light.pos - p;
 		wi = Normalize(l);
 		pdf = 1.f;
+		
+		lightRange.tmin = 0.00001f;
+		lightRange.tmax = l.Length();
+		
 		return light.intensity / l.SquaredLength();
 	}
 	
-	float SampleVisibility(const Vector3& p, const PointLight& light, float epsilon, const SceneAccelerator* accelerator)
-	{
-		Ray r;
-		r.origin = p;
-		Vector3 dir = light.pos - p;
-		r.direction = Normalize(dir);
-		
-		Range range;
-		range.tmin = epsilon;
-		range.tmax = dir.Length();
-		
-		return accelerator->Visibility(r, range);
-	}
 	
-	RGB32F Sample(const DirectionLight& light, const Vector3& p, Vector3& wi, float& pdf)
+	RGB32F Sample(const DirectionLight& light, const Vector3& p, Vector3& wi, Range& lightRange, float& pdf)
 	{
 		wi = light.dir;
 		pdf = 1.f;
+		
+		lightRange.tmin = 0.00001f;
+		lightRange.tmax = 10000.f; //fixme, should be scene bound
+		
 		return light.radiance;
 	}
 	
@@ -292,53 +321,90 @@ namespace jade
 		return accelerator->Intersect(ray, isect);
 	}
 	
-	float SampleVisibility(const Vector3& p, const DirectionLight& light, float epsilon, const SceneAccelerator* accelerator)
+	
+	
+	RGB32F Sample(const GeomAreaLight& light, const Vector3& p, float u1, float u2, float u3, Vector3& wi, Range& lightRange, float& pdf)
 	{
-		Ray r;
-		r.origin = p;
-		Vector3 dir = light.dir;
-		r.direction = Normalize(dir);
+		Vector3 normal;
+		Vector3 pos = light.sampler.Sample(u1, u2, u3, normal);
 		
+		Vector3 l = pos - p;
 		
-		Range range;
-		range.tmin = epsilon;
-		range.tmax = 10000.f; //fixme, should be scene bound
+		wi = Normalize(l);
+
+		//get nearest point
+		float thit;
+		Ray ray(p, wi);
+		Intersect(*light.prim, ray, 0.0001f, thit, normal);
 		
+		pdf = light.sampler.Pdf(p, wi);
 		
-		return accelerator->Visibility(r, range);
+		lightRange.tmin = 0.0001f;
+		lightRange.tmax = thit - 0.0001f;
+		
+		RGB32F Ls =light.L(normal, -wi);
+		
+		return Ls;
 	}
 	
-	RGB32F Sample(const Light& light, const Vector3& p, Vector3& wi, float& pdf)
+		RNG rng;
+	
+	RGB32F Sample(const Light& light, const Vector3& p, Vector3& wi, Range& range, float& pdf)
 	{
 		switch(light.type)
 		{
 			case Light::LT_POINT:
-				return Sample((const PointLight&) light, p, wi, pdf);
+				return Sample((const PointLight&) light, p, wi, range, pdf);
 			case Light::LT_DIRECTION:
-				return Sample((const DirectionLight&) light, p, wi, pdf);
+				return Sample((const DirectionLight&) light, p, wi, range, pdf);
 			case Light::LT_GEOMETRY_AREA:
-				return RGB32F(0.f);
+				return  Sample((const GeomAreaLight&) light, p, rng.RandomFloat(), rng.RandomFloat(), rng.RandomFloat(), wi, range, pdf);;
 		}
 		
 		return RGB32F(0.f);
 	}
 	
-	float SampleVisibility(const Vector3& p, const Light& light, float epsilon, const SceneAccelerator* accelerator)
+	float Pdf(const Light& light, const Vector3& p, const Vector3& wi)
 	{
 		switch(light.type)
 		{
 			case Light::LT_POINT:
-				return SampleVisibility(p, (const PointLight&) light, epsilon, accelerator);
 			case Light::LT_DIRECTION:
-				return SampleVisibility(p, (const DirectionLight&) light, epsilon, accelerator);
+				return 0.f;
 			case Light::LT_GEOMETRY_AREA:
-				return 1.f;
+			{
+				const GeomAreaLight& areaLight = (const GeomAreaLight&) light;
+				return areaLight.sampler.Pdf(p, wi);
+			}
 		}
 		
-		return 1.f;
+		return 0.f;
 	}
-
-
+	
+	RGB32F Le(const Light& light, const Vector3& n, const Vector3& w)
+	{
+		switch(light.type)
+		{
+			case Light::LT_POINT:
+				
+			case Light::LT_DIRECTION:
+				return Vector3(0.f);
+			case Light::LT_GEOMETRY_AREA:
+			{
+				const GeomAreaLight& areaLight = (const GeomAreaLight&) light;
+				return areaLight.L(n, w);
+			}
+		}
+		
+		return Vector3(0.f);
+	}
+	
+	
+	float SampleVisibility(const Ray& ray, const Range& range, float epsilon,  const SceneAccelerator* accelerator)
+	{
+		return accelerator->Visibility(ray, range, epsilon);
+	}
+	
 	class RendererRT : public Renderer
 	{
 	public:
@@ -367,32 +433,228 @@ namespace jade
 		imgBuf[y * width * 4 + x  * 4 + 2] = std::min(clampedColor[0] * 255.f, 255.f);
 		imgBuf[y * width * 4 + x  * 4 + 3] = 0;
 	}
+	
+	// Monte Carlo Inline Functions
+	inline float BalanceHeuristic(int nf, float fPdf, int ng, float gPdf) {
+		return (nf * fPdf) / (nf * fPdf + ng * gPdf);
+	}
+	
+	
+	inline float PowerHeuristic(int nf, float fPdf, int ng, float gPdf) {
+		float f = nf * fPdf, g = ng * gPdf;
+		return (f*f) / (f*f + g*g);
+	}
+	
+	RGB32F DirectLightUniformSample(const Scene* scene, const SceneAccelerator* accelerator, const Ray& ray, const Intersection& isect)
+	{
+		RGB32F L(0.f);
+		
 
+		
+		Vector3 wo = -ray.direction;
+	
+		if(isect.prim->areaLight)
+		{
+			L += isect.prim->areaLight->L(isect.n, wo);
+		}
+		
+		
+		int nSamples = 1024;
+		
+		Vector3 Ld(0.f);
+		for(int i = 0; i < nSamples; i++)
+		{
+			
+			Vector3 tangentDir = UniformSampleHemisphere(rng.RandomFloat(), rng.RandomFloat());
+			Vector3 wi = TransformToWorldSpace(isect.n, isect.tangent, tangentDir);
+			
+			Intersection lightIsect;
+			Ray sampleRay(isect.p + 0.0001f * wi, wi);
+			if(Intersect(sampleRay, accelerator, lightIsect) )
+			{
+				if(lightIsect.prim->areaLight)
+				{
+					Vector3 Li = lightIsect.prim->areaLight->radiance;
+					Vector3 f =  BlinnBRDF(wo, wi, isect.n, Vector3(1.00,0.71,0.29), 1024.f);
+					
+					Ld+=f * Li * abs(dot(wi, isect.n)) / UniformHemispherePdf();
+				}
+			}
+		}
+		
+		
+		L += Ld /nSamples;
+		return L;
+	}
+	
+	RGB32F DirectLighting(const Scene* scene, const SceneAccelerator* accelerator, const Ray& ray, const Intersection& isect)
+	{
+		RGB32F L(0.f);
+		
+		Vector3 wo = -ray.direction;
+		
+		if(isect.prim->areaLight)
+		{
+			L += isect.prim->areaLight->L(isect.n, wo);
+		}
+	
+		int nSamples = 64;
+		
+		
+		for(size_t i = 0; i < scene->lightList.size(); i++)
+		{
+			Vector3 Ld = Vector3(0.f);
+			for(int j = 0; j < nSamples; j++)
+			{
+				
+				//sample light
+				Vector3 wi;
+				
+
+
+				float lightPdf, brdfPdf;
+				Range lightRange;
+				
+				Vector3 Li = Sample(*scene->lightList[i], isect.p, wi, lightRange, lightPdf);
+				Vector3 tangentWo = TransformToTangentSpace(isect.n, isect.tangent, wo);
+				Vector3 tangentWi = TransformToTangentSpace(isect.n, isect.tangent, wi);
+				
+				
+				if(lightPdf > 0.f)
+				{
+
+					Ray shadowRay(isect.p, wi);
+					float vis = SampleVisibility(shadowRay, lightRange, 0.0001f, accelerator);
+					Li *= vis;
+					
+					Vector3 f = BlinnBRDF(tangentWo, tangentWi, Vector3(1.00,0.71,0.29), 1024.f);
+					
+					if(IsDeltaLight(*scene->lightList[i]))
+						Ld+=f * Li * abs(dot(wi, isect.n)) / lightPdf;
+
+					else
+					{
+						brdfPdf = BlinnPdf(tangentWo, tangentWi, 1024.f);
+						float weight = PowerHeuristic(1, lightPdf, 1, brdfPdf);
+						//Vector3 LL = f * Li * (abs(dot(wi, isect.n))  * weight / lightPdf);
+						
+						//if(LL[0] < 0|| LL[1] <0 || LL[2]<0 || LL[3]<0 )
+						//	printf("shit happen\n");
+						//if(LL[0] >= 0&& LL[1] >=0 &&LL[2]>=0 && LL[3]>=0)
+						Ld += f * Li * (std::max(dot(wi, isect.n), 0.f)  * weight / lightPdf);
+						//else
+						//{
+						//	printf("shit f:%f %f %f lightPdf: %f\n", f[0],f[1],f[2],f[3],lightPdf);
+						//}
+					}
+
+				}
+				
+
+				if(!IsDeltaLight(*scene->lightList[i]))
+				{
+					Vector3 tangentWi;
+					SampleBlinnNDF(tangentWo, tangentWi, 1024.f, rng.RandomFloat(), rng.RandomFloat(), brdfPdf);
+					Vector3 f = BlinnBRDF(tangentWo, tangentWi, Vector3(1.00,0.71,0.29), 1024.f);
+					
+					wi = TransformToWorldSpace(isect.n, isect.tangent, tangentWi);
+					float weight = 1.f;
+					lightPdf = Pdf(*scene->lightList[i], isect.p, wi);
+					if(lightPdf != 0.f && brdfPdf > 0.f)
+					{
+					
+						weight = PowerHeuristic(1, brdfPdf, 1, lightPdf);
+						
+						Ray ray(isect.p + 0.00001 * isect.n, wi);
+						Intersection lightIsect;
+						
+						if(Intersect(ray, accelerator, lightIsect) )
+						{
+							if(lightIsect.prim->areaLight == scene->lightList[i])
+							{
+								Li = Le(*scene->lightList[i], lightIsect.n, -wi);
+							}
+						}
+						else
+							Li = Vector3(0.f);
+						
+					//	Vector3 LL = f * Li * (abs(dot(wi, isect.n))  * weight / brdfPdf);
+					//	if(LL[0] >= 0&& LL[1] >=0 &&LL[2]>=0 && LL[3]>=0)
+							Ld += f * Li * std::max(dot(wi, isect.n), 0.f) * weight/brdfPdf;
+					//	else
+					//	{
+					//		printf("shit f:%f %f %f brdfPdf: %f\n", f[0],f[1],f[2],f[3],brdfPdf);
+					//	}
+					}
+				}
+
+			}
+
+			L += Ld / nSamples;
+
+			
+		}
+		
+		return L;
+	}
+	
 	Vector3 Shade(const Scene* scene, const SceneAccelerator* accelerator, const Ray& ray, const Intersection& isect)
 	{
-		Vector3 color = Vector3(1.f);
+		Vector3 color = Vector3(0.f);
 		for(int i = 0; i < scene->lightList.size(); i++)
 		{
 			Light* light = scene->lightList[i];
 			
 			Vector3 wi;
 			float pdf;
-			RGB32F lightRadiance = Sample(*light, isect.p, wi, pdf);
+			Range range;
+			RGB32F lightRadiance = Sample(*light, isect.p, wi, range, pdf);
 			
-			float visibility = SampleVisibility(isect.p, *light, 0.01f, accelerator);
+			Ray shadowRay;
+			shadowRay.origin = isect.p;
+			shadowRay.direction = wi;
+			
+			float visibility = SampleVisibility(shadowRay, range, 0.01f, accelerator);
 			
 			float nDotL = std::max(dot(isect.n, wi), 0.f);
 			Vector3 wo = Normalize(-ray.direction);
 			
-			//color += lightRadiance * nDotL * visibility * BlinnBRDF(wo, wi, isect.n,  Vector3(0.04), 0.5) / pdf;
+			color += lightRadiance * nDotL * visibility * BlinnBRDF(wo, wi, isect.n,  Vector3(0.04), 0.5) / pdf;
 			
-			//color = isect.n * 0.5 + Vector3(0.5);
+			color = isect.n * 0.5 + Vector3(0.5);
 			//color = DivideW(isect.tangent) * 0.5 + Vector3(0.5);
 		}
 
 		return color;
 	}
-
+	
+	class SceneLightSampler
+	{
+	public:
+		SceneLightSampler() : powerDistribution(0)
+		{
+			
+		}
+		
+		SceneLightSampler(const Scene* scene)
+		{
+			std::vector<float> lightPowerList;
+			for(size_t i = 0; i < scene->lightList.size(); i++)
+			{
+				lightPowerList.push_back(scene->lightList[i]->power.y);
+			}
+			powerDistribution = new Distribution1D(&lightPowerList[0], lightPowerList.size() );
+		}
+		
+		~SceneLightSampler()
+		{
+			delete powerDistribution;
+		}
+		
+		Distribution1D* powerDistribution;
+		std::vector<int> lightSampleCount;
+	};
+	
 	void RendererRT::ScreenShot(const char* path, const Camera* camera, const Scene* scene)
 	{
 		unsigned char* imgBuf = new unsigned char[options.width * options.height * 4];
@@ -404,6 +666,9 @@ namespace jade
 		Matrix4x4 rasterToCamMat = camera->RasterToCameraMatrix();
 		Matrix4x4 invViewMatrix = camera->InvViewMatrix();
 
+		Material defaultMaterial;
+		//defaultMaterial.
+		
 		for(int i = 0; i < options.height; i++)
 		{
 			for(int j = 0; j < options.width; j++)
@@ -419,7 +684,7 @@ namespace jade
 
 				if(Intersect(ray, accelerator, isect))
 				{
-					Vector3 color = Shade(scene, accelerator, ray, isect);
+					Vector3 color = DirectLighting(scene, accelerator, ray, isect);// DirectLighting(scene, accelerator, ray, isect);
 					SetColor(imgBuf, options.width, options.height, j, i, color);
 				}
 				else
@@ -430,8 +695,6 @@ namespace jade
 			}
 		}
 
-		TiledImage<RGBA8, 8> tiledImg((RGBA8*) imgBuf, options.height, options.height);
-		tiledImg.Linearize((RGBA8*) imgBuf);
 		
 		
 		SaveTGA(path, imgBuf,  options.width, options.height);
