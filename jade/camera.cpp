@@ -1,5 +1,7 @@
 #include "camera.h"
 
+#include <stdlib.h>
+
 namespace jade
 {
     Camera::Camera()
@@ -101,6 +103,22 @@ namespace jade
 		return InvPerspectiveMatrix() * RasterToScreenMatrix();
 	}
 	
-	
+	void SaveCameraParameter(const char* path, const Camera& cam)
+	{
+		FILE* camFile = fopen(path, "wb");
+		fwrite(&cam, sizeof(cam), 1, camFile);
+		fclose(camFile);
+	}
+
+	void LoadCameraParameter(const char* path, Camera& cam)
+	{
+		FILE* camFile = fopen(path, "rb");
+		if(camFile)
+		{
+			fread(&cam, sizeof(cam), 1, camFile);
+			fclose(camFile);
+		}
+	}
+
 
 }

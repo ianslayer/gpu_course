@@ -20,6 +20,7 @@ namespace jade
 
 		virtual void DrawBoundingBox(const Camera* camera, const AABB& bound) {} //debug hack
 		virtual void DrawLine(const Camera* camera, const Vector3& p0, const Vector3& p1, const Vector3& color) {} //debug hack
+		virtual class SceneAccelerator* GetAccelerator() { return 0; };
     };
 
 }

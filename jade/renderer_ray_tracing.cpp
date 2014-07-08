@@ -57,14 +57,7 @@ namespace jade
 		cache.worldBound = prim->WorldBound();
 	}
 	
-	struct Intersection
-	{
-		Vector3 p;
-		Vector3 n;
-		Vector4 tangent;
-		Vector2 uv;
-		const Primitive* prim;
-	};
+
 
 	struct IntersectInfo
 	{
@@ -74,20 +67,6 @@ namespace jade
 		const class TransformCache* cache;
 		const Ray* ray;
 	};
-
-	Vector3 TransformToTangentSpace(const Vector3& normal, const Vector4& tangent, const Vector3& worldVec)
-	{
-		Vector3 t = DiscardW(tangent);
-		Vector3 bitangent = cross(normal, t) * tangent[3];
-		return Vector3(dot(t, worldVec), dot(bitangent, worldVec), dot(normal, worldVec));
-	}
-	
-	Vector3 TransformToWorldSpace(const Vector3& normal, const Vector4& tangent, const Vector3& tangentVec)
-	{
-		Vector3 t = DiscardW(tangent);
-		Vector3 bitangent = cross(normal, t) * tangent[3];
-		return Vector3(t * tangentVec[0] + bitangent * tangentVec[1] + normal * tangentVec[2]);
-	}
 	
 	void ResolveIntersection(const IntersectInfo& isectInfo, Intersection& isect)
 	{
@@ -185,18 +164,6 @@ namespace jade
 		Tile<IntersectInfo, 32>* isectResult;
 	};
 	
-	class SceneAccelerator
-	{
-	public:
-		virtual void Build(const Scene*) = 0;
-		virtual void Intersect(const RayPacketIntersectJob& job, RayPacketIntersectResult& result) const{};
-		
-		virtual int Intersect(const Ray& ray, Intersection& isect) const = 0;
-		virtual float Visibility(const Ray& ray, const Range& rayRange, float epsilon) const = 0;
-		
-//		SceneAccelerator* impl;
-	};
-	
 	class EmptySceneAcclerator : public SceneAccelerator
 	{
 	public:
@@ -224,6 +191,7 @@ namespace jade
 	
 	void EmptySceneAcclerator::Build(const jade::Scene *scene)
 	{
+		delete [] cache;
 		this->scene = scene;
 		cache = new TransformCache[scene->primList.size()];
 		for(size_t i = 0; i < scene->primList.size(); i++)
@@ -408,12 +376,20 @@ namespace jade
 	class RendererRT : public Renderer
 	{
 	public:
-		virtual ~RendererRT() {}
+		RendererRT() : accelerator(0) {}
+		virtual ~RendererRT() 
+		{
+			delete accelerator;
+		}
+
 		virtual void Render(const Camera* camera, const Scene* scene) ;
 		virtual void ScreenShot(const char* path, const Camera* camera, const Scene* scene);
 		virtual void SetRendererOption(void* options);
+		virtual class SceneAccelerator* GetAccelerator() { return accelerator; };
 
 		RTRenderOption options;
+
+		SceneAccelerator* accelerator;
 	};
 
 	void RendererRT::Render(const Camera* camera, const Scene* scene)
@@ -450,7 +426,6 @@ namespace jade
 		RGB32F L(0.f);
 		
 
-		
 		Vector3 wo = -ray.direction;
 	
 		if(isect.prim->areaLight)
@@ -498,19 +473,17 @@ namespace jade
 			L += isect.prim->areaLight->L(isect.n, wo);
 		}
 	
-		int nSamples = 64;
-		
+		int nSamples = 16;
 		
 		for(size_t i = 0; i < scene->lightList.size(); i++)
 		{
 			Vector3 Ld = Vector3(0.f);
+			
 			for(int j = 0; j < nSamples; j++)
 			{
 				
 				//sample light
 				Vector3 wi;
-				
-
 
 				float lightPdf, brdfPdf;
 				Range lightRange;
@@ -519,7 +492,7 @@ namespace jade
 				Vector3 tangentWo = TransformToTangentSpace(isect.n, isect.tangent, wo);
 				Vector3 tangentWi = TransformToTangentSpace(isect.n, isect.tangent, wi);
 				
-				
+			
 				if(lightPdf > 0.f)
 				{
 
@@ -536,25 +509,18 @@ namespace jade
 					{
 						brdfPdf = BlinnPdf(tangentWo, tangentWi, 1024.f);
 						float weight = PowerHeuristic(1, lightPdf, 1, brdfPdf);
-						//Vector3 LL = f * Li * (abs(dot(wi, isect.n))  * weight / lightPdf);
-						
-						//if(LL[0] < 0|| LL[1] <0 || LL[2]<0 || LL[3]<0 )
-						//	printf("shit happen\n");
-						//if(LL[0] >= 0&& LL[1] >=0 &&LL[2]>=0 && LL[3]>=0)
+
 						Ld += f * Li * (std::max(dot(wi, isect.n), 0.f)  * weight / lightPdf);
-						//else
-						//{
-						//	printf("shit f:%f %f %f lightPdf: %f\n", f[0],f[1],f[2],f[3],lightPdf);
-						//}
+				
 					}
 
 				}
 				
-
 				if(!IsDeltaLight(*scene->lightList[i]))
 				{
 					Vector3 tangentWi;
 					SampleBlinnNDF(tangentWo, tangentWi, 1024.f, rng.RandomFloat(), rng.RandomFloat(), brdfPdf);
+
 					Vector3 f = BlinnBRDF(tangentWo, tangentWi, Vector3(1.00,0.71,0.29), 1024.f);
 					
 					wi = TransformToWorldSpace(isect.n, isect.tangent, tangentWi);
@@ -565,7 +531,7 @@ namespace jade
 					
 						weight = PowerHeuristic(1, brdfPdf, 1, lightPdf);
 						
-						Ray ray(isect.p + 0.00001 * isect.n, wi);
+						Ray ray(isect.p + 0.00001 * wi, wi);
 						Intersection lightIsect;
 						
 						if(Intersect(ray, accelerator, lightIsect) )
@@ -578,16 +544,11 @@ namespace jade
 						else
 							Li = Vector3(0.f);
 						
-					//	Vector3 LL = f * Li * (abs(dot(wi, isect.n))  * weight / brdfPdf);
-					//	if(LL[0] >= 0&& LL[1] >=0 &&LL[2]>=0 && LL[3]>=0)
 							Ld += f * Li * std::max(dot(wi, isect.n), 0.f) * weight/brdfPdf;
-					//	else
-					//	{
-					//		printf("shit f:%f %f %f brdfPdf: %f\n", f[0],f[1],f[2],f[3],brdfPdf);
-					//	}
+			
 					}
 				}
-
+				
 			}
 
 			L += Ld / nSamples;
@@ -659,9 +620,7 @@ namespace jade
 	{
 		unsigned char* imgBuf = new unsigned char[options.width * options.height * 4];
 		
-		SceneAccelerator* accelerator = new EmptySceneAcclerator();
 		accelerator->Build(scene);
-		
 
 		Matrix4x4 rasterToCamMat = camera->RasterToCameraMatrix();
 		Matrix4x4 invViewMatrix = camera->InvViewMatrix();
@@ -713,6 +672,7 @@ namespace jade
 	{
 		RendererRT* rendererRT;
 		*renderer = rendererRT = new RendererRT();
+		rendererRT->accelerator = new EmptySceneAcclerator();
 		RTRenderOption options;
 		options.width = device->window->width;
 		options.height = device->window->height;
@@ -725,4 +685,7 @@ namespace jade
 	{
 		delete renderer;
 	}
+
+
+
 }

@@ -61,6 +61,20 @@ inline Vector3 GetPoint(const Ray& r, float t)
 	return r.origin + t * r.direction;
 }
 
+inline Vector3 TransformToTangentSpace(const Vector3& normal, const Vector4& tangent, const Vector3& worldVec)
+{
+	Vector3 t = DiscardW(tangent);
+	Vector3 bitangent = cross(normal, t) * tangent[3];
+	return Vector3(dot(t, worldVec), dot(bitangent, worldVec), dot(normal, worldVec));
+}
+
+inline Vector3 TransformToWorldSpace(const Vector3& normal, const Vector4& tangent, const Vector3& tangentVec)
+{
+	Vector3 t = DiscardW(tangent);
+	Vector3 bitangent = cross(normal, t) * tangent[3];
+	return Vector3(t * tangentVec[0] + bitangent * tangentVec[1] + normal * tangentVec[2]);
+}
+
 struct Range
 {
 	Range() : tmin(0.f), tmax(FLT_MAX){}

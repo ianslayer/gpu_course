@@ -8,6 +8,11 @@
 #define INV_TWOPI  0.15915494309189533577f
 #define INV_FOURPI 0.07957747154594766788f
 
+#ifdef _WIN32
+#define isnan(x) _isnan(x)
+#define isinf(x) (!_finite(x))
+#endif
+
 namespace jade
 {
 	template<typename T>

@@ -77,6 +77,10 @@ int Intersect(const Primitive& prim, const Ray& ray, float epsilon, float& tmin,
 	
 	if(isect == 1)
 	{
+		//transform to world space
+		tmin *= 1.f / (TransformVector(invModelTransform, ray.direction)).Length(); 
+
+
 		int i0 = prim.mesh->indices[isectTriIndex];
 		int i1 = prim.mesh->indices[isectTriIndex + 1];
 		int i2 = prim.mesh->indices[isectTriIndex + 2];

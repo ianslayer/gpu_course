@@ -27,8 +27,18 @@ jade::Renderer* renderer;
 jade::Renderer* rendererRT;
 jade::Camera camera;
 
-float cameraMoveSpeed = 3.f;
+float cameraMoveSpeed = 1.f;
 float cameraTurnSpeed = 0.5f;
+
+
+enum DrawSampleMode
+{
+	SAMPLE_UNIFORM,
+	SAMPLE_LIGHT,
+	SAMPLE_BRDF,
+};
+
+DrawSampleMode drawSampleMode = SAMPLE_UNIFORM;
 
 class MyInputListener : public InputListener
 {
@@ -50,17 +60,8 @@ public:
         ry += deltaY;
     }
 
-    virtual void OnMouseButton(const int x, const int y, const MouseButton button, const bool pressed)
-    {
-        if(pressed && button == MOUSE_RIGHT)
-        {
-            mouseControl = true;
-        }
-        else
-        {
-            mouseControl = false;
-        }
-    }
+	virtual void OnMouseButton(const int x, const int y, const MouseButton button, const bool pressed);
+
     virtual void OnMouseWheel(const int x, const int y, const int scroll)
     {
         cameraMoveSpeed += scroll;
@@ -93,17 +94,20 @@ public:
 
 		if(key == KEY_0 && pressed == false)
 		{
-			options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_NONE;
+			//options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_NONE;
+			drawSampleMode = SAMPLE_UNIFORM;
 		}
 
 		if(key == KEY_1 && pressed == false )
 		{
-			options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_UV_TILING;
+			//options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_UV_TILING;
+			drawSampleMode = SAMPLE_LIGHT;
 		}
 
 		if(key == KEY_2 && pressed == false)
 		{
-			options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_TANGENT_SPACE;
+			//options.dbgDraw = jade::GLRendererOptions::DBG_DRAW_TANGENT_SPACE;
+			drawSampleMode = SAMPLE_BRDF;
 		}
 
 		if(key == KEY_3 && pressed == false)
@@ -151,8 +155,15 @@ public:
 		if(key == KEY_M && pressed == false)
 		{
 			options.screenShot = true;
-			//rendererRT->ScreenShot("rt.tga", &camera, scene);
+			rendererRT->ScreenShot("rt.tga", &camera, scene);
 		}
+
+		if(key == KEY_C && pressed == false)
+		{
+			jade::SaveCameraParameter("cam.cam", camera);
+		}
+
+
     }
 
     void ClearState()
@@ -224,7 +235,10 @@ void Init()
 {
     if(!InitWindow(1024, 768, window))
         return;
+
 	camera.SetAspectRatio(1024, 768);
+
+	LoadCameraParameter("cam.cam", camera);
 
     jade::RenderDeviceSetting deviceSetting;
 	deviceSetting.msaaCount = 4;
@@ -382,6 +396,256 @@ void TestSamplePrim(jade::Primitive* prim)
 	samplePointSize = 1.f;
 }
 
+const static int MAX_LIGHT = 4;
+const static int nSamples = 1024;
+Vector3 uniformSample[nSamples]; Vector3* hitUniformSample[nSamples]; Vector3* misUniformSample[nSamples]; int numHitUniformSamples = 0; int numMisUniformSamples = 0;
+Vector3 lightSample[nSamples]; Vector3* hitLightSample[nSamples]; Vector3* misLightSample[nSamples]; int numHitLightSample = 0; int numMisLightSample = 0;
+Vector3 brdfSample[nSamples]; Vector3* hitBrdfSample[nSamples]; Vector3* misBrdfSample[nSamples]; int numHitBrdfSample = 0; int numMisBrdfSample = 0;
+
+bool TestSampleDirectLighting(const jade::Scene* scene, const jade::SceneAccelerator* accelerator, const jade::Ray& viewRay, jade::Intersection& isect)
+{
+	jade::RNG rng;
+	//get intersection point
+
+	if(!Intersect(viewRay, accelerator, isect))
+		return false;
+
+	//uniform sample
+	numHitUniformSamples = numMisUniformSamples = 0;
+	Vector3 Ld(0.f);
+	for(int i = 0; i < nSamples; i++)
+	{
+
+		Vector3 tangentDir = jade::UniformSampleHemisphere(rng.RandomFloat(), rng.RandomFloat());
+		Vector3 wi = jade::TransformToWorldSpace(isect.n, isect.tangent, tangentDir);
+		uniformSample[i] = wi;
+
+		jade::Intersection lightIsect;
+		jade::Ray sampleRay(isect.p + 0.0001f * wi, wi);
+		if(Intersect(sampleRay, accelerator, lightIsect) )
+		{
+			
+			uniformSample[i] = (lightIsect.p  - isect.p);
+
+			hitUniformSample[numHitUniformSamples] = &uniformSample[i];
+
+			numHitUniformSamples++;
+	
+		}
+		else
+		{
+			misUniformSample[numMisUniformSamples] = &uniformSample[i];
+			numMisUniformSamples++;
+		}
+	}
+
+	return true;
+}
+
+bool TestSampleImportanceSampleLight(const jade::Scene* scene, const jade::SceneAccelerator* accelerator, const jade::Ray& viewRay, int lightIdx, jade::Intersection& isect)
+{
+	jade::RNG rng;
+	//get intersection point
+	numHitLightSample = numMisLightSample = 0;
+
+	if(lightIdx > scene->lightList.size())
+		return false;
+
+	if(!Intersect(viewRay, accelerator, isect))
+		return false;	
+
+	Vector3 Ld = Vector3(0.f);
+
+	Vector3 wo = -viewRay.direction;
+	
+	for(int j = 0; j < nSamples; j++)
+	{
+
+		//sample light
+		Vector3 wi;
+
+
+		float lightPdf, brdfPdf;
+		jade::Range lightRange;
+
+		Vector3 Li = Sample(*scene->lightList[lightIdx], isect.p, wi, lightRange, lightPdf);
+
+		lightSample[j] = wi;
+
+		Vector3 tangentWo = jade::TransformToTangentSpace(isect.n, isect.tangent, wo);
+		Vector3 tangentWi = jade::TransformToTangentSpace(isect.n, isect.tangent, wi);
+
+
+		if(lightPdf > 0.f)
+		{
+
+			jade::Ray shadowRay(isect.p, wi);
+			float vis = SampleVisibility(shadowRay, lightRange, 0.0001f, accelerator);
+			
+			if(vis == 1.f)
+			{
+				lightSample[j] = wi * lightRange.tmax;
+				hitLightSample[numHitLightSample++] = &lightSample[j];
+			}
+
+			else
+			{
+				misLightSample[numMisLightSample] = &lightSample[j];
+				numMisLightSample++;
+			}
+		}
+		
+	}
+
+	return false;
+
+}
+
+bool TestSampleImportanceSampleBRDF(const jade::Scene* scene, const jade::SceneAccelerator* accelerator, const jade::Ray& viewRay, int lightIdx, jade::Intersection& isect)
+{
+	jade::RNG rng;
+
+	if(lightIdx > scene->lightList.size())
+		return false;
+
+	if(!Intersect(viewRay, accelerator, isect))
+		return false;	
+
+	numHitBrdfSample = numMisBrdfSample = 0;
+
+	Vector3 wo = -viewRay.direction;
+	Vector3 tangentWo = jade::TransformToTangentSpace(isect.n, isect.tangent, wo);
+
+	float brdfPdf;
+
+	for(int j = 0; j < nSamples; j++)
+	{
+		Vector3 tangentWi;
+		jade::SampleBlinnNDF(tangentWo, tangentWi, 1024.f, rng.RandomFloat(), rng.RandomFloat(), brdfPdf);
+
+
+		Vector3 wi = jade::TransformToWorldSpace(isect.n, isect.tangent, tangentWi);
+
+		brdfSample[j] = wi;
+
+		float weight = 1.f;
+
+		if(brdfPdf > 0.f)
+		{
+
+			jade::Ray ray(isect.p + 0.00001 * wi, wi);
+			jade::Intersection lightIsect;
+
+			if(Intersect(ray, accelerator, lightIsect) )
+			{
+				if(lightIsect.prim->areaLight == scene->lightList[lightIdx])
+				{
+					brdfSample[j] = lightIsect.p - isect.p;
+					hitBrdfSample[numHitBrdfSample++] = &brdfSample[j];					
+				}
+				else
+				{
+					misBrdfSample[numMisBrdfSample++] = &brdfSample[j];
+				}
+			}
+			else
+			{
+				misBrdfSample[numMisBrdfSample++] = &brdfSample[j];
+			}
+				
+			
+		}
+	}
+}
+
+jade::Intersection rayIsect;
+jade::Ray viewRay;
+
+
+void DrawLightSample(jade::Renderer* renderer, const jade::Camera* camera, const jade::Ray& viewRay, jade::Intersection& isect)
+{
+	renderer->DrawLine(camera, viewRay.origin, isect.p, Vector3(1, 0, 0));
+
+	if(drawSampleMode == SAMPLE_UNIFORM)
+	{
+		for(int i = 0; i < nSamples; i++)
+		{
+			renderer->DrawLine(camera, isect.p, isect.p + Normalize(uniformSample[i]), Vector3(0, 1, 0));
+		}
+
+		for(int i = 0; i < numHitUniformSamples; i++)
+		{
+			renderer->DrawLine(camera, isect.p, isect.p + *hitUniformSample[i], Vector3(0, 0, 1));
+
+			jade::AABB bound;
+			bound.center = isect.p + *hitUniformSample[i];
+			bound.radius = Vector3(samplePointSize);
+
+			renderer->DrawBoundingBox(camera, bound);
+		}
+	}
+
+	if(drawSampleMode == SAMPLE_LIGHT)
+	{
+		for(int i = 0; i < nSamples; i++)
+		{
+			renderer->DrawLine(camera, isect.p, isect.p + Normalize(lightSample[i]), Vector3(0, 1, 0));
+		}
+		
+		for(int i = 0; i < numHitLightSample; i++)
+		{
+			renderer->DrawLine(camera, isect.p, isect.p + *hitLightSample[i], Vector3(0, 0, 1));
+
+			jade::AABB bound;
+			bound.center = isect.p + *hitLightSample[i];
+			bound.radius = Vector3(samplePointSize);
+
+			renderer->DrawBoundingBox(camera, bound);
+		}
+	}
+
+	if(drawSampleMode == SAMPLE_BRDF)
+	{
+		for(int i = 0; i < nSamples; i++)
+		{
+			renderer->DrawLine(camera, isect.p, isect.p + Normalize(brdfSample[i]), Vector3(0, 1, 0));
+		}
+
+		
+		for(int i = 0; i < numHitBrdfSample; i++)
+		{
+			renderer->DrawLine(camera, isect.p, isect.p + *hitBrdfSample[i], Vector3(0, 0, 1));
+
+			jade::AABB bound;
+			bound.center = isect.p + *hitBrdfSample[i];
+			bound.radius = Vector3(samplePointSize);
+
+			renderer->DrawBoundingBox(camera, bound);
+		}
+	}
+}
+
+
+void MyInputListener::OnMouseButton(const int x, const int y, const MouseButton button, const bool pressed)
+{
+	if(pressed && button == MOUSE_RIGHT)
+	{
+		mouseControl = true;
+	}
+	else
+	{
+		mouseControl = false;
+	}
+
+	if(pressed == false && button == MOUSE_LEFT)
+	{
+		viewRay = jade::Ray(camera.position, camera.lookat);
+		TestSampleDirectLighting(scene, rendererRT->GetAccelerator(), viewRay,rayIsect);
+		TestSampleImportanceSampleLight(scene, rendererRT->GetAccelerator(), viewRay, 1, rayIsect);
+		TestSampleImportanceSampleBRDF(scene, rendererRT->GetAccelerator(), viewRay, 1, rayIsect);
+	}
+}
+
 void DrawCoordinate(const jade::Camera* camera, jade::Renderer* renderer)
 {
 	Vector3 origin(0, 0, 0);
@@ -434,6 +698,7 @@ void LoadResources()
 	TestSampleDisk();
 
 
+
 	Matrix4x4 flipMatrix = Matrix4x4(		
 		1.f, 0, 0, 0,
 		0, 0, -1.f, 0,
@@ -448,11 +713,11 @@ void LoadResources()
 	std::vector<jade::Primitive* > primitiveList, primitiveList2, primitiveList3;
 	ObjMesh objMesh, objMesh2, objMesh3;
 	//objMesh.Load("data/sponza/sponza.obj");
-	objMesh2.Load("data/db5/db5.obj");
-	objMesh3.Load("data/sphere.obj");
+	//objMesh2.Load("data/db5/db5.obj");
+	//objMesh3.Load("data/sphere.obj");
 	//jade::LoadFromObjMesh(objMesh, device, texManager,  flipMatrix, texflipMatrix, primitiveList);
-	jade::LoadFromObjMesh(objMesh2, device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList2);
-	jade::LoadFromObjMesh(objMesh3, device, texManager, Translate(Vector3(-200, 0, 400)) * Scale(Vector3(40, 40, 40)), texflipMatrix, primitiveList3);
+	//jade::LoadFromObjMesh(objMesh2, device, texManager, Translate(Vector3(0, 0, 15)) * Scale(Vector3(80, 80, 80)), texflipMatrix, primitiveList2);
+	//jade::LoadFromObjMesh(objMesh3, device, texManager, Translate(Vector3(-200, 0, 400)) * Scale(Vector3(40, 40, 40)), texflipMatrix, primitiveList3);
 
 	//SetCastShadow(primitiveList);
 	SetCastShadow(primitiveList2);
@@ -465,8 +730,8 @@ void LoadResources()
 	scene->AddPrimitive(cubePrim);
 
 	//scene->AddPrimitives(primitiveList);
-	scene->AddPrimitives(primitiveList2);
-	scene->AddPrimitives(primitiveList3);
+	//scene->AddPrimitives(primitiveList2);
+	//scene->AddPrimitives(primitiveList3);
 
 
 	/*
@@ -489,6 +754,33 @@ void LoadResources()
 	jade::Light* pointLight2 = new jade::PointLight(Vector3(-200, 0, 100), 500 * Vector3(0.5, 0.5, 0.8), 20 );
 	//scene->AddLight(pointLight2);
 
+	jade::Primitive* cubePrimLight = CreateCube(texManager, Vector3(-50, 0, 40), Vector3(40.f), cubeMesh);
+	jade::Primitive* cubePrimLight2 = CreateCube(texManager, Vector3(20, 0, 10), Vector3(10.f), cubeMesh);
+	//TestSamplePrim(cubePrimLight);
+
+
+	jade::GeomAreaLight* areaLight = new jade::GeomAreaLight(Vector3(0.8, 0.2, 0.2), cubePrimLight);
+	jade::GeomAreaLight* areaLight2 = new jade::GeomAreaLight(Vector3(0.2, 0.5, 0.2), cubePrimLight2);
+
+	jade::RNG rng;
+
+	for(int i = 0; i < numTestSamples; i++)
+	{
+		Vector3 normal;
+		samples3D[i] = areaLight->sampler.Sample(rng.RandomFloat(), rng.RandomFloat(), rng.RandomFloat(), normal);
+		samplePointSize = 1.f;
+	}
+
+	scene->AddLight(areaLight);
+	scene->AddLight(areaLight2);
+
+	scene->AddPrimitive(cubePrim);
+
+	rendererRT->GetAccelerator()->Build(scene);
+	viewRay = jade::Ray(camera.position, camera.lookat);
+	TestSampleDirectLighting(scene, rendererRT->GetAccelerator(), viewRay,rayIsect);
+	TestSampleImportanceSampleLight(scene, rendererRT->GetAccelerator(), viewRay, 1, rayIsect);
+	TestSampleImportanceSampleBRDF(scene, rendererRT->GetAccelerator(), viewRay, 1, rayIsect);
 }
 
 void UnloadResources()
@@ -502,8 +794,8 @@ void Render(double frameTime)
 	renderer->Render(&camera, scene);
 
 	Vector3 offset = Vector3(0.f);
-	Draw3DSamples(renderer, &camera, offset, samples3D, numTestSamples);
-
+	//Draw3DSamples(renderer, &camera, offset, samples3D, numTestSamples);
+	DrawLightSample(renderer, &camera, viewRay, rayIsect);
     SwapBuffers(window.hdc);
 }
 

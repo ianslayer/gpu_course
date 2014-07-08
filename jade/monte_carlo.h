@@ -2,8 +2,8 @@
 #define MONTE_CARLO_H
 
 #include "../vector.h"
+#include "jade_math.h"
 #include <vector>
-
 namespace jade
 {
 	Vector3 UniformSampleHemisphere(float u1, float u2);
@@ -26,6 +26,10 @@ namespace jade
 		ret.y = xy.y;
 		ret.z = sqrtf(std::max(0.f, 1.f - ret.x*ret.x - ret.y*ret.y));
 		return ret;
+	}
+
+	inline float CosineHemispherePdf(float costheta, float phi) {
+		return costheta   / M_PI;
 	}
 
 	Vector2 UniformSampleTriangle(float u1, float u2);

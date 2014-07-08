@@ -88,7 +88,8 @@ namespace jade
 			(2.f * M_PI * 4.f * dot(wo, wh));
 		if (dot(wo, wh) <= 0.f) 
 			blinn_pdf = 0.f;
-
+		if(isinf(blinn_pdf))
+			blinn_pdf = 0.f;
 		pdf = blinn_pdf;
 		
 	}
